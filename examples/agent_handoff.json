@@ -1,0 +1,448 @@
+{
+  "as_of": "2026-05-13",
+  "commands_to_run_next": [
+    {
+      "command": "python -m market_catalyst_calendar validate --profile public --input examples/demo_records.json --as-of 2026-05-13 > reports/validate_public.json || test $? -eq 1",
+      "id": "validate-public",
+      "output_path": "reports/validate_public.json",
+      "reason": "Refresh release diagnostics before trusting the handoff."
+    },
+    {
+      "command": "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13 > reports/quality_gate.json || test $? -eq 1",
+      "id": "quality-gate",
+      "output_path": "reports/quality_gate.json",
+      "reason": "Collect blocking publication and evidence issues."
+    },
+    {
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --fresh-after-days 14 > reports/source_pack.json",
+      "id": "source-pack",
+      "output_path": "reports/source_pack.json",
+      "reason": "Give the research agent the deduplicated URL collection queue."
+    },
+    {
+      "command": "python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45 --stale-after-days 14 --format markdown > reports/review_plan.md",
+      "id": "review-plan",
+      "output_path": "reports/review_plan.md",
+      "reason": "Turn stale and high-urgency catalysts into analyst actions."
+    },
+    {
+      "command": "python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --stale-after-days 14 --format markdown > reports/decision_log.md",
+      "id": "decision-log",
+      "output_path": "reports/decision_log.md",
+      "reason": "Prepare decision memo stubs for the forward window."
+    },
+    {
+      "command": "python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker PFE --days 45 --format markdown > reports/drilldown_pfe.md",
+      "id": "drilldown-PFE",
+      "output_path": "reports/drilldown_pfe.md",
+      "reason": "Create a single-name dossier for one of the handoff priorities."
+    },
+    {
+      "command": "python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker SPY --days 45 --format markdown > reports/drilldown_spy.md",
+      "id": "drilldown-SPY",
+      "output_path": "reports/drilldown_spy.md",
+      "reason": "Create a single-name dossier for one of the handoff priorities."
+    },
+    {
+      "command": "python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown > reports/drilldown_nvda.md",
+      "id": "drilldown-NVDA",
+      "output_path": "reports/drilldown_nvda.md",
+      "reason": "Create a single-name dossier for one of the handoff priorities."
+    }
+  ],
+  "dataset_summary": {
+    "broker_view_count": 4,
+    "completed_or_cancelled_count": 1,
+    "event_type_counts": {
+      "earnings": 1,
+      "macro_release": 1,
+      "product_launch": 1,
+      "regulatory_decision": 1
+    },
+    "missing_evidence_freshness_count": 1,
+    "open_record_count": 3,
+    "record_count": 4,
+    "source_url_count": 11,
+    "stale_evidence_count": 1,
+    "stale_review_count": 1,
+    "status_counts": {
+      "completed": 1,
+      "confirmed": 1,
+      "scheduled": 1,
+      "watching": 1
+    },
+    "thesis_ids": [
+      "ai-infrastructure-capex",
+      "pharma-pipeline-reset",
+      "rates-duration-risk"
+    ],
+    "tickers": [
+      "MSFT",
+      "NVDA",
+      "PFE",
+      "SPY"
+    ],
+    "upcoming_record_count": 3,
+    "urgency_counts": {
+      "closed": 1,
+      "high": 1,
+      "medium": 2
+    }
+  },
+  "generated_by": "market-catalyst-calendar agent-handoff",
+  "handoff_objective": "Refresh stale evidence, verify top catalyst risks, and prepare the next investment research packet without fetching or inventing sources inside this handoff.",
+  "parameters": {
+    "dataset_path": "examples/demo_records.json",
+    "days": 45,
+    "fresh_after_days": 14,
+    "output_dir": "reports",
+    "stale_after_days": 14,
+    "top_limit": 5
+  },
+  "schema_version": "agent-handoff/v1",
+  "source_urls": [
+    {
+      "broker_institutions": [],
+      "freshness_age_days": "missing",
+      "freshness_state": "missing",
+      "latest_checked_at": "missing",
+      "record_ids": [
+        "demo-fomc-june-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "rates-duration-risk"
+      ],
+      "tickers": [
+        "SPY"
+      ],
+      "url": "https://example.com/fomc-calendar"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 15,
+      "freshness_state": "stale",
+      "latest_checked_at": "2026-04-28",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/fda-calendar"
+    },
+    {
+      "broker_institutions": [
+        "Metro Capital Markets"
+      ],
+      "freshness_age_days": 38,
+      "freshness_state": "stale",
+      "latest_checked_at": "2026-04-05",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvda-broker-metro"
+    },
+    {
+      "broker_institutions": [
+        "Summit Research"
+      ],
+      "freshness_age_days": 33,
+      "freshness_state": "stale",
+      "latest_checked_at": "2026-04-10",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-broker-summit"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 15,
+      "freshness_state": "stale",
+      "latest_checked_at": "2026-04-28",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-pipeline-update"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 4,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-09",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/channel-check-gpu-supply"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 6,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-07",
+      "record_ids": [
+        "demo-msft-earnings-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "unmapped"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "url": "https://example.com/msft-q3-earnings"
+    },
+    {
+      "broker_institutions": [
+        "North Coast Securities"
+      ],
+      "freshness_age_days": 3,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-10",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvda-broker-north-coast"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 4,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-09",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvidia-computex-keynote"
+    },
+    {
+      "broker_institutions": [
+        "Harbor Life Sciences"
+      ],
+      "freshness_age_days": 12,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-01",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-broker-harbor"
+    },
+    {
+      "broker_institutions": [],
+      "freshness_age_days": 6,
+      "freshness_state": "fresh",
+      "latest_checked_at": "2026-05-07",
+      "record_ids": [
+        "demo-msft-earnings-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "unmapped"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "url": "https://ir.example.org/msft-q3-transcript"
+    }
+  ],
+  "stale_items": [
+    {
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_age_days": 15,
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "next_action": "Verify downside estimate, update risk budget, and escalate before the event window.",
+      "required_review_action": "verify_source",
+      "review_age_days": 15,
+      "review_state": "stale",
+      "status": "watching",
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_age_days": "missing",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "id": "demo-fomc-june-2026",
+      "next_action": "Verify downside estimate, update risk budget, and escalate before the event window.",
+      "required_review_action": "monitor_date",
+      "review_age_days": 5,
+      "review_state": "current",
+      "status": "confirmed",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    }
+  ],
+  "top_risks": [
+    {
+      "catalyst_score": 87,
+      "confidence": 0.68,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "expected_event_loss": 18931.2,
+      "id": "demo-pfe-fda-2026",
+      "max_loss": 32000.0,
+      "next_action": "Verify downside estimate, update risk budget, and escalate before the event window.",
+      "portfolio_weight": 0.031,
+      "rank": 1,
+      "review_state": "stale",
+      "risk_budget": 25000.0,
+      "risk_flags": [
+        "stale_review",
+        "stale_evidence",
+        "over_budget",
+        "review_action:verify_source"
+      ],
+      "source_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update",
+        "https://example.com/pfe-broker-summit",
+        "https://example.com/pfe-broker-harbor"
+      ],
+      "status": "watching",
+      "thesis_id": "pharma-pipeline-reset",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "catalyst_score": 83,
+      "confidence": 0.9,
+      "days_until": 35,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "expected_event_loss": 67230.0,
+      "id": "demo-fomc-june-2026",
+      "max_loss": 90000.0,
+      "next_action": "Verify downside estimate, update risk budget, and escalate before the event window.",
+      "portfolio_weight": 0.22,
+      "rank": 2,
+      "review_state": "current",
+      "risk_budget": 75000.0,
+      "risk_flags": [
+        "missing_evidence_freshness",
+        "over_budget",
+        "review_action:monitor_date"
+      ],
+      "source_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "status": "confirmed",
+      "thesis_id": "rates-duration-risk",
+      "ticker": "SPY",
+      "urgency": "medium",
+      "window": "2026-06-17"
+    },
+    {
+      "catalyst_score": 84,
+      "confidence": 0.74,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "expected_event_loss": 32323.2,
+      "id": "demo-nvda-computex-2026",
+      "max_loss": 52000.0,
+      "next_action": "Complete required review action `monitor_date`.",
+      "portfolio_weight": 0.0825,
+      "rank": 3,
+      "review_state": "current",
+      "risk_budget": 60000.0,
+      "risk_flags": [
+        "review_action:monitor_date"
+      ],
+      "source_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply",
+        "https://example.com/nvda-broker-metro",
+        "https://example.com/nvda-broker-north-coast"
+      ],
+      "status": "scheduled",
+      "thesis_id": "ai-infrastructure-capex",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "window": "2026-06-02"
+    }
+  ]
+}

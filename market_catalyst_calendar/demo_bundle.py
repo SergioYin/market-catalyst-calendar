@@ -7,11 +7,14 @@ from datetime import date
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Tuple
 
+from .agent_handoff import agent_handoff_json, agent_handoff_markdown
+from .command_cookbook import command_cookbook_markdown
 from .compare import compare_snapshots_json, compare_snapshots_markdown
 from .csv_io import csv_to_dataset_json, dataset_to_csv
 from .dashboard import html_dashboard
 from .demo import DEMO_DATA, DEMO_UPDATED_DATA
 from .evidence import evidence_audit_json, evidence_audit_markdown
+from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
 from .io import dump_json
 from .merge import merge_datasets_json
@@ -23,6 +26,8 @@ from .render import (
     broker_matrix_markdown,
     decision_log_json,
     decision_log_markdown,
+    drilldown_json,
+    drilldown_markdown,
     exposure_json,
     exposure_markdown,
     post_event_json,
@@ -80,9 +85,30 @@ def _bundle_files() -> Dict[str, str]:
     commands = _example_commands(base, updated)
 
     files = {f"examples/{path}": output() for path, _, output, _ in commands}
+    gallery = fixture_gallery_json(
+        files,
+        [(path, command, files[f"examples/{path}"], exit_code) for path, command, _, exit_code in commands],
+    )
+    files["examples/fixture_gallery.json"] = dump_json(gallery)
+    files["examples/fixture_gallery.md"] = fixture_gallery_markdown(gallery)
     files["README.md"] = _bundle_readme(commands)
     files["quickstart-transcript.txt"] = _quickstart_transcript(commands)
     return files
+
+
+def bundled_fixture_gallery_json() -> Dict[str, object]:
+    base = parse_dataset(DEMO_DATA)
+    updated = parse_dataset(DEMO_UPDATED_DATA)
+    commands = _example_commands(base, updated)
+    files = {f"examples/{path}": output() for path, _, output, _ in commands}
+    return fixture_gallery_json(
+        files,
+        [(path, command, files[f"examples/{path}"], exit_code) for path, command, _, exit_code in commands],
+    )
+
+
+def bundled_fixture_gallery_markdown() -> str:
+    return fixture_gallery_markdown(bundled_fixture_gallery_json())
 
 
 def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
@@ -199,13 +225,13 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
         ),
         (
             "quality_gate.json",
-            "quality-gate --input examples/demo_records.json --as-of 2026-05-13",
+            "quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
             lambda: dump_json(quality_gate_json(base.records, as_of, 2, 14, 14, 30)),
             1,
         ),
         (
             "quality_gate.md",
-            "quality-gate --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+            "quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
             lambda: quality_gate_markdown(base.records, as_of, 2, 14, 14, 30),
             1,
         ),
@@ -261,6 +287,76 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
             "decision_log.md",
             "decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
             lambda: decision_log_markdown(base.records, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS),
+            0,
+        ),
+        (
+            "drilldown.json",
+            "drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45",
+            lambda: dump_json(
+                drilldown_json(
+                    base.records,
+                    as_of,
+                    "NVDA",
+                    DEFAULT_DAYS,
+                    DEFAULT_STALE_AFTER_DAYS,
+                    DEFAULT_STALE_AFTER_DAYS,
+                    30,
+                    0,
+                )
+            ),
+            0,
+        ),
+        (
+            "drilldown.md",
+            "drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown",
+            lambda: drilldown_markdown(
+                base.records,
+                as_of,
+                "NVDA",
+                DEFAULT_DAYS,
+                DEFAULT_STALE_AFTER_DAYS,
+                DEFAULT_STALE_AFTER_DAYS,
+                30,
+                0,
+            ),
+            0,
+        ),
+        (
+            "command_cookbook.md",
+            "command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+            lambda: command_cookbook_markdown(base, as_of, "examples/demo_records.json", "reports", DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS),
+            0,
+        ),
+        (
+            "agent_handoff.json",
+            "agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+            lambda: dump_json(
+                agent_handoff_json(
+                    base,
+                    as_of,
+                    "examples/demo_records.json",
+                    "reports",
+                    DEFAULT_DAYS,
+                    DEFAULT_STALE_AFTER_DAYS,
+                    DEFAULT_STALE_AFTER_DAYS,
+                    5,
+                )
+            ),
+            0,
+        ),
+        (
+            "agent_handoff.md",
+            "agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+            lambda: agent_handoff_markdown(
+                base,
+                as_of,
+                "examples/demo_records.json",
+                "reports",
+                DEFAULT_DAYS,
+                DEFAULT_STALE_AFTER_DAYS,
+                DEFAULT_STALE_AFTER_DAYS,
+                5,
+            ),
             0,
         ),
         (
@@ -334,7 +430,7 @@ def _bundle_readme(commands: Iterable[CommandSpec]) -> str:
         "```bash",
         "python -m market_catalyst_calendar validate --input examples/demo_records.json",
         "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
-        "python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13",
+        "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
         "```",
         "",
         "## Example Outputs",
@@ -344,6 +440,8 @@ def _bundle_readme(commands: Iterable[CommandSpec]) -> str:
     ]
     for path, command, _, exit_code in commands:
         lines.append(f"| `examples/{path}` | `python -m market_catalyst_calendar {command}` | {exit_code} |")
+    lines.append("| `examples/fixture_gallery.json` | `python -m market_catalyst_calendar fixture-gallery` | 0 |")
+    lines.append("| `examples/fixture_gallery.md` | `python -m market_catalyst_calendar fixture-gallery --format markdown` | 0 |")
     lines.append("")
     return "\n".join(lines)
 
@@ -354,7 +452,7 @@ def _quickstart_transcript(commands: List[CommandSpec]) -> str:
     quality_payload = quality_gate_json(parse_dataset(DEMO_DATA).records, DEFAULT_AS_OF, 2, 14, 14, 30)
     bundle_payload = {
         "bundle_dir": "demo-bundle",
-        "file_count": len(commands) + 2,
+        "file_count": len(commands) + 4,
         "manifest": "manifest.json",
         "ok": True,
     }
@@ -366,7 +464,7 @@ def _quickstart_transcript(commands: List[CommandSpec]) -> str:
         dump_json(validate_payload).rstrip(),
         "$ python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
         outputs["upcoming.json"].rstrip(),
-        "$ python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13",
+        "$ python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
         dump_json(quality_payload).rstrip(),
         "# exit code: 1",
     ]

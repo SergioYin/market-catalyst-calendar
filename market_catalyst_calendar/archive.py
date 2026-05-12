@@ -7,6 +7,7 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+from .command_cookbook import command_cookbook_markdown
 from .csv_io import dataset_to_csv
 from .dashboard import html_dashboard
 from .evidence import evidence_audit_json, evidence_audit_markdown
@@ -83,6 +84,7 @@ def create_archive(
         "reports/brief.md": brief_markdown(upcoming, as_of),
         "reports/broker_matrix.json": dump_json(broker_matrix_json(dataset.records, as_of, 30)),
         "reports/broker_matrix.md": broker_matrix_markdown(dataset.records, as_of, 30),
+        "reports/command_cookbook.md": command_cookbook_markdown(dataset, as_of, "dataset/dataset.json", "reports", days, stale_after_days),
         "reports/decision_log.json": dump_json(decision_log_json(dataset.records, as_of, days, stale_after_days)),
         "reports/decision_log.md": decision_log_markdown(dataset.records, as_of, days, stale_after_days),
         "reports/upcoming.ics": records_to_ics(upcoming, as_of),

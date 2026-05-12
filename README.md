@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, and packages portable archives with hash verification.
 
 ## Install
 
@@ -16,7 +16,7 @@ No runtime dependencies are required beyond the Python standard library.
 
 ```bash
 python -m market_catalyst_calendar export-demo --output examples/demo_records.json
-python -m market_catalyst_calendar validate --input examples/demo_records.json
+python -m market_catalyst_calendar validate --profile basic --input examples/demo_records.json
 python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar stale --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
@@ -34,8 +34,9 @@ python -m market_catalyst_calendar scenario-matrix --input examples/demo_records
 python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
-python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13
-python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar validate --profile public --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar quality-gate --profile strict --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13
@@ -45,6 +46,13 @@ python -m market_catalyst_calendar watchlist --input examples/demo_records.json 
 python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45
+python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown
+python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar fixture-gallery
+python -m market_catalyst_calendar fixture-gallery --format markdown
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25 --format markdown
 python -m market_catalyst_calendar export-demo --snapshot updated --output examples/demo_records_updated.json
@@ -58,6 +66,9 @@ python -m market_catalyst_calendar export-ics --input examples/demo_records.json
 python -m market_catalyst_calendar import-csv --input examples/demo_records.csv --output examples/imported_demo_records.json
 python -m market_catalyst_calendar create-archive --input examples/demo_records.json --output-dir archive/demo --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar verify-archive archive/demo
+python -m market_catalyst_calendar release-audit --root . --format markdown
+python -m market_catalyst_calendar changelog --since-tag v0.1.0 --format markdown
+python -m market_catalyst_calendar smoke-matrix --format markdown
 ```
 
 The installed script exposes the same interface:
@@ -187,7 +198,9 @@ Defaults are `--fresh-after-days 14`, `--min-sources 2`, and `--max-domain-share
 
 ## Quality Gate Workflow
 
-`quality-gate` applies stricter product rules for datasets intended to be used as public research inputs. It is offline and deterministic, but unlike `validate` it exits with status `1` when any record fails the publication gate.
+`validate` and `quality-gate` both support `--profile basic|public|strict`. `validate` defaults to `basic` for structural checks, while `quality-gate` defaults to `public` for publication readiness. `public` matches the checked-in release gate; `strict` tightens freshness windows, requires three evidence URLs, requires broker coverage, and requires release metadata fields (`sector`, `theme`, `thesis_id`, and `source_ref`). Both profile-aware commands emit stable diagnostic codes such as `MCC-QG-EVIDENCE-001` for downstream automation.
+
+`quality-gate` applies stricter product rules for datasets intended to be used as public research inputs. It is offline and deterministic, but unlike basic `validate` it exits with status `1` when any record fails the selected gate.
 
 The JSON and Markdown reports include only failing records and cover:
 
@@ -197,7 +210,7 @@ The JSON and Markdown reports include only failing records and cover:
 - `no_placeholder_urls`: no `example.*`, `.example`, localhost, sample, dummy, TODO, or TBD URLs in evidence or broker sources
 - `broker_caveats`: broker views have substantive caveats and are no older than `--max-broker-age-days`
 
-Defaults are two evidence URLs, 14 days for review and evidence freshness, and 30 days for broker views. Use this before publishing or handing a dataset to another agent that should treat the records as research-ready.
+Profile defaults are one evidence URL for `basic`; two evidence URLs, 14 days for review/evidence freshness, and 30 days for broker views for `public`; and three evidence URLs, 7 days for review/evidence freshness, 14 days for broker views, broker coverage, and release metadata for `strict`. The numeric thresholds can still be overridden with `--min-evidence-urls`, `--max-review-age-days`, `--max-evidence-age-days`, and `--max-broker-age-days`.
 
 ## Broker Matrix Workflow
 
@@ -228,6 +241,24 @@ JSON, CSV, and Markdown outputs include:
 
 Use JSON for automation, CSV for external source-collection work, and Markdown for analyst review packets.
 
+## Release Audit Workflow
+
+`release-audit` runs the offline release checks that keep the repository self-contained. It compares checked-in files under `examples/` with regenerated deterministic demo outputs, confirms the agent skill exists, checks that this README mentions the required commands, checks that `docs/SCHEMA.md` documents release-audit output fields, and fails if files exist under `.github/workflows`.
+
+The command emits JSON by default and Markdown with `--format markdown`. It exits `0` when every check passes and `1` when any release artifact is missing, stale, undocumented, or backed by a workflow file.
+
+## Changelog Workflow
+
+`changelog` summarizes local git commits after a tag into deterministic release notes without network calls. It shells out only to the local `git` executable, reads tags and commits from `--repo`, excludes merge commits by default, and writes Markdown by default or JSON with `--format json`.
+
+Use `--since-tag` to name the excluded starting tag, `--to-ref` to choose the included ending ref (default `HEAD`), and `--include-merges` when merge commits should appear. The JSON output groups commits by conventional-commit type, extracts scopes, breaking-change markers, and `#123` references, and includes the exact from/to SHAs plus tags reachable in the range.
+
+## Smoke Matrix Workflow
+
+`smoke-matrix` runs an internal offline smoke check for every CLI command against deterministic demo data. It creates a temporary demo workspace, executes stdout and file-writing commands, accepts expected nonzero exits such as the public `quality-gate` failure, verifies expected output files, and includes a probe check for `smoke-matrix` itself without recursively running the full matrix.
+
+The JSON and Markdown reports include pass/fail status, actual and expected exit codes, expected files, and coarse duration buckets such as `lt_250ms`, `lt_1s`, `lt_5s`, and `gte_5s`. Only bucket labels are reported, so output remains stable enough for automated checks while still surfacing slow smoke cases.
+
 ## Watchlist Workflow
 
 `watchlist` converts open catalysts into prioritized watch items for a forward window. It keeps the original catalyst links intact while adding workflow fields an analyst or downstream agent can act on.
@@ -257,6 +288,50 @@ JSON and Markdown outputs include, per catalyst:
 - blank decision slots and post-event review slots marked `TBD`
 
 Use Markdown when maintaining an analyst decision journal, and JSON when passing memo stubs to another offline process.
+
+## Ticker Drilldown Workflow
+
+`drilldown --ticker` renders a complete single-ticker dossier by filtering the dataset to one symbol and composing the existing analyst reports into one JSON or Markdown packet.
+
+The dossier includes:
+
+- a ticker record ledger and upcoming event section
+- thesis map, broker matrix, and risk-budget context for the selected ticker
+- watchlist items and decision-log memo stubs for open catalysts in the forward window
+- post-event outcome queue for completed or overdue events
+- deduplicated source pack for evidence and broker URLs
+
+Use JSON when handing the dossier to another offline process, and Markdown when preparing a single-name research packet. The command is deterministic and offline; it does not fetch sources or infer missing evidence.
+
+## Command Cookbook Workflow
+
+`command-cookbook` renders a deterministic Markdown analyst playbook from the dataset. It profiles available fields, selects the relevant report sequences, and writes step-by-step shell commands with expected output files.
+
+The cookbook always includes validation, quality-gate, evidence audit, core briefing, source-pack, and portable export sections. It conditionally adds:
+
+- exposure commands when `portfolio_weight` or `position_size` is present
+- risk-budget commands when `risk_budget` or `max_loss` is present
+- sector/theme commands when `sector` or `theme` is present
+- thesis, watchlist, and decision-log commands when `thesis_id` or `source_ref` is present
+- broker-matrix commands when `broker_views` is present
+- scenario-matrix commands when complete bull/base/bear scenario notes are present
+- post-event closeout commands when a catalyst is completed, past its event window, or has outcome metadata
+
+Use `--dataset-path` and `--output-dir` to control the paths shown in the generated command blocks without changing the input file being read.
+
+## Agent Handoff Workflow
+
+`agent-handoff` creates a compact context pack for a downstream investment research agent. It is deterministic and offline: it summarizes the dataset, ranks top risks, lists stale items, preserves source URLs, and emits commands the next agent should run.
+
+JSON and Markdown outputs include:
+
+- `dataset_summary` with record counts, open/upcoming counts, stale review and evidence counts, source URL count, broker view count, status/event/urgency counts, tickers, and thesis ids
+- `top_risks` ranked by catalyst score plus over-budget, stale evidence, stale review, missing freshness, and required-action flags
+- `stale_items` with review age, evidence age, required action, and evidence URLs
+- `commands_to_run_next` for validation, quality gate, source pack, review plan, decision log, and priority ticker drilldowns
+- `source_urls` with evidence/broker type, linked tickers, record ids, thesis ids, freshness state, latest checked date, and broker institutions
+
+Use JSON when handing work to another agent or script, and Markdown when attaching context to a human review note. Use `--dataset-path` and `--output-dir` to control generated command paths without changing the input file being read.
 
 ## Post-Event Workflow
 
@@ -344,6 +419,7 @@ Each event includes a stable UID derived from the catalyst id and event window, 
 - `reports/source_pack.json`, `reports/source_pack.csv`, and `reports/source_pack.md`
 - `reports/watchlist.json` and `reports/watchlist.md`
 - `reports/decision_log.json` and `reports/decision_log.md`
+- `reports/command_cookbook.md`
 - `reports/post_event.json` and `reports/post_event.md`
 - `reports/dashboard.html`
 - `reports/exposure.json` and `reports/exposure.md`
@@ -369,6 +445,12 @@ The bundle contains:
 - `manifest.json`: bundle metadata plus relative file paths, byte counts, SHA-256 hashes, command provenance, and expected exit codes
 
 Unlike `create-archive`, which packages one caller-supplied dataset snapshot, `demo-bundle` always uses the built-in demo data and includes every example output in the same shape as the checked-in `examples/` fixtures.
+
+## Fixture Gallery Workflow
+
+`fixture-gallery` lists the bundled deterministic example fixtures with their command provenance, expected exit code, output type, byte count, SHA-256 hash, input fixture references, and recommended use cases. It emits JSON by default and Markdown with `--format markdown`.
+
+Use it when choosing a regression fixture, auditing checked-in examples, or handing another agent a compact map of which fixture demonstrates which workflow.
 
 ## Scoring
 
@@ -403,6 +485,13 @@ Checked-in examples live in `examples/`:
 - `watchlist.md`: generated Markdown watchlist
 - `decision_log.json`: generated decision memo stubs
 - `decision_log.md`: generated Markdown decision log
+- `drilldown.json`: generated complete single-ticker dossier
+- `drilldown.md`: generated Markdown single-ticker dossier
+- `command_cookbook.md`: generated field-aware analyst command cookbook
+- `agent_handoff.json`: generated downstream research-agent context pack
+- `agent_handoff.md`: generated Markdown research-agent handoff
+- `fixture_gallery.json`: generated fixture index with hashes, provenance, output types, and use cases
+- `fixture_gallery.md`: generated Markdown fixture gallery
 - `post_event.json`: generated post-event outcome review queue
 - `post_event.md`: generated Markdown post-event outcome review template
 - `demo_records_updated.json`: deterministic second snapshot for compare examples
@@ -425,7 +514,7 @@ Demo bundle output is also intentionally not checked in; regenerate it with `dem
 python scripts/selfcheck.py
 ```
 
-The selfcheck runs unit tests, exports demo data to a temporary directory, validates it, creates and verifies an archive, creates a demo bundle, and verifies deterministic command output against checked-in examples.
+The selfcheck runs unit tests, exports demo data to a temporary directory, validates it, creates and verifies an archive, creates a demo bundle, checks the fixture gallery, runs the smoke matrix, and verifies deterministic command output against checked-in examples.
 
 ## Roadmap
 

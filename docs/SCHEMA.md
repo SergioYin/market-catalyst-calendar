@@ -93,8 +93,10 @@ JSON output is pretty-printed with two-space indentation, sorted object keys, UT
 `validate`
 
 - Input: dataset JSON.
-- Success: exit `0`, JSON object `{ "ok": true, "record_count": int }`.
-- Validation failure: exit `1`, JSON object `{ "ok": false, "errors": [string, ...] }`.
+- Parameters: `--profile basic|public|strict`, optional `--as-of` for profile gates.
+- Success: exit `0`, JSON object `{ "ok": true, "record_count": int }` for the default `basic` profile; profile-aware success also includes `profile` and `as_of`.
+- Validation failure: exit `1`, JSON object with `ok: false`, string `errors`, and structured `diagnostics` containing stable codes such as `MCC-VAL-EVIDENCE-002`.
+- Profiles: `basic` runs structural record validation; `public` adds publication quality-gate diagnostics; `strict` adds tighter release diagnostics for public datasets.
 
 `upcoming`
 
@@ -199,6 +201,40 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `record_count`, `flagged_record_count`, `flag_counts`, `severity_counts`.
 - Markdown: flagged record table plus action notes.
 
+`quality-gate`
+
+- Input: dataset JSON.
+- Parameters: `--profile basic|public|strict`, `--as-of`, optional threshold overrides `--min-evidence-urls`, `--max-review-age-days`, `--max-evidence-age-days`, `--max-broker-age-days`, and `--format json|markdown`.
+- Exit status: `0` when the selected profile passes, `1` when JSON/Markdown diagnostics are produced but the selected profile fails.
+- Profiles: `basic` checks required scenario presence and at least one evidence URL; `public` requires publication freshness, substantive scenarios, no placeholder URLs, and broker caveats; `strict` requires three evidence URLs, 7-day review/evidence freshness, 14-day broker freshness, broker coverage, and release metadata.
+- JSON: `{ "as_of": date, "ok": bool, "policy": object, "records": [failing_record, ...], "summary": object }`.
+- Issue fields: `code`, `rule`, `severity`, and `detail`.
+- Summary fields: `record_count`, `failed_record_count`, `rule_counts`, and `severity_counts`.
+- Markdown: status block plus a failing-record table with diagnostic codes and per-record next actions.
+
+`release-audit`
+
+- Input: repository files only; no dataset JSON is required.
+- Parameters: optional `--root` and `--format json|markdown`.
+- Exit status: `0` when all release checks pass, `1` when any checked artifact is stale, missing, undocumented, incomplete, or a workflow file is present.
+- Checks: regenerated `examples/` fixtures, README command coverage, schema field coverage, skill presence, and absence of `.github/workflows` files.
+- JSON: `{ "schema_version": "release-audit/v1", "ok": bool, "root": string, "checks": [check, ...], "summary": object }`.
+- Top-level fields: `schema_version`, `ok`, `root`, `checks`, and `summary`.
+- Check fields: `id`, `status`, `detail`, `expected_count`, `checked_count`, `missing`, `extra`, `mismatches`, `required_commands`, `missing_commands`, `required_fields`, `missing_fields`, and `workflow_files` as applicable to the check.
+- Summary fields: `check_count`, `passed_count`, and `failed_count`.
+- Markdown: status block, check table, and failure detail lists.
+
+`changelog`
+
+- Input: local git repository only; no dataset JSON or network access is used.
+- Parameters: required `--since-tag`, optional `--repo`, `--to-ref`, `--include-merges`, `--format json|markdown`, and `--output`.
+- Range: `since_tag..to_ref`, where the starting tag is excluded and the ending ref is included. Merge commits are excluded unless `--include-merges` is set.
+- JSON: `{ "schema_version": "changelog/v1", "repo": string, "since_tag": string, "to_ref": string, "from_sha": string, "to_sha": string, "range": string, "include_merges": bool, "commit_count": int, "tag_count": int, "tags_in_range": [string, ...], "tags_on_target": [string, ...], "breaking_change_count": int, "breaking_changes": [commit, ...], "categories": [category, ...], "commits": [commit, ...] }`.
+- Commit fields: `hash`, `short_hash`, `date`, `author`, `subject`, `type`, `scope`, `description`, `category`, `breaking`, and `references`.
+- Category fields: `id`, `title`, and `commits`.
+- Conventional commit types are grouped into `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`, `revert`, and `other`.
+- Markdown: release-note header with range, from/to SHAs, commit count, optional target tags, breaking changes, and non-empty category sections.
+
 `broker-matrix`
 
 - JSON: `{ "as_of": date, "stale_after_days": int, "groups": [group, ...], "summary": object }`.
@@ -214,6 +250,17 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `source_count`, `evidence_source_count`, `broker_source_count`, `stale_source_count`, `missing_freshness_count`, `usage_count`.
 - CSV: same source inventory with stable columns `url,source_types,usage_count,tickers,thesis_ids,record_ids,evidence_checked_at,freshness_age_days,freshness_state,broker_institutions,broker_as_of_dates`.
 - Markdown: source inventory table.
+
+`agent-handoff`
+
+- JSON: `{ "schema_version": "agent-handoff/v1", "as_of": date, "generated_by": string, "handoff_objective": string, "parameters": object, "dataset_summary": object, "top_risks": [risk, ...], "stale_items": [item, ...], "commands_to_run_next": [command, ...], "source_urls": [source, ...] }`.
+- Parameters: `--days`, `--stale-after-days`, `--fresh-after-days`, `--top-limit`, `--dataset-path`, `--output-dir`, and `--format json|markdown`.
+- Dataset summary fields: `record_count`, `open_record_count`, `upcoming_record_count`, `completed_or_cancelled_count`, `stale_review_count`, `stale_evidence_count`, `missing_evidence_freshness_count`, `source_url_count`, `broker_view_count`, `status_counts`, `event_type_counts`, `urgency_counts`, `tickers`, and `thesis_ids`.
+- Risk fields: `rank`, `id`, `ticker`, `entity`, `event_type`, `window`, `status`, `thesis_id`, `catalyst_score`, `urgency`, `review_state`, `days_until`, `confidence`, `portfolio_weight`, `risk_budget`, `max_loss`, `expected_event_loss`, `risk_flags`, `next_action`, and `source_urls`.
+- Stale item fields: `id`, `ticker`, `entity`, `event_type`, `window`, `status`, `review_state`, `review_age_days`, `evidence_age_days`, `required_review_action`, `next_action`, and `evidence_urls`.
+- Command fields: `id`, `command`, `output_path`, and `reason`.
+- Source URL fields: `url`, `source_types`, `tickers`, `record_ids`, `thesis_ids`, `freshness_state`, `freshness_age_days`, `latest_checked_at`, and `broker_institutions`.
+- Markdown: context summary, top-risk table, stale item table, command block, and source URL table.
 
 `watchlist`
 

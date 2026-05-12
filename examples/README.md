@@ -33,8 +33,8 @@ All examples use these stable dates:
 | `scenario_matrix.md` | `scenario-matrix --format markdown` | Markdown matrix of the same scenario set. |
 | `evidence_audit.json` | `evidence-audit` | Evidence freshness, source-count, and source-concentration findings. |
 | `evidence_audit.md` | `evidence-audit --format markdown` | Markdown audit packet for human review. |
-| `quality_gate.json` | `quality-gate` | Public research dataset quality gate with fail/pass status and blocking rule findings. |
-| `quality_gate.md` | `quality-gate --format markdown` | Markdown rendering of the same public research quality gate. |
+| `quality_gate.json` | `quality-gate --profile public` | Public research dataset quality gate with fail/pass status, rule findings, and diagnostic codes. |
+| `quality_gate.md` | `quality-gate --profile public --format markdown` | Markdown rendering of the same public research quality gate. |
 | `broker_matrix.json` | `broker-matrix` | Broker view dispersion, stale broker source flags, and linked catalysts. |
 | `broker_matrix.md` | `broker-matrix --format markdown` | Markdown broker matrix and per-view details. |
 | `source_pack.json` | `source-pack` | Deduplicated evidence and broker source inventory. |
@@ -44,6 +44,13 @@ All examples use these stable dates:
 | `watchlist.md` | `watchlist --format markdown` | Markdown watch queue and trigger details. |
 | `decision_log.json` | `decision-log` | Decision memo stubs for upcoming open catalysts. |
 | `decision_log.md` | `decision-log --format markdown` | Markdown decision journal stubs. |
+| `drilldown.json` | `drilldown --ticker NVDA` | Complete single-ticker dossier combining events, thesis, brokers, risk, watch items, source pack, post-event queue, and decision logs. |
+| `drilldown.md` | `drilldown --ticker NVDA --format markdown` | Markdown rendering of the single-ticker drilldown dossier. |
+| `command_cookbook.md` | `command-cookbook` | Field-aware Markdown command cookbook with selected report sequences and expected output files. |
+| `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
+| `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
+| `fixture_gallery.json` | `fixture-gallery` | Machine-readable index of bundled fixtures with provenance, hashes, output types, and recommended use cases. |
+| `fixture_gallery.md` | `fixture-gallery --format markdown` | Analyst-readable fixture gallery for selecting examples and regression fixtures. |
 | `post_event.json` | `post-event` | Outcome review queue after selected catalyst windows have passed. |
 | `post_event.md` | `post-event --format markdown` | Markdown post-event review templates. |
 | `demo_records_updated.json` | `export-demo --snapshot updated` | Second deterministic input dataset for snapshot comparison examples. |
@@ -96,10 +103,10 @@ python -m market_catalyst_calendar evidence-audit --input examples/demo_records.
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 # fixture: examples/quality_gate.json
 # exit-code: 1
-python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13
 # fixture: examples/quality_gate.md
 # exit-code: 1
-python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 # fixture: examples/broker_matrix.json
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 # fixture: examples/broker_matrix.md
@@ -118,6 +125,20 @@ python -m market_catalyst_calendar watchlist --input examples/demo_records.json 
 python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/decision_log.md
 python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+# fixture: examples/drilldown.json
+python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45
+# fixture: examples/drilldown.md
+python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown
+# fixture: examples/command_cookbook.md
+python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45
+# fixture: examples/agent_handoff.json
+python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
+# fixture: examples/agent_handoff.md
+python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+# fixture: examples/fixture_gallery.json
+python -m market_catalyst_calendar fixture-gallery
+# fixture: examples/fixture_gallery.md
+python -m market_catalyst_calendar fixture-gallery --format markdown
 # fixture: examples/post_event.json
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
 # fixture: examples/post_event.md

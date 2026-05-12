@@ -866,6 +866,136 @@ def post_event_markdown(
     return "\n".join(lines)
 
 
+def drilldown_json(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    ticker: str,
+    days: int,
+    stale_after_days: int,
+    fresh_after_days: int,
+    broker_stale_after_days: int,
+    review_after_days: int,
+) -> Dict[str, object]:
+    normalized_ticker = ticker.upper()
+    ticker_records = [record for record in sorted_records(records) if record.ticker == normalized_ticker]
+    upcoming = [
+        record
+        for record in ticker_records
+        if record.status not in {"completed", "cancelled"} and 0 <= (record.window.start - as_of).days <= days
+    ]
+    component_payloads = {
+        "upcoming_events": records_json(upcoming, as_of),
+        "thesis_map": thesis_map_json(ticker_records, as_of, stale_after_days),
+        "broker_matrix": broker_matrix_json(ticker_records, as_of, broker_stale_after_days),
+        "risk_budget": risk_budget_json(upcoming, as_of),
+        "watchlist": watchlist_json(ticker_records, as_of, days, stale_after_days),
+        "post_event_queue": post_event_json(ticker_records, as_of, review_after_days),
+        "source_pack": source_pack_json(ticker_records, as_of, fresh_after_days),
+        "decision_logs": decision_log_json(ticker_records, as_of, days, stale_after_days),
+    }
+    latest_window = max((record.window.end for record in ticker_records), default=None)
+    return {
+        "as_of": as_of.isoformat(),
+        "ticker": normalized_ticker,
+        "parameters": {
+            "broker_stale_after_days": broker_stale_after_days,
+            "days": days,
+            "fresh_after_days": fresh_after_days,
+            "review_after_days": review_after_days,
+            "stale_after_days": stale_after_days,
+        },
+        "summary": {
+            "broker_view_count": sum(len(record.broker_views) for record in ticker_records),
+            "decision_memo_count": component_payloads["decision_logs"]["summary"]["memo_count"],  # type: ignore[index]
+            "latest_window_end": latest_window.isoformat() if latest_window is not None else "none",
+            "post_event_queue_count": component_payloads["post_event_queue"]["summary"]["item_count"],  # type: ignore[index]
+            "record_count": len(ticker_records),
+            "source_count": component_payloads["source_pack"]["summary"]["source_count"],  # type: ignore[index]
+            "upcoming_event_count": len(upcoming),
+            "watch_item_count": component_payloads["watchlist"]["summary"]["item_count"],  # type: ignore[index]
+        },
+        "records": [record_to_json(record, as_of) for record in ticker_records],
+        "dossier": component_payloads,
+    }
+
+
+def drilldown_markdown(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    ticker: str,
+    days: int,
+    stale_after_days: int,
+    fresh_after_days: int,
+    broker_stale_after_days: int,
+    review_after_days: int,
+) -> str:
+    payload = drilldown_json(records, as_of, ticker, days, stale_after_days, fresh_after_days, broker_stale_after_days, review_after_days)
+    summary = payload["summary"]  # type: ignore[index]
+    ticker_records = [record for record in sorted_records(records) if record.ticker == payload["ticker"]]
+    upcoming = [
+        record
+        for record in ticker_records
+        if record.status not in {"completed", "cancelled"} and 0 <= (record.window.start - as_of).days <= days
+    ]
+    lines = [
+        f"# {payload['ticker']} Catalyst Drilldown",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Scope: single-ticker dossier for the next {days} days; stale after {stale_after_days} days.",
+        "",
+        "| Metric | Value |",
+        "| --- | ---: |",
+        f"| Records | {summary['record_count']} |",
+        f"| Upcoming events | {summary['upcoming_event_count']} |",
+        f"| Broker views | {summary['broker_view_count']} |",
+        f"| Sources | {summary['source_count']} |",
+        f"| Watch items | {summary['watch_item_count']} |",
+        f"| Decision memos | {summary['decision_memo_count']} |",
+        f"| Post-event queue | {summary['post_event_queue_count']} |",
+        "",
+    ]
+    if not ticker_records:
+        lines.extend(["No records found for this ticker.", ""])
+        return "\n".join(lines)
+
+    lines.extend(["## Record Ledger", ""])
+    lines.extend(["| Score | Window | Event | Status | Review | Impact | Thesis |", "| ---: | --- | --- | --- | --- | --- | --- |"])
+    for record in sorted(ticker_records, key=lambda item: (-score_record(item, as_of).catalyst_score, item.window.start, item.record_id)):
+        score = score_record(record, as_of, stale_after_days=stale_after_days)
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(score.catalyst_score),
+                    record.window.label,
+                    record.event_type.replace("_", " "),
+                    record.status,
+                    score.review_state,
+                    record.thesis_impact,
+                    record.thesis_id or "unmapped",
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+
+    sections = [
+        ("Upcoming Events", brief_markdown(upcoming, as_of, title=f"{payload['ticker']} Upcoming Events")),
+        ("Thesis Map", thesis_map_markdown(ticker_records, as_of, stale_after_days)),
+        ("Broker Matrix", broker_matrix_markdown(ticker_records, as_of, broker_stale_after_days)),
+        ("Risk Budget", risk_budget_markdown(upcoming, as_of)),
+        ("Watchlist", watchlist_markdown(ticker_records, as_of, days, stale_after_days)),
+        ("Post-Event Queue", post_event_markdown(ticker_records, as_of, review_after_days)),
+        ("Source Pack", source_pack_markdown(ticker_records, as_of, fresh_after_days)),
+        ("Decision Logs", decision_log_markdown(ticker_records, as_of, days, stale_after_days)),
+    ]
+    for title, section in sections:
+        lines.extend([f"## {title}", ""])
+        lines.extend(_demote_markdown_title(section).splitlines())
+        lines.append("")
+    return "\n".join(lines)
+
+
 def watchlist_json(
     records: Iterable[CatalystRecord],
     as_of: date,
@@ -2020,3 +2150,10 @@ def _format_target_range(group: Dict[str, object]) -> str:
 
 def _markdown_cell(value: str) -> str:
     return value.replace("\n", " ").replace("|", "\\|")
+
+
+def _demote_markdown_title(text: str) -> str:
+    lines = text.splitlines()
+    if lines and lines[0].startswith("# "):
+        lines = lines[2:] if len(lines) > 1 and lines[1] == "" else lines[1:]
+    return "\n".join("#" + line if line.startswith("#") else line for line in lines)

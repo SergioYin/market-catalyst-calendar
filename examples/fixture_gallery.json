@@ -1,0 +1,1060 @@
+{
+  "fixtures": [
+    {
+      "bytes": 6771,
+      "command": "python -m market_catalyst_calendar export-demo",
+      "command_args": [
+        "export-demo"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/demo_records.json",
+      "recommended_use_cases": [
+        "Start from a deterministic catalyst dataset.",
+        "Smoke-test validation, scoring, and report commands."
+      ],
+      "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+    },
+    {
+      "bytes": 3861,
+      "command": "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "upcoming",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/upcoming.json",
+      "recommended_use_cases": [
+        "List open catalysts in a forward window.",
+        "Test date-window filtering and deterministic score ordering."
+      ],
+      "sha256": "bfefef8050a1e37694d68339903282a1e1902bcd6c74473dec827e10b3e9dc1d"
+    },
+    {
+      "bytes": 1593,
+      "command": "python -m market_catalyst_calendar stale --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "stale",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/stale.json",
+      "recommended_use_cases": [
+        "List records whose review state is stale.",
+        "Use to seed evidence refresh or analyst review queues."
+      ],
+      "sha256": "a48095b11073803d590858312d4847bb434410b8b498159c064e912a4d051c3e"
+    },
+    {
+      "bytes": 1371,
+      "command": "python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "brief",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/brief.md",
+      "recommended_use_cases": [
+        "Review a concise analyst packet for upcoming catalysts.",
+        "Use as a Markdown snapshot in research notes or tickets."
+      ],
+      "sha256": "dbf0252cacd2df04047953477b93fbc1fff0dd468eea831a044e08d778465579"
+    },
+    {
+      "bytes": 1238,
+      "command": "python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "exposure",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/exposure.json",
+      "recommended_use_cases": [
+        "Aggregate portfolio exposure for upcoming catalysts.",
+        "Test weighted exposure calculations and grouped report rendering."
+      ],
+      "sha256": "5332b8522213a83d77db4280e8a9cc8a28fce7e252ba4e9ef59c71c32b096d76"
+    },
+    {
+      "bytes": 603,
+      "command": "python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "exposure",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/exposure.md",
+      "recommended_use_cases": [
+        "Aggregate portfolio exposure for upcoming catalysts.",
+        "Test weighted exposure calculations and grouped report rendering."
+      ],
+      "sha256": "b5d363ee9ced2aedfff8f69bb5b9134f7b7bf17629f5872f611125a8c17c3581"
+    },
+    {
+      "bytes": 3572,
+      "command": "python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "risk-budget",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/risk_budget.json",
+      "recommended_use_cases": [
+        "Compare event max-loss estimates against risk budgets.",
+        "Find over-budget catalysts before high-urgency events."
+      ],
+      "sha256": "85e34e4316e593de2f863ccb2d680bbdcad7606846256ff3645f26c35a985f5d"
+    },
+    {
+      "bytes": 926,
+      "command": "python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "risk-budget",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/risk_budget.md",
+      "recommended_use_cases": [
+        "Compare event max-loss estimates against risk budgets.",
+        "Find over-budget catalysts before high-urgency events."
+      ],
+      "sha256": "70559081dafa6bf925e7f88a75727b385969f27775945044bdbd8573fc873b56"
+    },
+    {
+      "bytes": 6896,
+      "command": "python -m market_catalyst_calendar sector-map --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "sector-map",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/sector_map.json",
+      "recommended_use_cases": [
+        "Group catalyst exposure by sector and theme.",
+        "Find concentration, stale evidence, and broker-dispersion clusters."
+      ],
+      "sha256": "4f63e3091978a673c5de14e5b1229e3708455f72bf594798609cd217181cb9fe"
+    },
+    {
+      "bytes": 1304,
+      "command": "python -m market_catalyst_calendar sector-map --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "sector-map",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/sector_map.md",
+      "recommended_use_cases": [
+        "Group catalyst exposure by sector and theme.",
+        "Find concentration, stale evidence, and broker-dispersion clusters."
+      ],
+      "sha256": "463e6cd8911c92cfff957cbc360eea772f7bf09263a1549d5596e47b7ddadb11"
+    },
+    {
+      "bytes": 1229,
+      "command": "python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "review-plan",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/review_plan.json",
+      "recommended_use_cases": [
+        "List stale and high-urgency records needing analyst action.",
+        "Use as a deterministic review checklist."
+      ],
+      "sha256": "32da9b6ce6a5982c55add00f735934d5e788a78c68db703289541dc9d7048b02"
+    },
+    {
+      "bytes": 807,
+      "command": "python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "review-plan",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/review_plan.md",
+      "recommended_use_cases": [
+        "List stale and high-urgency records needing analyst action.",
+        "Use as a deterministic review checklist."
+      ],
+      "sha256": "94b566c91c858829bb3f9f7b7775aac24532bd7fd692911b9198681e83843e7f"
+    },
+    {
+      "bytes": 1332,
+      "command": "python -m market_catalyst_calendar thesis-map --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "thesis-map",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/thesis_map.json",
+      "recommended_use_cases": [
+        "Group catalysts by investment thesis and source references.",
+        "Find stale or sparse support for a thesis."
+      ],
+      "sha256": "21656c1ec3cb9673d8353718e1a80a3d8c269d83a8ee6e34146cfd95d45adcc9"
+    },
+    {
+      "bytes": 670,
+      "command": "python -m market_catalyst_calendar thesis-map --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "thesis-map",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/thesis_map.md",
+      "recommended_use_cases": [
+        "Group catalysts by investment thesis and source references.",
+        "Find stale or sparse support for a thesis."
+      ],
+      "sha256": "2ba33fe8d536219e77c994d833bba294c3e4a2341de92b0d03afd6e96675fc3f"
+    },
+    {
+      "bytes": 3689,
+      "command": "python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "scenario-matrix",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/scenario_matrix.json",
+      "recommended_use_cases": [
+        "Review bull/base/bear event scenarios for upcoming catalysts.",
+        "Test scenario scores, dates, impacts, and Markdown tables."
+      ],
+      "sha256": "51d449cf7c53483f19dd9beb8798662a98103dad8cc8701d982bfbafea9b7f59"
+    },
+    {
+      "bytes": 1365,
+      "command": "python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "scenario-matrix",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/scenario_matrix.md",
+      "recommended_use_cases": [
+        "Review bull/base/bear event scenarios for upcoming catalysts.",
+        "Test scenario scores, dates, impacts, and Markdown tables."
+      ],
+      "sha256": "ca3f82dc602c911d615d071318d188bcfe40eb1af433b40702939c1ffe76f646"
+    },
+    {
+      "bytes": 2953,
+      "command": "python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "evidence-audit",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/evidence_audit.json",
+      "recommended_use_cases": [
+        "Find stale, thin, or concentrated evidence metadata.",
+        "Use before public handoff or source refresh work."
+      ],
+      "sha256": "977078f8ca4c10897b912ec28d53e2f89cf96d08ad2de9352bdd69ad816761f9"
+    },
+    {
+      "bytes": 1563,
+      "command": "python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "evidence-audit",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/evidence_audit.md",
+      "recommended_use_cases": [
+        "Find stale, thin, or concentrated evidence metadata.",
+        "Use before public handoff or source refresh work."
+      ],
+      "sha256": "070654151c93d67666332040e6bf87c436e6413e5bb0fbfb2dbfb25a9e981e61"
+    },
+    {
+      "bytes": 6316,
+      "command": "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "quality-gate",
+        "--profile",
+        "public",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 1,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/quality_gate.json",
+      "recommended_use_cases": [
+        "Exercise public research quality diagnostics and nonzero exits.",
+        "Use before publishing or handing off research fixtures."
+      ],
+      "sha256": "eb2268844dd6602a793cd1c7b3e62c976811ca66c52074f2a47e95e7429a33c0"
+    },
+    {
+      "bytes": 3928,
+      "command": "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "quality-gate",
+        "--profile",
+        "public",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 1,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/quality_gate.md",
+      "recommended_use_cases": [
+        "Exercise public research quality diagnostics and nonzero exits.",
+        "Use before publishing or handing off research fixtures."
+      ],
+      "sha256": "44717b8d6ca70ae186846bc2f0d786c59a819ce525ee9047c83ecc2f2b960f00"
+    },
+    {
+      "bytes": 3671,
+      "command": "python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "broker-matrix",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/broker_matrix.json",
+      "recommended_use_cases": [
+        "Inspect broker view dispersion and stale broker-source flags.",
+        "Compare sell-side assumptions against catalyst timing."
+      ],
+      "sha256": "c963e69b50181965736ba8935018ce0c38c4a08eac7efbfff3bf8c6d97f7bf08"
+    },
+    {
+      "bytes": 1457,
+      "command": "python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "broker-matrix",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/broker_matrix.md",
+      "recommended_use_cases": [
+        "Inspect broker view dispersion and stale broker-source flags.",
+        "Compare sell-side assumptions against catalyst timing."
+      ],
+      "sha256": "ae5ab28c6dc7707f976db64c2927338ab2f16a0ce1f1a43c02ca9a3c6cd386ff"
+    },
+    {
+      "bytes": 6402,
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "source-pack",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/source_pack.json",
+      "recommended_use_cases": [
+        "Export deduplicated evidence and broker source inventories.",
+        "Use for source collection, audit, or downstream handoff."
+      ],
+      "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94"
+    },
+    {
+      "bytes": 1566,
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --format csv",
+      "command_args": [
+        "source-pack",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "csv"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "csv",
+      "path": "examples/source_pack.csv",
+      "recommended_use_cases": [
+        "Export deduplicated evidence and broker source inventories.",
+        "Use for source collection, audit, or downstream handoff."
+      ],
+      "sha256": "fc6634f680e27d20fd3636b82b27c9434527ce681bc5c4014b3d2b55bf50e9e7"
+    },
+    {
+      "bytes": 1363,
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "source-pack",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/source_pack.md",
+      "recommended_use_cases": [
+        "Export deduplicated evidence and broker source inventories.",
+        "Use for source collection, audit, or downstream handoff."
+      ],
+      "sha256": "0cd02c8f70b1b8f321057fd8806bbf35c5b24ebd1b77d202b85c15aff8e848ec"
+    },
+    {
+      "bytes": 6836,
+      "command": "python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "watchlist",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/watchlist.json",
+      "recommended_use_cases": [
+        "Convert open catalysts into prioritized watch items.",
+        "Use for trigger, due-date, and cadence workflows."
+      ],
+      "sha256": "6ba1e1001eed110e3ce901d1b67f5c60b32faf3abee35a1adda1545167d1f289"
+    },
+    {
+      "bytes": 4704,
+      "command": "python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "watchlist",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/watchlist.md",
+      "recommended_use_cases": [
+        "Convert open catalysts into prioritized watch items.",
+        "Use for trigger, due-date, and cadence workflows."
+      ],
+      "sha256": "221c458506cac4df580078a3dc43da1a8ded52a0f4bcb6323e99500e77904fe0"
+    },
+    {
+      "bytes": 12444,
+      "command": "python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "decision-log",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/decision_log.json",
+      "recommended_use_cases": [
+        "Create pre-event decision memo stubs without inventing conclusions.",
+        "Seed human or agent decision journals."
+      ],
+      "sha256": "51e52df0cf03f1c409658a7f739eaee41cb5ec3e4f07d5bb2012de4b63fa5125"
+    },
+    {
+      "bytes": 7315,
+      "command": "python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "decision-log",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/decision_log.md",
+      "recommended_use_cases": [
+        "Create pre-event decision memo stubs without inventing conclusions.",
+        "Seed human or agent decision journals."
+      ],
+      "sha256": "857e24ea08ca100f2acdf12dc25b96e90eb9fb6cdb31f49b34b6771c9baf8296"
+    },
+    {
+      "bytes": 19498,
+      "command": "python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45",
+      "command_args": [
+        "drilldown",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--ticker",
+        "NVDA",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/drilldown.json",
+      "recommended_use_cases": [
+        "Inspect a complete single-ticker dossier.",
+        "Test composed reports that combine thesis, broker, risk, sources, and watch items."
+      ],
+      "sha256": "17a2a1b2ed2504b9f5e491bc0b7a340fcd0cab43fbc56ed59ff4c4dab473eced"
+    },
+    {
+      "bytes": 7870,
+      "command": "python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown",
+      "command_args": [
+        "drilldown",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--ticker",
+        "NVDA",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/drilldown.md",
+      "recommended_use_cases": [
+        "Inspect a complete single-ticker dossier.",
+        "Test composed reports that combine thesis, broker, risk, sources, and watch items."
+      ],
+      "sha256": "20b1838fbde5f48fb54ec0e2f952c1115152faa6e0e329fd389bff7d0cabf422"
+    },
+    {
+      "bytes": 11808,
+      "command": "python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "command-cookbook",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/command_cookbook.md",
+      "recommended_use_cases": [
+        "Show a field-aware report sequence for a dataset.",
+        "Use as an analyst runbook for reproducing fixture outputs."
+      ],
+      "sha256": "3cc6c1ab23900cd9baa6bd91348cffe2952ae212ed32db98deb155e4b303d53e"
+    },
+    {
+      "bytes": 13009,
+      "command": "python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "agent-handoff",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/agent_handoff.json",
+      "recommended_use_cases": [
+        "Hand compact context to a downstream research agent.",
+        "Audit the exact commands and source URLs an agent should preserve."
+      ],
+      "sha256": "2e12b696957c434e40f1bb0310b49a112601e47a7879dca51c548f4350c98e42"
+    },
+    {
+      "bytes": 3581,
+      "command": "python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "agent-handoff",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/agent_handoff.md",
+      "recommended_use_cases": [
+        "Hand compact context to a downstream research agent.",
+        "Audit the exact commands and source URLs an agent should preserve."
+      ],
+      "sha256": "b2a07d0943264d3ec26c0d596026de155148e5dd7fa332a1ff1a1f53ce53b069"
+    },
+    {
+      "bytes": 4548,
+      "command": "python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25",
+      "command_args": [
+        "post-event",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-06-25"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/post_event.json",
+      "recommended_use_cases": [
+        "Queue missing outcome capture after catalyst windows pass.",
+        "Use as a post-event review template."
+      ],
+      "sha256": "e763345775b25f8baa945fcd93adec052a50df48d14a45f15cd50f9317101a8e"
+    },
+    {
+      "bytes": 2532,
+      "command": "python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25 --format markdown",
+      "command_args": [
+        "post-event",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-06-25",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/post_event.md",
+      "recommended_use_cases": [
+        "Queue missing outcome capture after catalyst windows pass.",
+        "Use as a post-event review template."
+      ],
+      "sha256": "b593c05ac7b8cf018b24309e9fc1936b0ed9d010b00326af72d54d6759c9acd5"
+    },
+    {
+      "bytes": 7564,
+      "command": "python -m market_catalyst_calendar export-demo --snapshot updated",
+      "command_args": [
+        "export-demo",
+        "--snapshot",
+        "updated"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/demo_records_updated.json",
+      "recommended_use_cases": [
+        "Start from a deterministic catalyst dataset.",
+        "Smoke-test validation, scoring, and report commands."
+      ],
+      "sha256": "e9ddd7b4752b62f47e9a9c953e3c7ef8e21a49c08e276575a51222454497f967"
+    },
+    {
+      "bytes": 9757,
+      "command": "python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27",
+      "command_args": [
+        "compare",
+        "--base",
+        "examples/demo_records.json",
+        "--current",
+        "examples/demo_records_updated.json",
+        "--as-of",
+        "2026-05-27"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json",
+        "examples/demo_records_updated.json"
+      ],
+      "output_type": "json",
+      "path": "examples/compare.json",
+      "recommended_use_cases": [
+        "Review deterministic differences between base and updated snapshots.",
+        "Test changed-status, changed-evidence, and score-delta consumers."
+      ],
+      "sha256": "5b55087d78f9bc38b9158cb541049939b2f2e7abdec891e3778c20bad76d27d0"
+    },
+    {
+      "bytes": 2930,
+      "command": "python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown",
+      "command_args": [
+        "compare",
+        "--base",
+        "examples/demo_records.json",
+        "--current",
+        "examples/demo_records_updated.json",
+        "--as-of",
+        "2026-05-27",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json",
+        "examples/demo_records_updated.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/compare.md",
+      "recommended_use_cases": [
+        "Review deterministic differences between base and updated snapshots.",
+        "Test changed-status, changed-evidence, and score-delta consumers."
+      ],
+      "sha256": "ee0122d6f8eee39fcac5e19eeba52f9701ec3addafa23b5d0e1b631ca091b7ba"
+    },
+    {
+      "bytes": 12790,
+      "command": "python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27",
+      "command_args": [
+        "merge",
+        "examples/demo_records.json",
+        "examples/demo_records_updated.json",
+        "--as-of",
+        "2026-05-27"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json",
+        "examples/demo_records_updated.json"
+      ],
+      "output_type": "json",
+      "path": "examples/merge.json",
+      "recommended_use_cases": [
+        "Inspect deterministic multi-snapshot merge provenance and conflicts.",
+        "Test downstream handling of validation diagnostics in merged datasets."
+      ],
+      "sha256": "9e397173ad5375e9a83296db9d435dce63bce20b8433e9811745443a0e3ecd68"
+    },
+    {
+      "bytes": 15597,
+      "command": "python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "html-dashboard",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "html",
+      "path": "examples/dashboard.html",
+      "recommended_use_cases": [
+        "Review the static offline dashboard in a browser.",
+        "Test escaped no-JavaScript HTML report generation."
+      ],
+      "sha256": "a6c96ec8940e69aff13338b7ba954d96fb2963d4fbd4d53e26cba492c2fd2ed4"
+    },
+    {
+      "bytes": 4080,
+      "command": "python -m market_catalyst_calendar export-csv --input examples/demo_records.json",
+      "command_args": [
+        "export-csv",
+        "--input",
+        "examples/demo_records.json"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "csv",
+      "path": "examples/demo_records.csv",
+      "recommended_use_cases": [
+        "Validate spreadsheet-friendly export shape and encoded multi-value cells.",
+        "Test CSV consumers against stable column order."
+      ],
+      "sha256": "dc5ec8f07bd3128143b33181056d54bc9ef7bb60d98ec30ccc7b9a1ec7c91a6a"
+    },
+    {
+      "bytes": 2710,
+      "command": "python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "export-ics",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "ics",
+      "path": "examples/upcoming.ics",
+      "recommended_use_cases": [
+        "Load upcoming catalysts into calendar tooling.",
+        "Test deterministic iCalendar UID, date, and escaping behavior."
+      ],
+      "sha256": "604533d3294ed3170974d146c8c61c27ab93638d7f9967773a8d7c8d3768ae24"
+    },
+    {
+      "bytes": 6899,
+      "command": "python -m market_catalyst_calendar import-csv --input examples/demo_records.csv",
+      "command_args": [
+        "import-csv",
+        "--input",
+        "examples/demo_records.csv"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.csv"
+      ],
+      "output_type": "json",
+      "path": "examples/imported_demo_records.json",
+      "recommended_use_cases": [
+        "Validate CSV round trips back into catalyst JSON.",
+        "Test parser behavior for encoded multi-value cells."
+      ],
+      "sha256": "65698120b5c74f32e7d0d3c303459d06f214f5e4cf1c1ecc9787dd6c554f0be5"
+    }
+  ],
+  "schema_version": "fixture-gallery/v1",
+  "summary": {
+    "fixture_count": 44,
+    "output_type_counts": {
+      "csv": 2,
+      "html": 1,
+      "ics": 1,
+      "json": 22,
+      "markdown": 18
+    }
+  }
+}

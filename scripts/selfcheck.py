@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import shlex
+import os
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,84 @@ EXAMPLES_README = ROOT / "examples" / "README.md"
 
 def run(args):
     return subprocess.run(args, cwd=ROOT, text=True, capture_output=True, check=False)
+
+
+def run_git(repo: Path, args: List[str]) -> subprocess.CompletedProcess:
+    env = os.environ.copy()
+    env.update({
+        "GIT_AUTHOR_NAME": "Selfcheck",
+        "GIT_AUTHOR_EMAIL": "selfcheck@example.com",
+        "GIT_COMMITTER_NAME": "Selfcheck",
+        "GIT_COMMITTER_EMAIL": "selfcheck@example.com",
+        "GIT_AUTHOR_DATE": "2026-05-13T12:00:00+00:00",
+        "GIT_COMMITTER_DATE": "2026-05-13T12:00:00+00:00",
+    })
+    return subprocess.run(["git", *args], cwd=repo, text=True, capture_output=True, check=False, env=env)
+
+
+def check_changelog_command(tmp: Path) -> int:
+    repo = tmp / "changelog-repo"
+    repo.mkdir()
+    for args in [
+        ["init"],
+        ["config", "user.name", "Selfcheck"],
+        ["config", "user.email", "selfcheck@example.com"],
+    ]:
+        result = run_git(repo, args)
+        if result.returncode != 0:
+            sys.stderr.write(result.stdout)
+            sys.stderr.write(result.stderr)
+            return result.returncode
+    notes = repo / "notes.txt"
+    notes.write_text("base\n", encoding="utf-8")
+    for args in [["add", "notes.txt"], ["commit", "-m", "chore: initial release"], ["tag", "v0.1.0"]]:
+        result = run_git(repo, args)
+        if result.returncode != 0:
+            sys.stderr.write(result.stdout)
+            sys.stderr.write(result.stderr)
+            return result.returncode
+    notes.write_text("base\nfeature\n", encoding="utf-8")
+    for args in [["add", "notes.txt"], ["commit", "-m", "feat(cli): add changelog notes #7"]]:
+        result = run_git(repo, args)
+        if result.returncode != 0:
+            sys.stderr.write(result.stdout)
+            sys.stderr.write(result.stderr)
+            return result.returncode
+    changelog = run(
+        [
+            sys.executable,
+            "-m",
+            "market_catalyst_calendar",
+            "changelog",
+            "--repo",
+            str(repo),
+            "--since-tag",
+            "v0.1.0",
+            "--format",
+            "json",
+        ]
+    )
+    if changelog.returncode != 0 or '"schema_version": "changelog/v1"' not in changelog.stdout or '"commit_count": 1' not in changelog.stdout:
+        sys.stderr.write(changelog.stdout)
+        sys.stderr.write(changelog.stderr)
+        return changelog.returncode or 1
+    changelog_markdown = run(
+        [
+            sys.executable,
+            "-m",
+            "market_catalyst_calendar",
+            "changelog",
+            "--repo",
+            str(repo),
+            "--since-tag",
+            "v0.1.0",
+        ]
+    )
+    if changelog_markdown.returncode != 0 or "# Release Notes" not in changelog_markdown.stdout:
+        sys.stderr.write(changelog_markdown.stdout)
+        sys.stderr.write(changelog_markdown.stderr)
+        return changelog_markdown.returncode or 1
+    return 0
 
 
 def documented_example_commands() -> List[Tuple[List[str], Path, int]]:
@@ -116,6 +195,7 @@ def main() -> int:
             return result.returncode
 
     with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
         demo_path = Path(tmp) / "demo_records.json"
         export = run([sys.executable, "-m", "market_catalyst_calendar", "export-demo", "--output", str(demo_path)])
         if export.returncode != 0:
@@ -126,12 +206,32 @@ def main() -> int:
             sys.stderr.write(validate.stdout)
             sys.stderr.write(validate.stderr)
             return validate.returncode
+        validate_public = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "validate",
+                "--profile",
+                "public",
+                "--input",
+                str(demo_path),
+                "--as-of",
+                "2026-05-13",
+            ]
+        )
+        if validate_public.returncode != 1 or '"MCC-QG-EVIDENCE-001"' not in validate_public.stdout:
+            sys.stderr.write(validate_public.stdout)
+            sys.stderr.write(validate_public.stderr)
+            return validate_public.returncode or 1
         quality_gate = run(
             [
                 sys.executable,
                 "-m",
                 "market_catalyst_calendar",
                 "quality-gate",
+                "--profile",
+                "public",
                 "--input",
                 str(demo_path),
                 "--as-of",
@@ -158,6 +258,42 @@ def main() -> int:
             sys.stderr.write(sector_map.stdout)
             sys.stderr.write(sector_map.stderr)
             return sector_map.returncode
+        cookbook = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "command-cookbook",
+                "--input",
+                str(demo_path),
+                "--as-of",
+                "2026-05-13",
+            ]
+        )
+        if cookbook.returncode != 0 or "# Market Catalyst Command Cookbook" not in cookbook.stdout:
+            sys.stderr.write(cookbook.stdout)
+            sys.stderr.write(cookbook.stderr)
+            return cookbook.returncode or 1
+        drilldown = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "drilldown",
+                "--input",
+                str(demo_path),
+                "--as-of",
+                "2026-05-13",
+                "--ticker",
+                "NVDA",
+                "--days",
+                "45",
+            ]
+        )
+        if drilldown.returncode != 0 or '"ticker": "NVDA"' not in drilldown.stdout or '"decision_logs"' not in drilldown.stdout:
+            sys.stderr.write(drilldown.stdout)
+            sys.stderr.write(drilldown.stderr)
+            return drilldown.returncode or 1
         archive_dir = Path(tmp) / "archive"
         create_archive = run(
             [
@@ -205,15 +341,49 @@ def main() -> int:
             bundle_dir / "manifest.json",
             bundle_dir / "examples" / "demo_records.json",
             bundle_dir / "examples" / "quality_gate.json",
+            bundle_dir / "examples" / "command_cookbook.md",
+            bundle_dir / "examples" / "agent_handoff.json",
+            bundle_dir / "examples" / "agent_handoff.md",
+            bundle_dir / "examples" / "fixture_gallery.json",
+            bundle_dir / "examples" / "fixture_gallery.md",
+            bundle_dir / "examples" / "drilldown.json",
+            bundle_dir / "examples" / "drilldown.md",
             bundle_dir / "examples" / "dashboard.html",
         ]
         missing_bundle_files = [path.relative_to(bundle_dir).as_posix() for path in required_bundle_files if not path.is_file()]
         if missing_bundle_files:
             sys.stderr.write("demo bundle missing files: " + ", ".join(missing_bundle_files) + "\n")
             return 1
+        fixture_gallery = run([sys.executable, "-m", "market_catalyst_calendar", "fixture-gallery"])
+        if fixture_gallery.returncode != 0 or '"schema_version": "fixture-gallery/v1"' not in fixture_gallery.stdout:
+            sys.stderr.write(fixture_gallery.stdout)
+            sys.stderr.write(fixture_gallery.stderr)
+            return fixture_gallery.returncode or 1
+        smoke_matrix = run([sys.executable, "-m", "market_catalyst_calendar", "smoke-matrix"])
+        if smoke_matrix.returncode != 0 or '"schema_version": "smoke-matrix/v1"' not in smoke_matrix.stdout or '"ok": true' not in smoke_matrix.stdout:
+            sys.stderr.write(smoke_matrix.stdout)
+            sys.stderr.write(smoke_matrix.stderr)
+            return smoke_matrix.returncode or 1
         documented_result = validate_documented_examples()
         if documented_result != 0:
             return documented_result
+        release_audit = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "release-audit",
+                "--root",
+                str(ROOT),
+            ]
+        )
+        if release_audit.returncode != 0 or '"ok": true' not in release_audit.stdout:
+            sys.stderr.write(release_audit.stdout)
+            sys.stderr.write(release_audit.stderr)
+            return release_audit.returncode or 1
+        changelog_result = check_changelog_command(tmp_path)
+        if changelog_result != 0:
+            return changelog_result
     print("selfcheck ok")
     return 0
 

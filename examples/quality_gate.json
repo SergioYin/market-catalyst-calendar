@@ -5,13 +5,18 @@
     "max_broker_age_days": 30,
     "max_evidence_age_days": 14,
     "max_review_age_days": 14,
+    "min_broker_caveat_chars": 24,
     "min_evidence_urls": 2,
+    "min_scenario_note_chars": 24,
     "placeholder_hosts": [
       "example.com",
       "example.net",
       "example.org",
       "localhost"
     ],
+    "profile": "public",
+    "require_broker_views": false,
+    "require_release_metadata": false,
     "required_scenarios": [
       "bull",
       "base",
@@ -27,6 +32,7 @@
       "id": "demo-msft-earnings-2026",
       "issues": [
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/msft-q3-earnings is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
@@ -49,36 +55,43 @@
       "id": "demo-pfe-fda-2026",
       "issues": [
         {
+          "code": "MCC-QG-EVIDENCE-003",
           "detail": "evidence metadata is 15 days old; maximum is 14",
           "rule": "minimum_evidence",
           "severity": "high"
         },
         {
+          "code": "MCC-QG-REVIEW-002",
           "detail": "last review is 15 days old; maximum is 14",
           "rule": "review_freshness",
           "severity": "high"
         },
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/fda-calendar is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/pfe-pipeline-update is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-002",
           "detail": "broker URL for Summit Research (https://example.com/pfe-broker-summit) is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-002",
           "detail": "broker URL for Harbor Life Sciences (https://example.com/pfe-broker-harbor) is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-BROKER-004",
           "detail": "Summit Research broker view is 33 days old; maximum is 30",
           "rule": "broker_caveats",
           "severity": "medium"
@@ -99,26 +112,31 @@
       "id": "demo-nvda-computex-2026",
       "issues": [
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/nvidia-computex-keynote is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/channel-check-gpu-supply is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-002",
           "detail": "broker URL for Metro Capital Markets (https://example.com/nvda-broker-metro) is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-SOURCE-002",
           "detail": "broker URL for North Coast Securities (https://example.com/nvda-broker-north-coast) is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-BROKER-004",
           "detail": "Metro Capital Markets broker view is 38 days old; maximum is 30",
           "rule": "broker_caveats",
           "severity": "medium"
@@ -139,16 +157,19 @@
       "id": "demo-fomc-june-2026",
       "issues": [
         {
+          "code": "MCC-QG-EVIDENCE-001",
           "detail": "1 evidence URLs present; 2 required",
           "rule": "minimum_evidence",
           "severity": "critical"
         },
         {
+          "code": "MCC-QG-EVIDENCE-002",
           "detail": "evidence_checked_at is missing",
           "rule": "minimum_evidence",
           "severity": "high"
         },
         {
+          "code": "MCC-QG-SOURCE-001",
           "detail": "evidence URL https://example.com/fomc-calendar is a placeholder host",
           "rule": "no_placeholder_urls",
           "severity": "critical"

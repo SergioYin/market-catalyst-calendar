@@ -1,5 +1,6 @@
 import json
 import importlib.util
+import os
 import subprocess
 import sys
 import tempfile
@@ -8,7 +9,9 @@ from pathlib import Path
 
 from market_catalyst_calendar.csv_io import CSV_COLUMNS, csv_to_dataset_json, dataset_to_csv
 from market_catalyst_calendar.demo import DEMO_DATA, DEMO_UPDATED_DATA
+from market_catalyst_calendar.demo_bundle import _bundle_files
 from market_catalyst_calendar.models import parse_dataset, validation_errors
+from market_catalyst_calendar.release_audit import RELEASE_AUDIT_SCHEMA_FIELDS, REQUIRED_COMMANDS
 from market_catalyst_calendar.scoring import score_record
 
 
@@ -137,10 +140,96 @@ class CliTests(unittest.TestCase):
             check=False,
         )
 
+    def git(self, repo, *args, env=None):
+        merged_env = os.environ.copy()
+        merged_env.update(
+            {
+                "GIT_AUTHOR_NAME": "Test Author",
+                "GIT_AUTHOR_EMAIL": "test@example.com",
+                "GIT_COMMITTER_NAME": "Test Author",
+                "GIT_COMMITTER_EMAIL": "test@example.com",
+                "GIT_AUTHOR_DATE": "2026-05-13T12:00:00+00:00",
+                "GIT_COMMITTER_DATE": "2026-05-13T12:00:00+00:00",
+            }
+        )
+        if env:
+            merged_env.update(env)
+        return subprocess.run(["git", *args], cwd=repo, text=True, capture_output=True, check=True, env=merged_env)
+
+    def write_file(self, repo, name, text):
+        path = Path(repo) / name
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def make_changelog_repo(self):
+        tmp = tempfile.TemporaryDirectory()
+        repo = Path(tmp.name)
+        self.git(repo, "init")
+        self.write_file(repo, "notes.txt", "base\n")
+        self.git(repo, "add", "notes.txt")
+        self.git(repo, "commit", "-m", "chore: initial release")
+        self.git(repo, "tag", "v0.1.0")
+        self.write_file(repo, "notes.txt", "base\nfeature\n")
+        self.git(repo, "add", "notes.txt")
+        self.git(repo, "commit", "-m", "feat(cli): add catalyst digest #12")
+        self.write_file(repo, "notes.txt", "base\nfeature\nfix\n")
+        self.git(repo, "add", "notes.txt")
+        self.git(repo, "commit", "-m", "fix!: tighten evidence parsing", "-m", "BREAKING CHANGE: invalid URLs now fail validation.")
+        return tmp, repo
+
     def test_validate_stdin(self):
         result = self.run_cli("validate", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), {"ok": True, "record_count": 4})
+
+    def test_changelog_json_groups_commits_since_tag(self):
+        tmp, repo = self.make_changelog_repo()
+        with tmp:
+            result = self.run_cli("changelog", "--repo", str(repo), "--since-tag", "v0.1.0", "--format", "json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "changelog/v1")
+        self.assertEqual(payload["since_tag"], "v0.1.0")
+        self.assertEqual(payload["commit_count"], 2)
+        self.assertEqual(payload["breaking_change_count"], 1)
+        self.assertEqual([commit["category"] for commit in payload["commits"]], ["feat", "fix"])
+        self.assertEqual(payload["commits"][0]["scope"], "cli")
+        self.assertEqual(payload["commits"][0]["references"], ["#12"])
+        self.assertEqual(payload["categories"][0]["title"], "Features")
+        self.assertEqual(payload["categories"][0]["commits"][0]["description"], "add catalyst digest #12")
+
+    def test_changelog_markdown_is_deterministic_release_notes(self):
+        tmp, repo = self.make_changelog_repo()
+        with tmp:
+            result = self.run_cli("changelog", "--repo", str(repo), "--since-tag", "v0.1.0")
+            self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Release Notes\n", result.stdout)
+        self.assertIn("Range: `v0.1.0..HEAD`", result.stdout)
+        self.assertIn("## Breaking Changes", result.stdout)
+        self.assertIn("add catalyst digest #12 (cli) #12", result.stdout)
+        self.assertIn("tighten evidence parsing BREAKING", result.stdout)
+
+    def test_validate_public_profile_includes_quality_diagnostic_codes(self):
+        result = self.run_cli("validate", "--profile", "public", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 1, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["profile"], "public")
+        self.assertEqual(payload["quality_gate"]["summary"]["failed_record_count"], 4)
+        codes = {item["code"] for item in payload["diagnostics"]}
+        self.assertIn("MCC-QG-EVIDENCE-001", codes)
+        self.assertIn("MCC-QG-SOURCE-001", codes)
+
+    def test_validate_strict_profile_adds_release_metadata_diagnostics(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["source_ref"] = None
+        result = self.run_cli("validate", "--profile", "strict", "--as-of", "2026-05-13", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 1, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["profile"], "strict")
+        diagnostics = [item for item in payload["diagnostics"] if item["source"] == "quality-gate"]
+        self.assertIn("MCC-QG-RELEASE-004", {item["code"] for item in diagnostics})
+        self.assertIn("MCC-QG-BROKER-001", {item["code"] for item in diagnostics})
 
     def test_upcoming_json_is_deterministic(self):
         result = self.run_cli("upcoming", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
@@ -373,11 +462,13 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["rule_counts"]["no_placeholder_urls"], 10)
         self.assertEqual(payload["summary"]["rule_counts"]["minimum_evidence"], 3)
         self.assertEqual(payload["summary"]["rule_counts"]["broker_caveats"], 2)
+        self.assertEqual(payload["policy"]["profile"], "public")
         by_id = {record["id"]: record for record in payload["records"]}
         self.assertEqual(
             by_id["demo-fomc-june-2026"]["failed_rules"],
             ["minimum_evidence", "no_placeholder_urls"],
         )
+        self.assertEqual(by_id["demo-fomc-june-2026"]["issues"][0]["code"], "MCC-QG-EVIDENCE-001")
         self.assertIn("replace placeholder URLs", by_id["demo-pfe-fda-2026"]["next_action"])
 
     def test_quality_gate_markdown_renders_failures(self):
@@ -392,8 +483,27 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("# Market Catalyst Quality Gate", result.stdout)
         self.assertIn("Status: FAIL", result.stdout)
-        self.assertIn("| critical | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/fda-calendar is a placeholder host |", result.stdout)
+        self.assertIn("| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/fda-calendar is a placeholder host |", result.stdout)
         self.assertIn("- Failed rules: broker_caveats, minimum_evidence, no_placeholder_urls, review_freshness", result.stdout)
+
+    def test_quality_gate_strict_profile_applies_tighter_defaults(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        for record in raw["records"]:
+            record["evidence_urls"] = [
+                f"https://sources.exampledata.com/{record['id']}/primary",
+                f"https://filings.exampledata.com/{record['id']}/filing",
+            ]
+            record["evidence_checked_at"] = "2026-05-10"
+            record["last_reviewed"] = "2026-05-10"
+            record["source_ref"] = record.get("source_ref") or f"{record['id']}-source"
+        result = self.run_cli("quality-gate", "--profile", "strict", "--as-of", "2026-05-13", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 1, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["policy"]["profile"], "strict")
+        self.assertEqual(payload["policy"]["min_evidence_urls"], 3)
+        codes = {issue["code"] for record in payload["records"] for issue in record["issues"]}
+        self.assertIn("MCC-QG-EVIDENCE-001", codes)
+        self.assertIn("MCC-QG-BROKER-001", codes)
 
     def test_quality_gate_passes_when_public_rules_are_met(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -536,6 +646,109 @@ class CliTests(unittest.TestCase):
         self.assertIn("- Pre-event decision: TBD", result.stdout)
         self.assertIn("- Review due: 2026-05-24", result.stdout)
         self.assertNotIn("## NVDA - NVIDIA Corporation", result.stdout)
+
+    def test_drilldown_json_combines_single_ticker_dossier_sections(self):
+        result = self.run_cli("drilldown", "--ticker", "nvda", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["ticker"], "NVDA")
+        self.assertEqual(
+            payload["summary"],
+            {
+                "broker_view_count": 2,
+                "decision_memo_count": 1,
+                "latest_window_end": "2026-06-02",
+                "post_event_queue_count": 0,
+                "record_count": 1,
+                "source_count": 4,
+                "upcoming_event_count": 1,
+                "watch_item_count": 1,
+            },
+        )
+        self.assertEqual(payload["records"][0]["id"], "demo-nvda-computex-2026")
+        self.assertEqual(payload["dossier"]["thesis_map"]["summary"]["thesis_count"], 1)
+        self.assertEqual(payload["dossier"]["broker_matrix"]["summary"]["stale_view_count"], 1)
+        self.assertEqual(payload["dossier"]["risk_budget"]["summary"]["risk_budget"], 60000.0)
+        self.assertEqual(payload["dossier"]["watchlist"]["items"][0]["priority"], "high")
+        self.assertEqual(payload["dossier"]["decision_logs"]["memos"][0]["memo_id"], "decision-demo-nvda-computex-2026")
+        self.assertEqual(payload["dossier"]["source_pack"]["summary"]["source_count"], 4)
+
+    def test_drilldown_markdown_renders_complete_single_ticker_packet(self):
+        result = self.run_cli("drilldown", "--ticker", "PFE", "--as-of", "2026-05-13", "--days", "45", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# PFE Catalyst Drilldown", result.stdout)
+        self.assertIn("## Record Ledger", result.stdout)
+        self.assertIn("## Upcoming Events", result.stdout)
+        self.assertIn("## Thesis Map", result.stdout)
+        self.assertIn("## Broker Matrix", result.stdout)
+        self.assertIn("## Risk Budget", result.stdout)
+        self.assertIn("## Watchlist", result.stdout)
+        self.assertIn("## Post-Event Queue", result.stdout)
+        self.assertIn("## Source Pack", result.stdout)
+        self.assertIn("## Decision Logs", result.stdout)
+        self.assertIn("### PFE - Pfizer Inc.", result.stdout)
+        self.assertNotIn("NVIDIA Corporation", result.stdout)
+
+    def test_command_cookbook_selects_field_driven_playbook_sections(self):
+        result = self.run_cli("command-cookbook", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Command Cookbook", result.stdout)
+        self.assertIn("Dataset path in commands: `dataset.json`", result.stdout)
+        self.assertIn("| Portfolio Exposure Pass | selected | At least one record has `portfolio_weight` or `position_size`", result.stdout)
+        self.assertIn("| Risk Budget Pass | selected | At least one record has `risk_budget` or `max_loss`", result.stdout)
+        self.assertIn("| Sector And Theme Map | selected | At least one record has `sector` or `theme`", result.stdout)
+        self.assertIn("| Broker View Matrix | selected | At least one record has `broker_views`", result.stdout)
+        self.assertIn("python -m market_catalyst_calendar quality-gate --profile public --input dataset.json --as-of 2026-05-13 > reports/quality_gate.json || test $? -eq 1", result.stdout)
+        self.assertIn("python -m market_catalyst_calendar risk-budget --input dataset.json --as-of 2026-05-13 --days 45 --format markdown > reports/risk_budget.md", result.stdout)
+        self.assertIn("- `reports/archive/manifest.json`", result.stdout)
+
+    def test_command_cookbook_skips_absent_optional_field_workflows(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        for record in raw["records"]:
+            for key in ["position_size", "portfolio_weight", "risk_budget", "max_loss", "sector", "theme", "thesis_id", "source_ref", "broker_views"]:
+                record.pop(key, None)
+        result = self.run_cli("command-cookbook", "--as-of", "2026-05-13", "--dataset-path", "research/catalysts.json", "--output-dir", "out", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Dataset path in commands: `research/catalysts.json`", result.stdout)
+        self.assertIn("| Portfolio Exposure Pass | skipped | No `portfolio_weight` or `position_size` fields are populated. |", result.stdout)
+        self.assertIn("| Risk Budget Pass | skipped | No `risk_budget` or `max_loss` fields are populated. |", result.stdout)
+        self.assertIn("| Broker View Matrix | skipped | No `broker_views` are populated. |", result.stdout)
+        self.assertNotIn("risk-budget --input research/catalysts.json", result.stdout)
+        self.assertIn("python -m market_catalyst_calendar upcoming --input research/catalysts.json --as-of 2026-05-13 --days 45 > out/upcoming.json", result.stdout)
+
+    def test_agent_handoff_json_creates_machine_readable_research_context(self):
+        result = self.run_cli("agent-handoff", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "agent-handoff/v1")
+        self.assertEqual(payload["dataset_summary"]["record_count"], 4)
+        self.assertEqual(payload["dataset_summary"]["upcoming_record_count"], 3)
+        self.assertEqual(payload["dataset_summary"]["stale_review_count"], 1)
+        self.assertEqual([item["ticker"] for item in payload["top_risks"]], ["PFE", "SPY", "NVDA"])
+        self.assertIn("over_budget", payload["top_risks"][0]["risk_flags"])
+        self.assertEqual([item["ticker"] for item in payload["stale_items"]], ["PFE", "SPY"])
+        self.assertEqual(payload["source_urls"][0]["freshness_state"], "missing")
+        self.assertIn("source-pack", [command["id"] for command in payload["commands_to_run_next"]])
+        self.assertIn("drilldown-PFE", [command["id"] for command in payload["commands_to_run_next"]])
+
+    def test_agent_handoff_markdown_renders_command_packet(self):
+        result = self.run_cli(
+            "agent-handoff",
+            "--as-of",
+            "2026-05-13",
+            "--dataset-path",
+            "research/catalysts.json",
+            "--output-dir",
+            "handoff",
+            "--format",
+            "markdown",
+            input_data=json.dumps(DEMO_DATA),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Agent Handoff Pack", result.stdout)
+        self.assertIn("Dataset path in commands: `research/catalysts.json`", result.stdout)
+        self.assertIn("| 1 | PFE | 87 | 2026-05-20..2026-05-24 | stale_review, stale_evidence, over_budget", result.stdout)
+        self.assertIn("python -m market_catalyst_calendar source-pack --input research/catalysts.json --as-of 2026-05-13 --fresh-after-days 14 > handoff/source_pack.json", result.stdout)
 
     def test_post_event_json_lists_overdue_items_with_templates(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -809,7 +1022,7 @@ class CliTests(unittest.TestCase):
                 "45",
             )
             self.assertEqual(create_result.returncode, 0, create_result.stderr)
-            self.assertEqual(json.loads(create_result.stdout)["file_count"], 32)
+            self.assertEqual(json.loads(create_result.stdout)["file_count"], 33)
 
             manifest = json.loads((archive_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["archive_version"], 1)
@@ -822,6 +1035,7 @@ class CliTests(unittest.TestCase):
                     "reports/brief.md",
                     "reports/broker_matrix.json",
                     "reports/broker_matrix.md",
+                    "reports/command_cookbook.md",
                     "reports/dashboard.html",
                     "reports/decision_log.json",
                     "reports/decision_log.md",
@@ -883,20 +1097,27 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 41)
+            self.assertEqual(payload["file_count"], 48)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 41)
+            self.assertEqual(len(manifest["files"]), 48)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
             self.assertIn("quickstart-transcript.txt", paths)
             self.assertIn("examples/demo_records.json", paths)
             self.assertIn("examples/quality_gate.json", paths)
+            self.assertIn("examples/command_cookbook.md", paths)
+            self.assertIn("examples/agent_handoff.json", paths)
+            self.assertIn("examples/agent_handoff.md", paths)
+            self.assertIn("examples/fixture_gallery.json", paths)
+            self.assertIn("examples/fixture_gallery.md", paths)
+            self.assertIn("examples/drilldown.json", paths)
+            self.assertIn("examples/drilldown.md", paths)
             self.assertIn("examples/dashboard.html", paths)
 
             selfcheck = load_selfcheck_module()
@@ -908,7 +1129,7 @@ class CliTests(unittest.TestCase):
             self.assertEqual(quality_entry["exit_code"], 1)
             self.assertEqual(
                 quality_entry["command"],
-                "quality-gate --input examples/demo_records.json --as-of 2026-05-13",
+                "quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
             )
 
             demo_json = (bundle_dir / "examples" / "demo_records.json").read_text(encoding="utf-8")
@@ -916,6 +1137,34 @@ class CliTests(unittest.TestCase):
             transcript = (bundle_dir / "quickstart-transcript.txt").read_text(encoding="utf-8")
             self.assertIn("$ python -m market_catalyst_calendar demo-bundle --output-dir demo-bundle", transcript)
             self.assertIn("# exit code: 1", transcript)
+
+    def test_fixture_gallery_json_lists_hashes_provenance_and_use_cases(self):
+        result = self.run_cli("fixture-gallery")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
+        self.assertEqual(payload["summary"]["fixture_count"], 44)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 22)
+        quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
+        self.assertEqual(quality["exit_code"], 1)
+        self.assertEqual(
+            quality["command"],
+            "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
+        )
+        self.assertEqual(quality["output_type"], "json")
+        self.assertEqual(len(quality["sha256"]), 64)
+        self.assertIn("examples/demo_records.json", quality["input_fixtures"])
+        self.assertIn("quality diagnostics", quality["recommended_use_cases"][0])
+
+    def test_fixture_gallery_markdown_renders_command_provenance(self):
+        result = self.run_cli("fixture-gallery", "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Fixture Gallery", result.stdout)
+        self.assertIn("| `examples/demo_records.json` | json | 0 |", result.stdout)
+        self.assertIn("### `examples/quality_gate.json`", result.stdout)
+        self.assertIn("Command: `python -m market_catalyst_calendar quality-gate --profile public", result.stdout)
 
     def test_demo_bundle_is_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -941,6 +1190,82 @@ class CliTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("demo bundle output directory must be empty", result.stderr)
+
+    def test_release_audit_json_passes_for_checked_in_release_artifacts(self):
+        result = self.run_cli("release-audit", "--root", str(ROOT))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["schema_version"], "release-audit/v1")
+        self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
+        checks = {check["id"]: check for check in payload["checks"]}
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 46)
+        self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
+        self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
+        self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
+        self.assertEqual(checks["no-workflow-files"]["workflow_files"], [])
+
+    def test_smoke_matrix_json_runs_all_commands_with_expected_files(self):
+        result = self.run_cli("smoke-matrix")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["schema_version"], "smoke-matrix/v1")
+        self.assertGreaterEqual(payload["summary"]["command_count"], len(REQUIRED_COMMANDS))
+        self.assertEqual(payload["summary"]["failed_count"], 0)
+        by_command = {item["command"]: item for item in payload["commands"]}
+        self.assertIn("smoke-matrix", by_command)
+        self.assertEqual(by_command["quality-gate"]["expected_exit_code"], 1)
+        self.assertEqual(by_command["html-dashboard"]["expected_files"], ["dashboard.html"])
+        self.assertEqual(by_command["demo-bundle"]["expected_files"], ["demo-bundle/manifest.json"])
+        self.assertIn(by_command["validate"]["duration_bucket"], {"lt_250ms", "lt_1s", "lt_5s", "gte_5s"})
+
+    def test_smoke_matrix_markdown_renders_pass_table(self):
+        result = self.run_cli("smoke-matrix", "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Smoke Matrix", result.stdout)
+        self.assertIn("Status: PASS", result.stdout)
+        self.assertIn("| smoke-matrix | PASS | 0 | 0 | stdout |", result.stdout)
+
+    def test_release_audit_markdown_renders_pass_table(self):
+        result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Release Audit", result.stdout)
+        self.assertIn("Status: PASS", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 46 of 46 expected fixtures match |", result.stdout)
+        self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
+
+    def test_release_audit_fails_when_workflow_files_exist(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audit_root = Path(tmp)
+            for relative_path, text in _bundle_files().items():
+                if relative_path.startswith("examples/"):
+                    path = audit_root / relative_path
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(text.encode("utf-8"))
+            readme_commands = "\n".join(f"python -m market_catalyst_calendar {command}" for command in REQUIRED_COMMANDS)
+            (audit_root / "README.md").write_text(readme_commands, encoding="utf-8")
+            schema_text = "\n".join(f"`{field}`" for field in RELEASE_AUDIT_SCHEMA_FIELDS)
+            (audit_root / "docs").mkdir()
+            (audit_root / "docs" / "SCHEMA.md").write_text(schema_text, encoding="utf-8")
+            skill = audit_root / "skills" / "agent" / "market-catalyst-calendar" / "SKILL.md"
+            skill.parent.mkdir(parents=True, exist_ok=True)
+            skill.write_text("release-audit\n", encoding="utf-8")
+            workflow = audit_root / ".github" / "workflows" / "release.yml"
+            workflow.parent.mkdir(parents=True, exist_ok=True)
+            workflow.write_text("name: release\n", encoding="utf-8")
+
+            result = self.run_cli("release-audit", "--root", str(audit_root))
+
+        self.assertEqual(result.returncode, 1)
+        payload = json.loads(result.stdout)
+        self.assertFalse(payload["ok"])
+        check = next(item for item in payload["checks"] if item["id"] == "no-workflow-files")
+        self.assertEqual(check["workflow_files"], [".github/workflows/release.yml"])
 
 
 class SelfcheckDocumentationTests(unittest.TestCase):

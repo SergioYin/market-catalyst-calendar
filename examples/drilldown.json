@@ -1,0 +1,605 @@
+{
+  "as_of": "2026-05-13",
+  "dossier": {
+    "broker_matrix": {
+      "as_of": "2026-05-13",
+      "groups": [
+        {
+          "linked_catalysts": [
+            {
+              "catalyst_score": 84,
+              "days_until": 20,
+              "event_type": "product_launch",
+              "id": "demo-nvda-computex-2026",
+              "review_state": "current",
+              "status": "scheduled",
+              "urgency": "medium",
+              "window": "2026-06-02"
+            }
+          ],
+          "rating_count": {
+            "buy": 1,
+            "hold": 1
+          },
+          "ratings": [
+            "buy",
+            "hold"
+          ],
+          "stale_sources": [
+            {
+              "age_days": 38,
+              "as_of": "2026-04-05",
+              "institution": "Metro Capital Markets",
+              "source_url": "https://example.com/nvda-broker-metro"
+            }
+          ],
+          "target_price_avg": 1202.5,
+          "target_price_dispersion": 235.0,
+          "target_price_max": 1320.0,
+          "target_price_min": 1085.0,
+          "thesis_id": "ai-infrastructure-capex",
+          "ticker": "NVDA",
+          "view_count": 2,
+          "views": [
+            {
+              "age_days": 38,
+              "as_of": "2026-04-05",
+              "caveat": "Older view predates the final Computex keynote agenda.",
+              "institution": "Metro Capital Markets",
+              "rating": "hold",
+              "source_url": "https://example.com/nvda-broker-metro",
+              "stale_source": true,
+              "target_price": 1085.0
+            },
+            {
+              "age_days": 3,
+              "as_of": "2026-05-10",
+              "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+              "institution": "North Coast Securities",
+              "rating": "buy",
+              "source_url": "https://example.com/nvda-broker-north-coast",
+              "stale_source": false,
+              "target_price": 1320.0
+            }
+          ]
+        }
+      ],
+      "stale_after_days": 30,
+      "summary": {
+        "group_count": 1,
+        "linked_catalyst_count": 1,
+        "stale_view_count": 1,
+        "view_count": 2
+      }
+    },
+    "decision_logs": {
+      "as_of": "2026-05-13",
+      "days": 45,
+      "memos": [
+        {
+          "broker_context": {
+            "stale_view_count": 1,
+            "target_price_avg": 1202.5,
+            "target_price_range": "1085.00-1320.00",
+            "view_count": 2,
+            "views": [
+              {
+                "age_days": 38,
+                "as_of": "2026-04-05",
+                "caveat": "Older view predates the final Computex keynote agenda.",
+                "institution": "Metro Capital Markets",
+                "rating": "hold",
+                "source_url": "https://example.com/nvda-broker-metro",
+                "stale_source": true,
+                "target_price": 1085.0
+              },
+              {
+                "age_days": 3,
+                "as_of": "2026-05-10",
+                "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+                "institution": "North Coast Securities",
+                "rating": "buy",
+                "source_url": "https://example.com/nvda-broker-north-coast",
+                "stale_source": false,
+                "target_price": 1320.0
+              }
+            ]
+          },
+          "catalyst": {
+            "catalyst_score": 84,
+            "confidence": 0.74,
+            "days_until": 20,
+            "event_type": "product_launch",
+            "id": "demo-nvda-computex-2026",
+            "required_review_action": "monitor_date",
+            "review_state": "current",
+            "status": "scheduled",
+            "urgency": "medium",
+            "window": "2026-06-02"
+          },
+          "decision_owner": "TBD",
+          "decision_slots": {
+            "follow_up_owner": "TBD",
+            "position_action": "TBD",
+            "pre_event_decision": "TBD",
+            "risk_limit_or_hedge": "TBD"
+          },
+          "decision_status": "draft",
+          "entity": "NVIDIA Corporation",
+          "evidence": {
+            "evidence_checked_at": "2026-05-09",
+            "last_reviewed": "2026-05-09",
+            "source_ref": "NVDA Computex keynote tracker",
+            "urls": [
+              "https://example.com/nvidia-computex-keynote",
+              "https://example.com/channel-check-gpu-supply"
+            ]
+          },
+          "memo_id": "decision-demo-nvda-computex-2026",
+          "post_event_review": {
+            "evidence_delta": "TBD",
+            "next_action": "TBD",
+            "outcome": "TBD",
+            "review_due": "2026-06-02",
+            "scenario_accuracy": "TBD",
+            "thesis_update": "TBD"
+          },
+          "prepared_on": "2026-05-13",
+          "scenarios": [
+            {
+              "date": "2026-06-02",
+              "impact": "positive",
+              "note": "Management confirms accelerated platform demand and shorter supply constraints.",
+              "review_action": "none",
+              "scenario": "bull",
+              "score": 90
+            },
+            {
+              "date": "2026-06-02",
+              "impact": "positive",
+              "note": "Product roadmap details support existing accelerator growth expectations.",
+              "review_action": "monitor_date",
+              "scenario": "base",
+              "score": 84
+            },
+            {
+              "date": "2026-06-02",
+              "impact": "less_positive",
+              "note": "Launch focuses on refresh timing without incremental demand signals.",
+              "review_action": "none",
+              "scenario": "bear",
+              "score": 74
+            }
+          ],
+          "thesis": {
+            "decision_question": "Does the product launch change the thesis for NVDA?",
+            "impact": "positive",
+            "thesis_id": "ai-infrastructure-capex",
+            "working_thesis": "Product roadmap details support existing accelerator growth expectations."
+          },
+          "ticker": "NVDA",
+          "watchlist_triggers": [
+            {
+              "action": "monitor_date",
+              "condition": "Review by 2026-05-26 before catalyst window 2026-06-02.",
+              "type": "review_due"
+            },
+            {
+              "action": "update_status_and_history",
+              "condition": "Escalate if NVDA confirms, delays, cancels, or changes the product launch window.",
+              "type": "event_window"
+            },
+            {
+              "action": "update_thesis_reference",
+              "condition": "Bull/base/bear evidence changes the linked thesis 'ai-infrastructure-capex'.",
+              "type": "thesis_link"
+            },
+            {
+              "action": "refresh_exposure_context",
+              "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+              "type": "exposure_change"
+            }
+          ]
+        }
+      ],
+      "stale_after_days": 14,
+      "summary": {
+        "broker_context_count": 1,
+        "memo_count": 1,
+        "stale_memo_count": 0,
+        "trigger_count": 4
+      }
+    },
+    "post_event_queue": {
+      "as_of": "2026-05-13",
+      "items": [],
+      "review_after_days": 0,
+      "summary": {
+        "completed_count": 0,
+        "item_count": 0,
+        "missing_outcome_count": 0,
+        "missing_recorded_at_count": 0,
+        "overdue_count": 0
+      }
+    },
+    "risk_budget": {
+      "as_of": "2026-05-13",
+      "groups": [
+        {
+          "budget_remaining": 8000.0,
+          "budget_utilization": 0.866667,
+          "expected_event_loss": 32323.2,
+          "flags": [],
+          "max_loss": 52000.0,
+          "missing_budget_count": 0,
+          "missing_max_loss_count": 0,
+          "over_budget_record_count": 0,
+          "record_count": 1,
+          "records": [
+            {
+              "budget_remaining": 8000.0,
+              "budget_utilization": 0.866667,
+              "catalyst_score": 84,
+              "confidence": 0.74,
+              "entity": "NVIDIA Corporation",
+              "event_type": "product_launch",
+              "expected_event_loss": 32323.2,
+              "flags": [],
+              "id": "demo-nvda-computex-2026",
+              "max_loss": 52000.0,
+              "risk_budget": 60000.0,
+              "status": "scheduled",
+              "thesis_id": "ai-infrastructure-capex",
+              "ticker": "NVDA",
+              "urgency": "medium",
+              "window": "2026-06-02"
+            }
+          ],
+          "risk_budget": 60000.0,
+          "thesis_id": "ai-infrastructure-capex",
+          "ticker": "NVDA",
+          "urgency": "medium"
+        }
+      ],
+      "summary": {
+        "expected_event_loss": 32323.2,
+        "group_count": 1,
+        "max_loss": 52000.0,
+        "missing_budget_count": 0,
+        "missing_max_loss_count": 0,
+        "over_budget_group_count": 0,
+        "over_budget_record_count": 0,
+        "record_count": 1,
+        "risk_budget": 60000.0
+      }
+    },
+    "source_pack": {
+      "as_of": "2026-05-13",
+      "fresh_after_days": 14,
+      "sources": [
+        {
+          "broker_as_of_dates": [
+            "2026-04-05"
+          ],
+          "broker_institutions": [
+            "Metro Capital Markets"
+          ],
+          "evidence_checked_at": "2026-04-05",
+          "evidence_checked_dates": [],
+          "freshness_age_days": 38,
+          "freshness_state": "stale",
+          "record_ids": [
+            "demo-nvda-computex-2026"
+          ],
+          "source_types": [
+            "broker"
+          ],
+          "thesis_ids": [
+            "ai-infrastructure-capex"
+          ],
+          "tickers": [
+            "NVDA"
+          ],
+          "url": "https://example.com/nvda-broker-metro",
+          "usage_count": 1
+        },
+        {
+          "broker_as_of_dates": [],
+          "broker_institutions": [],
+          "evidence_checked_at": "2026-05-09",
+          "evidence_checked_dates": [
+            "2026-05-09"
+          ],
+          "freshness_age_days": 4,
+          "freshness_state": "fresh",
+          "record_ids": [
+            "demo-nvda-computex-2026"
+          ],
+          "source_types": [
+            "evidence"
+          ],
+          "thesis_ids": [
+            "ai-infrastructure-capex"
+          ],
+          "tickers": [
+            "NVDA"
+          ],
+          "url": "https://example.com/channel-check-gpu-supply",
+          "usage_count": 1
+        },
+        {
+          "broker_as_of_dates": [
+            "2026-05-10"
+          ],
+          "broker_institutions": [
+            "North Coast Securities"
+          ],
+          "evidence_checked_at": "2026-05-10",
+          "evidence_checked_dates": [],
+          "freshness_age_days": 3,
+          "freshness_state": "fresh",
+          "record_ids": [
+            "demo-nvda-computex-2026"
+          ],
+          "source_types": [
+            "broker"
+          ],
+          "thesis_ids": [
+            "ai-infrastructure-capex"
+          ],
+          "tickers": [
+            "NVDA"
+          ],
+          "url": "https://example.com/nvda-broker-north-coast",
+          "usage_count": 1
+        },
+        {
+          "broker_as_of_dates": [],
+          "broker_institutions": [],
+          "evidence_checked_at": "2026-05-09",
+          "evidence_checked_dates": [
+            "2026-05-09"
+          ],
+          "freshness_age_days": 4,
+          "freshness_state": "fresh",
+          "record_ids": [
+            "demo-nvda-computex-2026"
+          ],
+          "source_types": [
+            "evidence"
+          ],
+          "thesis_ids": [
+            "ai-infrastructure-capex"
+          ],
+          "tickers": [
+            "NVDA"
+          ],
+          "url": "https://example.com/nvidia-computex-keynote",
+          "usage_count": 1
+        }
+      ],
+      "summary": {
+        "broker_source_count": 2,
+        "evidence_source_count": 2,
+        "missing_freshness_count": 0,
+        "source_count": 4,
+        "stale_source_count": 1,
+        "usage_count": 4
+      }
+    },
+    "thesis_map": {
+      "as_of": "2026-05-13",
+      "groups": [
+        {
+          "evidence_references": [
+            "NVDA Computex keynote tracker",
+            "https://example.com/channel-check-gpu-supply",
+            "https://example.com/nvidia-computex-keynote"
+          ],
+          "highest_score": 84,
+          "open_event_count": 1,
+          "record_count": 1,
+          "records": [
+            "demo-nvda-computex-2026"
+          ],
+          "stale_count": 0,
+          "thesis_id": "ai-infrastructure-capex"
+        }
+      ],
+      "stale_after_days": 14,
+      "summary": {
+        "open_event_count": 1,
+        "record_count": 1,
+        "stale_count": 0,
+        "thesis_count": 1
+      }
+    },
+    "upcoming_events": {
+      "as_of": "2026-05-13",
+      "records": [
+        {
+          "broker_views": [
+            {
+              "as_of": "2026-04-05",
+              "caveat": "Older view predates the final Computex keynote agenda.",
+              "institution": "Metro Capital Markets",
+              "rating": "hold",
+              "source_url": "https://example.com/nvda-broker-metro",
+              "target_price": 1085.0
+            },
+            {
+              "as_of": "2026-05-10",
+              "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+              "institution": "North Coast Securities",
+              "rating": "buy",
+              "source_url": "https://example.com/nvda-broker-north-coast",
+              "target_price": 1320.0
+            }
+          ],
+          "catalyst_score": 84,
+          "days_until": 20,
+          "entity": "NVIDIA Corporation",
+          "event_type": "product_launch",
+          "evidence_checked_at": "2026-05-09",
+          "evidence_urls": [
+            "https://example.com/nvidia-computex-keynote",
+            "https://example.com/channel-check-gpu-supply"
+          ],
+          "id": "demo-nvda-computex-2026",
+          "max_loss": 52000.0,
+          "portfolio_weight": 0.0825,
+          "position_size": 125000.0,
+          "required_review_action": "monitor_date",
+          "review_state": "current",
+          "risk_budget": 60000.0,
+          "sector": "Information Technology",
+          "source_ref": "NVDA Computex keynote tracker",
+          "status": "scheduled",
+          "theme": "AI infrastructure",
+          "thesis_id": "ai-infrastructure-capex",
+          "thesis_impact": "positive",
+          "ticker": "NVDA",
+          "urgency": "medium",
+          "window": "2026-06-02"
+        }
+      ]
+    },
+    "watchlist": {
+      "as_of": "2026-05-13",
+      "days": 45,
+      "items": [
+        {
+          "catalyst_id": "demo-nvda-computex-2026",
+          "catalyst_score": 84,
+          "days_until": 20,
+          "due_date": "2026-05-26",
+          "due_state": "scheduled",
+          "entity": "NVIDIA Corporation",
+          "event_type": "product_launch",
+          "evidence_urls": [
+            "https://example.com/nvidia-computex-keynote",
+            "https://example.com/channel-check-gpu-supply"
+          ],
+          "priority": "high",
+          "priority_score": 78,
+          "required_review_action": "monitor_date",
+          "review_cadence": "twice_weekly",
+          "review_state": "current",
+          "scenario_refs": {
+            "base": "Product roadmap details support existing accelerator growth expectations.",
+            "bear": "Launch focuses on refresh timing without incremental demand signals.",
+            "bull": "Management confirms accelerated platform demand and shorter supply constraints."
+          },
+          "source_ref": "NVDA Computex keynote tracker",
+          "source_refs": [
+            "NVDA Computex keynote tracker",
+            "https://example.com/nvidia-computex-keynote",
+            "https://example.com/channel-check-gpu-supply"
+          ],
+          "status": "scheduled",
+          "thesis_id": "ai-infrastructure-capex",
+          "ticker": "NVDA",
+          "trigger_conditions": [
+            {
+              "action": "monitor_date",
+              "condition": "Review by 2026-05-26 before catalyst window 2026-06-02.",
+              "type": "review_due"
+            },
+            {
+              "action": "update_status_and_history",
+              "condition": "Escalate if NVDA confirms, delays, cancels, or changes the product launch window.",
+              "type": "event_window"
+            },
+            {
+              "action": "update_thesis_reference",
+              "condition": "Bull/base/bear evidence changes the linked thesis 'ai-infrastructure-capex'.",
+              "type": "thesis_link"
+            },
+            {
+              "action": "refresh_exposure_context",
+              "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+              "type": "exposure_change"
+            }
+          ],
+          "urgency": "medium",
+          "watch_id": "watch-demo-nvda-computex-2026",
+          "window": "2026-06-02"
+        }
+      ],
+      "stale_after_days": 14,
+      "summary": {
+        "critical_count": 0,
+        "due_now_count": 0,
+        "high_count": 1,
+        "item_count": 1,
+        "low_count": 0,
+        "medium_count": 0
+      }
+    }
+  },
+  "parameters": {
+    "broker_stale_after_days": 30,
+    "days": 45,
+    "fresh_after_days": 14,
+    "review_after_days": 0,
+    "stale_after_days": 14
+  },
+  "records": [
+    {
+      "broker_views": [
+        {
+          "as_of": "2026-04-05",
+          "caveat": "Older view predates the final Computex keynote agenda.",
+          "institution": "Metro Capital Markets",
+          "rating": "hold",
+          "source_url": "https://example.com/nvda-broker-metro",
+          "target_price": 1085.0
+        },
+        {
+          "as_of": "2026-05-10",
+          "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+          "institution": "North Coast Securities",
+          "rating": "buy",
+          "source_url": "https://example.com/nvda-broker-north-coast",
+          "target_price": 1320.0
+        }
+      ],
+      "catalyst_score": 84,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-09",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "max_loss": 52000.0,
+      "portfolio_weight": 0.0825,
+      "position_size": 125000.0,
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "risk_budget": 60000.0,
+      "sector": "Information Technology",
+      "source_ref": "NVDA Computex keynote tracker",
+      "status": "scheduled",
+      "theme": "AI infrastructure",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "positive",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "window": "2026-06-02"
+    }
+  ],
+  "summary": {
+    "broker_view_count": 2,
+    "decision_memo_count": 1,
+    "latest_window_end": "2026-06-02",
+    "post_event_queue_count": 0,
+    "record_count": 1,
+    "source_count": 4,
+    "upcoming_event_count": 1,
+    "watch_item_count": 1
+  },
+  "ticker": "NVDA"
+}

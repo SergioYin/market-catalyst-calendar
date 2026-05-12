@@ -1,6 +1,7 @@
 # Market Catalyst Quality Gate
 
 Status: FAIL
+Profile: public
 As of: 2026-05-13
 Minimum evidence URLs: 2
 Maximum review age: 14 days
@@ -9,24 +10,24 @@ Maximum broker age: 30 days
 
 Failed records: 4 of 4
 
-| Severity | Rule | Ticker | Record | Detail |
-| --- | --- | --- | --- | --- |
-| critical | no_placeholder_urls | MSFT | demo-msft-earnings-2026 | evidence URL https://example.com/msft-q3-earnings is a placeholder host |
-| high | minimum_evidence | PFE | demo-pfe-fda-2026 | evidence metadata is 15 days old; maximum is 14 |
-| high | review_freshness | PFE | demo-pfe-fda-2026 | last review is 15 days old; maximum is 14 |
-| critical | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/fda-calendar is a placeholder host |
-| critical | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/pfe-pipeline-update is a placeholder host |
-| critical | no_placeholder_urls | PFE | demo-pfe-fda-2026 | broker URL for Summit Research (https://example.com/pfe-broker-summit) is a placeholder host |
-| critical | no_placeholder_urls | PFE | demo-pfe-fda-2026 | broker URL for Harbor Life Sciences (https://example.com/pfe-broker-harbor) is a placeholder host |
-| medium | broker_caveats | PFE | demo-pfe-fda-2026 | Summit Research broker view is 33 days old; maximum is 30 |
-| critical | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | evidence URL https://example.com/nvidia-computex-keynote is a placeholder host |
-| critical | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | evidence URL https://example.com/channel-check-gpu-supply is a placeholder host |
-| critical | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | broker URL for Metro Capital Markets (https://example.com/nvda-broker-metro) is a placeholder host |
-| critical | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | broker URL for North Coast Securities (https://example.com/nvda-broker-north-coast) is a placeholder host |
-| medium | broker_caveats | NVDA | demo-nvda-computex-2026 | Metro Capital Markets broker view is 38 days old; maximum is 30 |
-| critical | minimum_evidence | SPY | demo-fomc-june-2026 | 1 evidence URLs present; 2 required |
-| high | minimum_evidence | SPY | demo-fomc-june-2026 | evidence_checked_at is missing |
-| critical | no_placeholder_urls | SPY | demo-fomc-june-2026 | evidence URL https://example.com/fomc-calendar is a placeholder host |
+| Severity | Code | Rule | Ticker | Record | Detail |
+| --- | --- | --- | --- | --- | --- |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | MSFT | demo-msft-earnings-2026 | evidence URL https://example.com/msft-q3-earnings is a placeholder host |
+| high | MCC-QG-EVIDENCE-003 | minimum_evidence | PFE | demo-pfe-fda-2026 | evidence metadata is 15 days old; maximum is 14 |
+| high | MCC-QG-REVIEW-002 | review_freshness | PFE | demo-pfe-fda-2026 | last review is 15 days old; maximum is 14 |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/fda-calendar is a placeholder host |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | PFE | demo-pfe-fda-2026 | evidence URL https://example.com/pfe-pipeline-update is a placeholder host |
+| critical | MCC-QG-SOURCE-002 | no_placeholder_urls | PFE | demo-pfe-fda-2026 | broker URL for Summit Research (https://example.com/pfe-broker-summit) is a placeholder host |
+| critical | MCC-QG-SOURCE-002 | no_placeholder_urls | PFE | demo-pfe-fda-2026 | broker URL for Harbor Life Sciences (https://example.com/pfe-broker-harbor) is a placeholder host |
+| medium | MCC-QG-BROKER-004 | broker_caveats | PFE | demo-pfe-fda-2026 | Summit Research broker view is 33 days old; maximum is 30 |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | evidence URL https://example.com/nvidia-computex-keynote is a placeholder host |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | evidence URL https://example.com/channel-check-gpu-supply is a placeholder host |
+| critical | MCC-QG-SOURCE-002 | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | broker URL for Metro Capital Markets (https://example.com/nvda-broker-metro) is a placeholder host |
+| critical | MCC-QG-SOURCE-002 | no_placeholder_urls | NVDA | demo-nvda-computex-2026 | broker URL for North Coast Securities (https://example.com/nvda-broker-north-coast) is a placeholder host |
+| medium | MCC-QG-BROKER-004 | broker_caveats | NVDA | demo-nvda-computex-2026 | Metro Capital Markets broker view is 38 days old; maximum is 30 |
+| critical | MCC-QG-EVIDENCE-001 | minimum_evidence | SPY | demo-fomc-june-2026 | 1 evidence URLs present; 2 required |
+| high | MCC-QG-EVIDENCE-002 | minimum_evidence | SPY | demo-fomc-june-2026 | evidence_checked_at is missing |
+| critical | MCC-QG-SOURCE-001 | no_placeholder_urls | SPY | demo-fomc-june-2026 | evidence URL https://example.com/fomc-calendar is a placeholder host |
 
 ## MSFT - Microsoft Corporation
 
