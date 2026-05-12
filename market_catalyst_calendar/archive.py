@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from .csv_io import dataset_to_csv
+from .evidence import evidence_audit_json, evidence_audit_markdown
+from .ics import records_to_ics
 from .io import dump_json, read_json
 from .models import Dataset, parse_dataset, sorted_records, validation_errors
 from .render import (
@@ -17,6 +19,10 @@ from .render import (
     records_json,
     review_plan_json,
     review_plan_markdown,
+    scenario_matrix_json,
+    scenario_matrix_markdown,
+    thesis_map_json,
+    thesis_map_markdown,
 )
 from .scoring import score_record
 
@@ -59,10 +65,17 @@ def create_archive(
         "reports/upcoming.json": dump_json(records_json(upcoming, as_of)),
         "reports/stale.json": dump_json(records_json(stale, as_of)),
         "reports/brief.md": brief_markdown(upcoming, as_of),
+        "reports/upcoming.ics": records_to_ics(upcoming, as_of),
         "reports/exposure.json": dump_json(exposure_json(upcoming, as_of)),
         "reports/exposure.md": exposure_markdown(upcoming, as_of),
         "reports/review_plan.json": dump_json(review_plan_json(dataset.records, as_of, days, stale_after_days)),
         "reports/review_plan.md": review_plan_markdown(dataset.records, as_of, days, stale_after_days),
+        "reports/scenario_matrix.json": dump_json(scenario_matrix_json(upcoming, as_of, stale_after_days)),
+        "reports/scenario_matrix.md": scenario_matrix_markdown(upcoming, as_of, stale_after_days),
+        "reports/thesis_map.json": dump_json(thesis_map_json(dataset.records, as_of, stale_after_days)),
+        "reports/thesis_map.md": thesis_map_markdown(dataset.records, as_of, stale_after_days),
+        "reports/evidence_audit.json": dump_json(evidence_audit_json(dataset.records, as_of, stale_after_days, 2, 0.67)),
+        "reports/evidence_audit.md": evidence_audit_markdown(dataset.records, as_of, stale_after_days, 2, 0.67),
     }
     for relative_path, text in sorted(files.items()):
         _write_text(destination / relative_path, text)
@@ -146,6 +159,9 @@ def _build_manifest(
         "files": files,
         "parameters": {
             "days": days,
+            "evidence_fresh_after_days": stale_after_days,
+            "evidence_max_domain_share": 0.67,
+            "evidence_min_sources": 2,
             "stale_after_days": stale_after_days,
         },
     }

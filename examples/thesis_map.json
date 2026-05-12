@@ -1,0 +1,56 @@
+{
+  "as_of": "2026-05-13",
+  "groups": [
+    {
+      "evidence_references": [
+        "FDA calendar and PFE pipeline note",
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "highest_score": 87,
+      "open_event_count": 1,
+      "record_count": 1,
+      "records": [
+        "demo-pfe-fda-2026"
+      ],
+      "stale_count": 1,
+      "thesis_id": "pharma-pipeline-reset"
+    },
+    {
+      "evidence_references": [
+        "NVDA Computex keynote tracker",
+        "https://example.com/channel-check-gpu-supply",
+        "https://example.com/nvidia-computex-keynote"
+      ],
+      "highest_score": 84,
+      "open_event_count": 1,
+      "record_count": 1,
+      "records": [
+        "demo-nvda-computex-2026"
+      ],
+      "stale_count": 0,
+      "thesis_id": "ai-infrastructure-capex"
+    },
+    {
+      "evidence_references": [
+        "FOMC public calendar",
+        "https://example.com/fomc-calendar"
+      ],
+      "highest_score": 83,
+      "open_event_count": 1,
+      "record_count": 1,
+      "records": [
+        "demo-fomc-june-2026"
+      ],
+      "stale_count": 0,
+      "thesis_id": "rates-duration-risk"
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "open_event_count": 3,
+    "record_count": 3,
+    "stale_count": 1,
+    "thesis_count": 3
+  }
+}

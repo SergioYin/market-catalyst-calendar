@@ -62,6 +62,9 @@ class CatalystRecord:
     last_reviewed: Optional[date]
     position_size: Optional[float]
     portfolio_weight: Optional[float]
+    thesis_id: Optional[str]
+    source_ref: Optional[str]
+    evidence_checked_at: Optional[date]
 
 
 @dataclass(frozen=True)
@@ -144,6 +147,7 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
         raise ValueError("scenario_notes must be an object")
     normalized_notes = {str(key): str(value) for key, value in scenario_notes.items()}
     last_reviewed = raw.get("last_reviewed")
+    evidence_checked_at = raw.get("evidence_checked_at")
     position_size = _optional_nonnegative_float(raw, "position_size")
     portfolio_weight = _optional_nonnegative_float(raw, "portfolio_weight")
     if portfolio_weight is not None and portfolio_weight > 1:
@@ -164,6 +168,9 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
         last_reviewed=parse_date(last_reviewed, "last_reviewed") if last_reviewed else None,
         position_size=position_size,
         portfolio_weight=portfolio_weight,
+        thesis_id=_optional_str(raw, "thesis_id"),
+        source_ref=_optional_str(raw, "source_ref"),
+        evidence_checked_at=parse_date(evidence_checked_at, "evidence_checked_at") if evidence_checked_at else None,
     )
 
 
@@ -204,6 +211,8 @@ def validation_errors(dataset: Dataset) -> List[str]:
             errors.append(prefix + "open records need a required review action")
         if record.last_reviewed and record.last_reviewed > dataset.as_of:
             errors.append(prefix + "last_reviewed cannot be after as_of")
+        if record.evidence_checked_at and record.evidence_checked_at > dataset.as_of:
+            errors.append(prefix + "evidence_checked_at cannot be after as_of")
         if record.history:
             latest = max(record.history, key=lambda entry: entry.date)
             if latest.date > dataset.as_of:
@@ -234,6 +243,15 @@ def _optional_nonnegative_float(raw: Dict[str, Any], key: str) -> Optional[float
     if parsed < 0:
         raise ValueError(f"{key} must be non-negative")
     return parsed
+
+
+def _optional_str(raw: Dict[str, Any], key: str) -> Optional[str]:
+    value = raw.get(key)
+    if value is None or value == "":
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{key} must be a non-empty string when provided")
+    return value.strip()
 
 
 def _valid_url(value: str) -> bool:

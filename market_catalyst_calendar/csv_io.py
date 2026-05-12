@@ -21,16 +21,23 @@ CSV_COLUMNS = [
     "confidence",
     "position_size",
     "portfolio_weight",
+    "thesis_id",
+    "source_ref",
     "status",
     "thesis_impact",
     "required_review_action",
     "last_reviewed",
+    "evidence_checked_at",
     "evidence_urls",
     "scenario_notes",
     "history",
 ]
 
-REQUIRED_CSV_COLUMNS = [column for column in CSV_COLUMNS if column not in {"position_size", "portfolio_weight"}]
+REQUIRED_CSV_COLUMNS = [
+    column
+    for column in CSV_COLUMNS
+    if column not in {"position_size", "portfolio_weight", "thesis_id", "source_ref", "evidence_checked_at"}
+]
 
 ITEM_SEPARATOR = " | "
 PART_SEPARATOR = " = "
@@ -84,10 +91,13 @@ def _record_to_row(as_of: str, record: CatalystRecord) -> Dict[str, str]:
         "confidence": _format_confidence(record.confidence),
         "position_size": _format_optional_number(record.position_size),
         "portfolio_weight": _format_optional_number(record.portfolio_weight),
+        "thesis_id": record.thesis_id or "",
+        "source_ref": record.source_ref or "",
         "status": record.status,
         "thesis_impact": record.thesis_impact,
         "required_review_action": record.required_review_action,
         "last_reviewed": record.last_reviewed.isoformat() if record.last_reviewed else "",
+        "evidence_checked_at": record.evidence_checked_at.isoformat() if record.evidence_checked_at else "",
         "evidence_urls": _join_items(record.evidence_urls),
         "scenario_notes": _join_pairs(sorted(record.scenario_notes.items())),
         "history": _join_history(record.history),
@@ -105,6 +115,8 @@ def _row_to_record(row: Dict[str, str], row_number: int) -> Dict[str, object]:
         "confidence": _parse_float(_required_cell(row, "confidence", row_number), row_number),
         "position_size": _parse_optional_float(row.get("position_size", ""), row_number, "position_size"),
         "portfolio_weight": _parse_optional_float(row.get("portfolio_weight", ""), row_number, "portfolio_weight"),
+        "thesis_id": _optional_cell(row, "thesis_id"),
+        "source_ref": _optional_cell(row, "source_ref"),
         "status": _required_cell(row, "status", row_number),
         "thesis_impact": _required_cell(row, "thesis_impact", row_number),
         "evidence_urls": _split_items(row.get("evidence_urls", "")),
@@ -119,6 +131,9 @@ def _row_to_record(row: Dict[str, str], row_number: int) -> Dict[str, object]:
     last_reviewed = (row.get("last_reviewed") or "").strip()
     if last_reviewed:
         record["last_reviewed"] = last_reviewed
+    evidence_checked_at = (row.get("evidence_checked_at") or "").strip()
+    if evidence_checked_at:
+        record["evidence_checked_at"] = evidence_checked_at
     return record
 
 
@@ -197,6 +212,13 @@ def _required_cell(row: Dict[str, str], column: str, row_number: int) -> str:
     value = (row.get(column) or "").strip()
     if not value:
         raise ValueError(f"row {row_number}: {column} is required")
+    return value
+
+
+def _optional_cell(row: Dict[str, str], column: str) -> Optional[str]:
+    value = (row.get(column) or "").strip()
+    if not value:
+        return None
     return value
 
 

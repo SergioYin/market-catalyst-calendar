@@ -1,0 +1,126 @@
+{
+  "as_of": "2026-05-13",
+  "records": [
+    {
+      "base_catalyst_score": 87,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "id": "demo-pfe-fda-2026",
+      "review_state": "stale",
+      "scenarios": [
+        {
+          "date": "2026-05-20",
+          "impact": "positive",
+          "note": "Approval expands pipeline credibility and supports forward revenue mix.",
+          "review_action": "verify_source:bull:stale",
+          "scenario": "bull",
+          "score": 91
+        },
+        {
+          "date": "2026-05-20..2026-05-24",
+          "impact": "mixed",
+          "note": "Decision is mostly expected but clarifies launch timing.",
+          "review_action": "verify_source:base:stale",
+          "scenario": "base",
+          "score": 87
+        },
+        {
+          "date": "2026-05-24",
+          "impact": "negative",
+          "note": "Delay or restrictive label pressures near-term sentiment.",
+          "review_action": "verify_source:bear:stale",
+          "scenario": "bear",
+          "score": 79
+        }
+      ],
+      "status": "watching",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "base_catalyst_score": 84,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "id": "demo-nvda-computex-2026",
+      "review_state": "current",
+      "scenarios": [
+        {
+          "date": "2026-06-02",
+          "impact": "positive",
+          "note": "Management confirms accelerated platform demand and shorter supply constraints.",
+          "review_action": "none",
+          "scenario": "bull",
+          "score": 90
+        },
+        {
+          "date": "2026-06-02",
+          "impact": "positive",
+          "note": "Product roadmap details support existing accelerator growth expectations.",
+          "review_action": "monitor_date",
+          "scenario": "base",
+          "score": 84
+        },
+        {
+          "date": "2026-06-02",
+          "impact": "less_positive",
+          "note": "Launch focuses on refresh timing without incremental demand signals.",
+          "review_action": "none",
+          "scenario": "bear",
+          "score": 74
+        }
+      ],
+      "status": "scheduled",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "window": "2026-06-02"
+    },
+    {
+      "base_catalyst_score": 83,
+      "days_until": 35,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "id": "demo-fomc-june-2026",
+      "review_state": "current",
+      "scenarios": [
+        {
+          "date": "2026-06-17",
+          "impact": "positive",
+          "note": "Policy language indicates lower real-rate pressure for duration assets.",
+          "review_action": "none",
+          "scenario": "bull",
+          "score": 90
+        },
+        {
+          "date": "2026-06-17",
+          "impact": "mixed",
+          "note": "Statement broadly matches market-implied policy path.",
+          "review_action": "monitor_date",
+          "scenario": "base",
+          "score": 83
+        },
+        {
+          "date": "2026-06-17",
+          "impact": "negative",
+          "note": "Inflation language reprices yields higher and weighs on multiples.",
+          "review_action": "none",
+          "scenario": "bear",
+          "score": 72
+        }
+      ],
+      "status": "confirmed",
+      "ticker": "SPY",
+      "urgency": "medium",
+      "window": "2026-06-17"
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "highest_scenario_score": 91,
+    "record_count": 3,
+    "review_action_count": 5,
+    "scenario_count": 9
+  }
+}

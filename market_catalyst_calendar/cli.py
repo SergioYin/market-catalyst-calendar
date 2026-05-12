@@ -12,9 +12,22 @@ from typing import Iterable, List, Optional
 from .archive import create_archive, verify_archive
 from .csv_io import csv_to_dataset_json, dataset_to_csv
 from .demo import DEMO_DATA
+from .evidence import evidence_audit_json, evidence_audit_markdown
+from .ics import records_to_ics
 from .io import dump_json, load_dataset, read_text
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
-from .render import brief_markdown, exposure_json, exposure_markdown, records_json, review_plan_json, review_plan_markdown
+from .render import (
+    brief_markdown,
+    exposure_json,
+    exposure_markdown,
+    records_json,
+    review_plan_json,
+    review_plan_markdown,
+    scenario_matrix_json,
+    scenario_matrix_markdown,
+    thesis_map_json,
+    thesis_map_markdown,
+)
 from .scoring import score_record
 
 
@@ -71,6 +84,30 @@ def build_parser() -> argparse.ArgumentParser:
     review_plan.add_argument("--format", choices=["json", "markdown"], default="json")
     review_plan.set_defaults(func=cmd_review_plan)
 
+    thesis_map = subparsers.add_parser("thesis-map", help="group catalysts by investment thesis")
+    add_input(thesis_map)
+    add_as_of(thesis_map)
+    thesis_map.add_argument("--stale-after-days", type=int, default=14)
+    thesis_map.add_argument("--format", choices=["json", "markdown"], default="json")
+    thesis_map.set_defaults(func=cmd_thesis_map)
+
+    scenario_matrix = subparsers.add_parser("scenario-matrix", help="render bull/base/bear event scenarios")
+    add_input(scenario_matrix)
+    add_as_of(scenario_matrix)
+    scenario_matrix.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    scenario_matrix.add_argument("--stale-after-days", type=int, default=14)
+    scenario_matrix.add_argument("--format", choices=["json", "markdown"], default="json")
+    scenario_matrix.set_defaults(func=cmd_scenario_matrix)
+
+    evidence_audit = subparsers.add_parser("evidence-audit", help="audit evidence freshness and source diversity")
+    add_input(evidence_audit)
+    add_as_of(evidence_audit)
+    evidence_audit.add_argument("--fresh-after-days", type=int, default=14)
+    evidence_audit.add_argument("--min-sources", type=int, default=2)
+    evidence_audit.add_argument("--max-domain-share", type=float, default=0.67)
+    evidence_audit.add_argument("--format", choices=["json", "markdown"], default="json")
+    evidence_audit.set_defaults(func=cmd_evidence_audit)
+
     demo = subparsers.add_parser("export-demo", help="write the built-in demo dataset")
     demo.add_argument("--output", "-o", help="output path; stdout when omitted")
     demo.set_defaults(func=cmd_export_demo)
@@ -79,6 +116,13 @@ def build_parser() -> argparse.ArgumentParser:
     add_input(export_csv)
     export_csv.add_argument("--output", "-o", help="output CSV path; stdout when omitted")
     export_csv.set_defaults(func=cmd_export_csv)
+
+    export_ics = subparsers.add_parser("export-ics", help="export upcoming catalysts to deterministic iCalendar")
+    add_input(export_ics)
+    add_as_of(export_ics)
+    export_ics.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    export_ics.add_argument("--output", "-o", help="output ICS path; stdout when omitted")
+    export_ics.set_defaults(func=cmd_export_ics)
 
     import_csv = subparsers.add_parser("import-csv", help="import CSV into catalyst JSON")
     import_csv.add_argument("--input", "-i", default="-", help="input CSV path; defaults to stdin")
@@ -166,6 +210,43 @@ def cmd_review_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_thesis_map(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(thesis_map_json(dataset.records, as_of, args.stale_after_days)), end="")
+    else:
+        print(thesis_map_markdown(dataset.records, as_of, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_scenario_matrix(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    if args.format == "json":
+        print(dump_json(scenario_matrix_json(records, as_of, args.stale_after_days)), end="")
+    else:
+        print(scenario_matrix_markdown(records, as_of, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_evidence_audit(args: argparse.Namespace) -> int:
+    if args.fresh_after_days < 0:
+        raise ValueError("--fresh-after-days must be non-negative")
+    if args.min_sources < 1:
+        raise ValueError("--min-sources must be at least 1")
+    if args.max_domain_share <= 0 or args.max_domain_share > 1:
+        raise ValueError("--max-domain-share must be greater than 0 and at most 1")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(evidence_audit_json(dataset.records, as_of, args.fresh_after_days, args.min_sources, args.max_domain_share)), end="")
+    else:
+        print(evidence_audit_markdown(dataset.records, as_of, args.fresh_after_days, args.min_sources, args.max_domain_share), end="")
+    return 0
+
+
 def cmd_export_demo(args: argparse.Namespace) -> int:
     text = dump_json(DEMO_DATA)
     if args.output:
@@ -179,6 +260,18 @@ def cmd_export_csv(args: argparse.Namespace) -> int:
     text = dataset_to_csv(load_dataset(args.input))
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_export_ics(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    text = records_to_ics(records, as_of)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8", newline="")
     else:
         print(text, end="")
     return 0

@@ -9,6 +9,9 @@ from .models import CatalystRecord, sorted_records
 from .scoring import Score, score_record
 
 
+SCENARIO_ORDER = ("bull", "base", "bear")
+
+
 def record_to_json(record: CatalystRecord, as_of: date) -> Dict[str, object]:
     score = score_record(record, as_of)
     payload: Dict[str, object] = {
@@ -30,6 +33,12 @@ def record_to_json(record: CatalystRecord, as_of: date) -> Dict[str, object]:
         payload["position_size"] = record.position_size
     if record.portfolio_weight is not None:
         payload["portfolio_weight"] = record.portfolio_weight
+    if record.thesis_id is not None:
+        payload["thesis_id"] = record.thesis_id
+    if record.source_ref is not None:
+        payload["source_ref"] = record.source_ref
+    if record.evidence_checked_at is not None:
+        payload["evidence_checked_at"] = record.evidence_checked_at.isoformat()
     return payload
 
 
@@ -192,6 +201,122 @@ def review_plan_markdown(
     return "\n".join(lines)
 
 
+def thesis_map_json(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> Dict[str, object]:
+    groups = _thesis_groups(records, as_of, stale_after_days)
+    return {
+        "as_of": as_of.isoformat(),
+        "stale_after_days": stale_after_days,
+        "groups": groups,
+        "summary": {
+            "thesis_count": len(groups),
+            "record_count": sum(int(group["record_count"]) for group in groups),
+            "open_event_count": sum(int(group["open_event_count"]) for group in groups),
+            "stale_count": sum(int(group["stale_count"]) for group in groups),
+        },
+    }
+
+
+def thesis_map_markdown(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> str:
+    groups = _thesis_groups(records, as_of, stale_after_days)
+    lines = [
+        "# Market Catalyst Thesis Map",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Stale after: {stale_after_days} days",
+        "",
+    ]
+    if not groups:
+        lines.extend(["No catalysts with thesis_id.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Thesis | Open Events | Highest Score | Stale | Records | Evidence References |",
+            "| --- | ---: | ---: | ---: | --- | --- |",
+        ]
+    )
+    for group in groups:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(group["thesis_id"]),
+                    str(group["open_event_count"]),
+                    str(group["highest_score"]),
+                    str(group["stale_count"]),
+                    ", ".join(str(record_id) for record_id in group["records"]),
+                    ", ".join(str(ref) for ref in group["evidence_references"]),
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def scenario_matrix_json(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> Dict[str, object]:
+    matrix = [_scenario_matrix_record(record, as_of, stale_after_days) for record in sorted_records(records)]
+    return {
+        "as_of": as_of.isoformat(),
+        "stale_after_days": stale_after_days,
+        "records": matrix,
+        "summary": {
+            "record_count": len(matrix),
+            "scenario_count": sum(len(record["scenarios"]) for record in matrix),
+            "highest_scenario_score": max(
+                (int(scenario["score"]) for record in matrix for scenario in record["scenarios"]),
+                default=0,
+            ),
+            "review_action_count": sum(
+                1
+                for record in matrix
+                for scenario in record["scenarios"]
+                if scenario["review_action"] != "none"
+            ),
+        },
+    }
+
+
+def scenario_matrix_markdown(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> str:
+    payload = scenario_matrix_json(records, as_of, stale_after_days)
+    lines = [
+        "# Market Catalyst Scenario Matrix",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Stale after: {stale_after_days} days",
+        "",
+    ]
+    if not payload["records"]:
+        lines.extend(["No matching catalyst scenarios.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Ticker | Event Date | Scenario | Score | Impact | Review Action | Note |",
+            "| --- | --- | --- | ---: | --- | --- | --- |",
+        ]
+    )
+    for record in payload["records"]:
+        for scenario in record["scenarios"]:  # type: ignore[index]
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        str(record["ticker"]),
+                        str(scenario["date"]),
+                        str(scenario["scenario"]),
+                        str(scenario["score"]),
+                        str(scenario["impact"]),
+                        str(scenario["review_action"]),
+                        _markdown_cell(str(scenario["note"])),
+                    ]
+                )
+                + " |"
+            )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _exposure_groups(records: Iterable[CatalystRecord], as_of: date) -> List[Dict[str, object]]:
     groups: Dict[tuple[str, str, str], Dict[str, object]] = {}
     for record in records:
@@ -237,6 +362,133 @@ def _exposure_groups(records: Iterable[CatalystRecord], as_of: date) -> List[Dic
         group["weighted_exposure"] = round(float(group["weighted_exposure"]), 6)
         group["weighted_position_exposure"] = round(float(group["weighted_position_exposure"]), 2)
         group["records"] = sorted(group["records"])  # type: ignore[arg-type]
+    return ordered
+
+
+def _scenario_matrix_record(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
+    score = score_record(record, as_of, stale_after_days=stale_after_days)
+    return {
+        "base_catalyst_score": score.catalyst_score,
+        "days_until": score.days_until,
+        "entity": record.entity,
+        "event_type": record.event_type,
+        "id": record.record_id,
+        "review_state": score.review_state,
+        "scenarios": [_scenario_item(record, score, scenario) for scenario in SCENARIO_ORDER],
+        "status": record.status,
+        "ticker": record.ticker,
+        "urgency": score.urgency,
+        "window": record.window.label,
+    }
+
+
+def _scenario_item(record: CatalystRecord, score: Score, scenario: str) -> Dict[str, object]:
+    scenario_score = max(0, min(100, score.catalyst_score + _scenario_score_adjustment(record, scenario)))
+    return {
+        "date": _scenario_date(record, scenario),
+        "impact": _scenario_impact(record, scenario),
+        "note": record.scenario_notes.get(scenario, ""),
+        "review_action": _scenario_review_action(record, score, scenario),
+        "scenario": scenario,
+        "score": scenario_score,
+    }
+
+
+def _scenario_score_adjustment(record: CatalystRecord, scenario: str) -> int:
+    if scenario == "base":
+        return 0
+    impact_bias = {
+        "positive": 6,
+        "mixed": 4,
+        "negative": 6,
+        "unknown": 2,
+    }.get(record.thesis_impact, 2)
+    confidence_bias = 3 if record.confidence >= 0.75 else 0
+    if scenario == "bull":
+        return impact_bias + confidence_bias
+    return -(impact_bias + confidence_bias + 4)
+
+
+def _scenario_date(record: CatalystRecord, scenario: str) -> str:
+    if record.window.start == record.window.end:
+        return record.window.start.isoformat()
+    if scenario == "bull":
+        return record.window.start.isoformat()
+    if scenario == "bear":
+        return record.window.end.isoformat()
+    return record.window.label
+
+
+def _scenario_impact(record: CatalystRecord, scenario: str) -> str:
+    if scenario == "base":
+        return record.thesis_impact
+    if scenario == "bull":
+        if record.thesis_impact == "negative":
+            return "less_negative"
+        if record.thesis_impact == "unknown":
+            return "positive_if_confirmed"
+        return "positive"
+    if record.thesis_impact == "positive":
+        return "less_positive"
+    if record.thesis_impact == "unknown":
+        return "negative_if_disconfirmed"
+    return "negative"
+
+
+def _scenario_review_action(record: CatalystRecord, score: Score, scenario: str) -> str:
+    if record.status in {"completed", "cancelled"}:
+        return "none"
+    if score.review_state == "stale":
+        return f"{record.required_review_action}:{scenario}:stale"
+    if scenario != "base" and record.required_review_action in {"update_scenario", "refresh_evidence", "verify_source"}:
+        return f"{record.required_review_action}:{scenario}"
+    if scenario == "base":
+        return record.required_review_action
+    return "monitor_date" if score.urgency in {"high", "overdue"} else "none"
+
+
+def _thesis_groups(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> List[Dict[str, object]]:
+    groups: Dict[str, Dict[str, object]] = {}
+    for record in records:
+        if record.thesis_id is None:
+            continue
+        score = score_record(record, as_of, stale_after_days=stale_after_days)
+        group = groups.setdefault(
+            record.thesis_id,
+            {
+                "thesis_id": record.thesis_id,
+                "record_count": 0,
+                "open_event_count": 0,
+                "highest_score": 0,
+                "stale_count": 0,
+                "records": [],
+                "evidence_references": [],
+            },
+        )
+        is_open = record.status not in {"completed", "cancelled"}
+        group["record_count"] = int(group["record_count"]) + 1
+        if is_open:
+            group["open_event_count"] = int(group["open_event_count"]) + 1
+        group["highest_score"] = max(int(group["highest_score"]), score.catalyst_score)
+        if is_open and score.review_state == "stale":
+            group["stale_count"] = int(group["stale_count"]) + 1
+        group["records"].append(record.record_id)  # type: ignore[union-attr]
+        references = group["evidence_references"]
+        if record.source_ref is not None:
+            references.append(record.source_ref)  # type: ignore[union-attr]
+        references.extend(record.evidence_urls)  # type: ignore[union-attr]
+
+    ordered = sorted(
+        groups.values(),
+        key=lambda group: (
+            -int(group["open_event_count"]),
+            -int(group["highest_score"]),
+            str(group["thesis_id"]),
+        ),
+    )
+    for group in ordered:
+        group["records"] = sorted(group["records"])  # type: ignore[arg-type]
+        group["evidence_references"] = sorted(set(group["evidence_references"]))  # type: ignore[arg-type]
     return ordered
 
 
@@ -379,3 +631,7 @@ def _format_percent(value: float) -> str:
 
 def _format_money(value: float) -> str:
     return f"{value:,.2f}"
+
+
+def _markdown_cell(value: str) -> str:
+    return value.replace("\n", " ").replace("|", "\\|")

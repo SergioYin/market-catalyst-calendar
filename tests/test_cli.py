@@ -39,11 +39,20 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(first["history"][0]["note"], raw["records"][0]["history"][0]["note"])
         self.assertEqual(first["position_size"], raw["records"][0]["position_size"])
         self.assertEqual(first["portfolio_weight"], raw["records"][0]["portfolio_weight"])
+        self.assertEqual(first["thesis_id"], raw["records"][0]["thesis_id"])
+        self.assertEqual(first["source_ref"], raw["records"][0]["source_ref"])
+        self.assertEqual(first["evidence_checked_at"], raw["records"][0]["evidence_checked_at"])
 
     def test_csv_import_accepts_missing_optional_exposure_columns(self):
         csv_text = dataset_to_csv(parse_dataset(DEMO_DATA))
         lines = csv_text.splitlines()
-        indexes = [CSV_COLUMNS.index("position_size"), CSV_COLUMNS.index("portfolio_weight")]
+        indexes = [
+            CSV_COLUMNS.index("position_size"),
+            CSV_COLUMNS.index("portfolio_weight"),
+            CSV_COLUMNS.index("thesis_id"),
+            CSV_COLUMNS.index("source_ref"),
+            CSV_COLUMNS.index("evidence_checked_at"),
+        ]
         filtered = []
         for line in lines:
             columns = line.split(",")
@@ -54,6 +63,9 @@ class ModelTests(unittest.TestCase):
         first = next(record for record in imported["records"] if record["id"] == "demo-pfe-fda-2026")
         self.assertIsNone(first["position_size"])
         self.assertIsNone(first["portfolio_weight"])
+        self.assertIsNone(first["thesis_id"])
+        self.assertIsNone(first["source_ref"])
+        self.assertNotIn("evidence_checked_at", first)
 
     def test_portfolio_weight_must_be_decimal_weight(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -143,6 +155,92 @@ class CliTests(unittest.TestCase):
         self.assertIn("- [ ] **PFE - Pfizer Inc.** (demo-pfe-fda-2026)", result.stdout)
         self.assertIn("Evidence gap: verify the source", result.stdout)
 
+    def test_thesis_map_json_groups_scores_stale_and_evidence_refs(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][1]["thesis_id"] = raw["records"][0]["thesis_id"]
+        result = self.run_cli("thesis-map", "--as-of", "2026-05-13", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"], {"open_event_count": 3, "record_count": 3, "stale_count": 1, "thesis_count": 2})
+        first = payload["groups"][0]
+        self.assertEqual(first["thesis_id"], "ai-infrastructure-capex")
+        self.assertEqual(first["open_event_count"], 2)
+        self.assertEqual(first["stale_count"], 1)
+        self.assertEqual(first["highest_score"], 87)
+        self.assertEqual(first["records"], ["demo-nvda-computex-2026", "demo-pfe-fda-2026"])
+        self.assertIn("NVDA Computex keynote tracker", first["evidence_references"])
+        self.assertIn("https://example.com/fda-calendar", first["evidence_references"])
+
+    def test_thesis_map_markdown_renders_table(self):
+        result = self.run_cli("thesis-map", "--as-of", "2026-05-13", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Thesis Map", result.stdout)
+        self.assertIn("| pharma-pipeline-reset | 1 | 87 | 1 | demo-pfe-fda-2026 |", result.stdout)
+
+    def test_scenario_matrix_json_renders_bull_base_bear(self):
+        result = self.run_cli("scenario-matrix", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"], {"highest_scenario_score": 91, "record_count": 1, "review_action_count": 3, "scenario_count": 3})
+        record = payload["records"][0]
+        self.assertEqual(record["id"], "demo-pfe-fda-2026")
+        self.assertEqual(record["base_catalyst_score"], 87)
+        self.assertEqual([scenario["scenario"] for scenario in record["scenarios"]], ["bull", "base", "bear"])
+        self.assertEqual([scenario["score"] for scenario in record["scenarios"]], [91, 87, 79])
+        self.assertEqual([scenario["date"] for scenario in record["scenarios"]], ["2026-05-20", "2026-05-20..2026-05-24", "2026-05-24"])
+        self.assertEqual([scenario["impact"] for scenario in record["scenarios"]], ["positive", "mixed", "negative"])
+        self.assertEqual(record["scenarios"][0]["review_action"], "verify_source:bull:stale")
+
+    def test_scenario_matrix_markdown_renders_table(self):
+        result = self.run_cli(
+            "scenario-matrix",
+            "--as-of",
+            "2026-05-13",
+            "--days",
+            "10",
+            "--format",
+            "markdown",
+            input_data=json.dumps(DEMO_DATA),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Scenario Matrix", result.stdout)
+        self.assertIn("| PFE | 2026-05-20 | bull | 91 | positive | verify_source:bull:stale |", result.stdout)
+
+    def test_evidence_audit_json_flags_freshness_thin_sources_and_concentration(self):
+        result = self.run_cli("evidence-audit", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"]["record_count"], 3)
+        self.assertEqual(payload["summary"]["flagged_record_count"], 3)
+        self.assertEqual(
+            payload["summary"]["flag_counts"],
+            {
+                "missing_evidence_checked_at": 1,
+                "source_concentration": 2,
+                "stale_evidence_metadata": 1,
+                "thin_source_count": 1,
+            },
+        )
+        by_id = {record["id"]: record for record in payload["records"]}
+        self.assertEqual(by_id["demo-pfe-fda-2026"]["evidence_age_days"], 15)
+        self.assertEqual(by_id["demo-pfe-fda-2026"]["flags"], ["stale_evidence_metadata", "source_concentration"])
+        self.assertEqual(by_id["demo-fomc-june-2026"]["flags"], ["missing_evidence_checked_at", "thin_source_count"])
+        self.assertEqual(by_id["demo-nvda-computex-2026"]["dominant_source_domain"], "example.com")
+
+    def test_evidence_audit_markdown_renders_detail(self):
+        result = self.run_cli(
+            "evidence-audit",
+            "--as-of",
+            "2026-05-13",
+            "--format",
+            "markdown",
+            input_data=json.dumps(DEMO_DATA),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Evidence Audit", result.stdout)
+        self.assertIn("| high | PFE | demo-pfe-fda-2026 | 2026-04-28 | 2 | example.com (1.00) |", result.stdout)
+        self.assertIn("record the date evidence was last checked", result.stdout)
+
     def test_invalid_record_fails_validation(self):
         bad = dict(DEMO_DATA)
         bad["records"] = [dict(DEMO_DATA["records"][0], evidence_urls=[])]
@@ -158,6 +256,41 @@ class CliTests(unittest.TestCase):
         self.assertIn("demo-pfe-fda-2026", lines[1])
         self.assertIn("demo-nvda-computex-2026", lines[2])
         self.assertIn("demo-fomc-june-2026", lines[3])
+
+    def test_export_ics_is_deterministic_and_escaped(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["entity"] = "NVIDIA, Corp; AI"
+        raw["records"][0]["source_ref"] = "Keynote tracker\nsource"
+        raw["records"][0]["scenario_notes"]["base"] = "Roadmap, supply; and demand\nstay aligned."
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "upcoming.ics"
+            result = self.run_cli(
+                "export-ics",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--output",
+                str(output),
+                input_data=json.dumps(raw),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            with output.open(encoding="utf-8", newline="") as handle:
+                text = handle.read()
+        unfolded = text.replace("\r\n ", "")
+        self.assertTrue(text.startswith("BEGIN:VCALENDAR\r\nVERSION:2.0\r\n"))
+        self.assertTrue(text.endswith("END:VCALENDAR\r\n"))
+        self.assertEqual(text.count("BEGIN:VEVENT"), 3)
+        self.assertIn("UID:demo-pfe-fda-2026-717aff837e76b0a92b6b@market-catalyst-calendar\r\n", text)
+        self.assertIn("DTSTAMP:20260513T000000Z\r\n", text)
+        self.assertIn("DTSTART;VALUE=DATE:20260520\r\nDTEND;VALUE=DATE:20260525\r\n", text)
+        self.assertIn("CATEGORIES:market-catalyst,PFE,regulatory_decision,watching,mixed,high,pharma-pipeline-reset\r\n", unfolded)
+        self.assertIn("URL:https://example.com/fda-calendar\r\n", text)
+        self.assertIn("SUMMARY:NVDA product launch: NVIDIA\\, Corp\\; AI\r\n", text)
+        self.assertIn("Base scenario: Roadmap\\, supply\\; and demand\\nstay aligned.", unfolded)
+        self.assertIn("Source note: Keynote tracker\\nsource", unfolded)
 
     def test_import_csv_outputs_json_dataset(self):
         csv_result = self.run_cli("export-csv", input_data=json.dumps(DEMO_DATA))
@@ -187,7 +320,7 @@ class CliTests(unittest.TestCase):
                 "45",
             )
             self.assertEqual(create_result.returncode, 0, create_result.stderr)
-            self.assertEqual(json.loads(create_result.stdout)["file_count"], 9)
+            self.assertEqual(json.loads(create_result.stdout)["file_count"], 16)
 
             manifest = json.loads((archive_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["archive_version"], 1)
@@ -198,11 +331,18 @@ class CliTests(unittest.TestCase):
                     "dataset/dataset.csv",
                     "dataset/dataset.json",
                     "reports/brief.md",
+                    "reports/evidence_audit.json",
+                    "reports/evidence_audit.md",
                     "reports/exposure.json",
                     "reports/exposure.md",
                     "reports/review_plan.json",
                     "reports/review_plan.md",
+                    "reports/scenario_matrix.json",
+                    "reports/scenario_matrix.md",
                     "reports/stale.json",
+                    "reports/thesis_map.json",
+                    "reports/thesis_map.md",
+                    "reports/upcoming.ics",
                     "reports/upcoming.json",
                 ],
             )

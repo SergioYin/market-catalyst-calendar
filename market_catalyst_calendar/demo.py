@@ -12,6 +12,8 @@ DEMO_DATA = {
             "confidence": 0.74,
             "position_size": 125000,
             "portfolio_weight": 0.0825,
+            "thesis_id": "ai-infrastructure-capex",
+            "source_ref": "NVDA Computex keynote tracker",
             "status": "scheduled",
             "history": [
                 {
@@ -32,6 +34,7 @@ DEMO_DATA = {
             },
             "required_review_action": "monitor_date",
             "last_reviewed": "2026-05-09",
+            "evidence_checked_at": "2026-05-09",
         },
         {
             "id": "demo-pfe-fda-2026",
@@ -42,6 +45,8 @@ DEMO_DATA = {
             "confidence": 0.68,
             "position_size": 48000,
             "portfolio_weight": 0.031,
+            "thesis_id": "pharma-pipeline-reset",
+            "source_ref": "FDA calendar and PFE pipeline note",
             "status": "watching",
             "history": [
                 {
@@ -62,6 +67,7 @@ DEMO_DATA = {
             },
             "required_review_action": "verify_source",
             "last_reviewed": "2026-04-28",
+            "evidence_checked_at": "2026-04-28",
         },
         {
             "id": "demo-fomc-june-2026",
@@ -71,6 +77,8 @@ DEMO_DATA = {
             "date": "2026-06-17",
             "confidence": 0.9,
             "portfolio_weight": 0.22,
+            "thesis_id": "rates-duration-risk",
+            "source_ref": "FOMC public calendar",
             "status": "confirmed",
             "history": [
                 {

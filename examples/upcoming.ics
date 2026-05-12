@@ -1,0 +1,60 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//market-catalyst-calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Market Catalyst Calendar
+X-MARKET-CATALYST-AS-OF:20260513
+BEGIN:VEVENT
+UID:demo-pfe-fda-2026-717aff837e76b0a92b6b@market-catalyst-calendar
+DTSTAMP:20260513T000000Z
+DTSTART;VALUE=DATE:20260520
+DTEND;VALUE=DATE:20260525
+SUMMARY:PFE regulatory decision: Pfizer Inc.
+DESCRIPTION:Record: demo-pfe-fda-2026\nEntity: Pfizer Inc.\nWindow: 2026-05
+ -20..2026-05-24\nStatus: watching\nThesis impact: mixed\nConfidence: 0.68\
+ nCatalyst score: 87\nUrgency: high\nReview: stale\nRequired action: verify
+ _source\nBase scenario: Decision is mostly expected but clarifies launch t
+ iming.\nSource note: FDA calendar and PFE pipeline note\nSource URLs:\n- h
+ ttps://example.com/fda-calendar\n- https://example.com/pfe-pipeline-update
+CATEGORIES:market-catalyst,PFE,regulatory_decision,watching,mixed,high,phar
+ ma-pipeline-reset
+STATUS:TENTATIVE
+URL:https://example.com/fda-calendar
+END:VEVENT
+BEGIN:VEVENT
+UID:demo-nvda-computex-2026-19452146c2ab81092437@market-catalyst-calendar
+DTSTAMP:20260513T000000Z
+DTSTART;VALUE=DATE:20260602
+DTEND;VALUE=DATE:20260603
+SUMMARY:NVDA product launch: NVIDIA Corporation
+DESCRIPTION:Record: demo-nvda-computex-2026\nEntity: NVIDIA Corporation\nWi
+ ndow: 2026-06-02\nStatus: scheduled\nThesis impact: positive\nConfidence: 
+ 0.74\nCatalyst score: 84\nUrgency: medium\nReview: current\nRequired actio
+ n: monitor_date\nBase scenario: Product roadmap details support existing a
+ ccelerator growth expectations.\nSource note: NVDA Computex keynote tracke
+ r\nSource URLs:\n- https://example.com/nvidia-computex-keynote\n- https://
+ example.com/channel-check-gpu-supply
+CATEGORIES:market-catalyst,NVDA,product_launch,scheduled,positive,medium,ai
+ -infrastructure-capex
+STATUS:CONFIRMED
+URL:https://example.com/nvidia-computex-keynote
+END:VEVENT
+BEGIN:VEVENT
+UID:demo-fomc-june-2026-abb2320f85f03d2b059d@market-catalyst-calendar
+DTSTAMP:20260513T000000Z
+DTSTART;VALUE=DATE:20260617
+DTEND;VALUE=DATE:20260618
+SUMMARY:SPY macro release: S&P 500 ETF Trust
+DESCRIPTION:Record: demo-fomc-june-2026\nEntity: S&P 500 ETF Trust\nWindow:
+  2026-06-17\nStatus: confirmed\nThesis impact: mixed\nConfidence: 0.90\nCa
+ talyst score: 83\nUrgency: medium\nReview: current\nRequired action: monit
+ or_date\nBase scenario: Statement broadly matches market-implied policy pa
+ th.\nSource note: FOMC public calendar\nSource URLs:\n- https://example.co
+ m/fomc-calendar
+CATEGORIES:market-catalyst,SPY,macro_release,confirmed,mixed,medium,rates-d
+ uration-risk
+STATUS:CONFIRMED
+URL:https://example.com/fomc-calendar
+END:VEVENT
+END:VCALENDAR

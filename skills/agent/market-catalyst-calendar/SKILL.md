@@ -12,8 +12,12 @@ Use this skill when a user wants to create, validate, rank, review, brief, or ex
 - Use `brief` when the user wants a Markdown analyst-ready summary.
 - Use `exposure` when the user asks which upcoming catalysts matter most to a portfolio or position book.
 - Use `review-plan` when the user wants an actionable review checklist for stale records and high-urgency upcoming catalysts.
+- Use `thesis-map` when the user wants catalysts grouped by investment thesis, with open event counts, stale counts, top score, and source references.
+- Use `scenario-matrix` when the user wants bull/base/bear scenarios with scenario score, event date, impact, and review action.
+- Use `evidence-audit` when the user wants evidence freshness, source count, or source concentration checks.
 - Use `export-demo` to create a deterministic starter dataset or smoke-test the package.
 - Use `export-csv` and `import-csv` when the user needs spreadsheet review or CSV round trips.
+- Use `export-ics` when the user needs upcoming catalysts in a calendar app or downstream calendar feed.
 - Use `create-archive` when the user needs a portable handoff directory containing the dataset, generated reports, and a SHA-256 manifest.
 - Use `verify-archive` before trusting or sharing an existing archive directory.
 
@@ -29,7 +33,14 @@ python -m market_catalyst_calendar exposure --input examples/demo_records.json -
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar thesis-map --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar thesis-map --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar export-csv --input examples/demo_records.json --output examples/demo_records.csv
+python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/upcoming.ics
 python -m market_catalyst_calendar import-csv --input examples/demo_records.csv --output examples/imported_demo_records.json
 python -m market_catalyst_calendar create-archive --input examples/demo_records.json --output-dir archive/demo --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar verify-archive archive/demo
@@ -37,11 +48,11 @@ python -m market_catalyst_calendar verify-archive archive/demo
 
 ## Input
 
-Input is JSON with an `as_of` date and a `records` list. Each record should include ticker or entity, event type, date or window, confidence, status/history, thesis impact, evidence URLs, bull/base/bear scenario notes, required review action, and last reviewed date. Records can also include optional `position_size` and `portfolio_weight`; `portfolio_weight` is a decimal fraction from `0` to `1`.
+Input is JSON with an `as_of` date and a `records` list. Each record should include ticker or entity, event type, date or window, confidence, status/history, thesis impact, evidence URLs, bull/base/bear scenario notes, required review action, and last reviewed date. Records can also include optional `evidence_checked_at`, `position_size`, `portfolio_weight`, `thesis_id`, and `source_ref`; `portfolio_weight` is a decimal fraction from `0` to `1`.
 
 ## Output
 
-Outputs are deterministic JSON, Markdown, CSV, or archive directories. JSON output sorts keys and records. Markdown briefs rank records by catalyst score, then event date, ticker, and record id. Exposure reports group upcoming open catalysts by ticker, event type, and urgency, then aggregate portfolio weight, notional position size, and confidence/score-weighted exposure. Review plans select stale open records plus high-urgency upcoming records, then provide per-record next actions, evidence gaps, and scenario update prompts. CSV exports sort rows by event window, ticker, and id, and percent-encode multi-value cell components before joining them with visible separators. Archives include canonical JSON, CSV, generated reports, and `manifest.json` entries with relative path, byte count, and SHA-256 hash; verification fails on missing, modified, or untracked files.
+Outputs are deterministic JSON, Markdown, CSV, ICS, or archive directories. JSON output sorts keys and records. Markdown briefs rank records by catalyst score, then event date, ticker, and record id. Exposure reports group upcoming open catalysts by ticker, event type, and urgency, then aggregate portfolio weight, notional position size, and confidence/score-weighted exposure. Review plans select stale open records plus high-urgency upcoming records, then provide per-record next actions, evidence gaps, and scenario update prompts. Thesis maps group records with `thesis_id`, count open and stale events, surface the highest catalyst score, and list source references from `source_ref` and evidence URLs. Scenario matrices filter to upcoming open catalysts, then render bull/base/bear rows with scenario-adjusted score, scenario date, impact, review action, and note. Evidence audits flag missing or stale `evidence_checked_at`, fewer than `--min-sources` evidence URLs, and dominant source domains above `--max-domain-share`. CSV exports sort rows by event window, ticker, and id, and percent-encode multi-value cell components before joining them with visible separators. ICS exports upcoming open catalysts as all-day iCalendar events with stable UIDs, deterministic `DTSTAMP`, escaped text, categories, exclusive `DTEND`, and source URL notes. Archives include canonical JSON, CSV, ICS, generated reports, and `manifest.json` entries with relative path, byte count, and SHA-256 hash; verification fails on missing, modified, or untracked files.
 
 ## Validation
 
@@ -53,4 +64,4 @@ This tool organizes research records; it does not provide investment advice. Pre
 
 ## Done Criteria
 
-A task is done when the dataset validates, requested outputs are generated deterministically, archives verify when requested, stale or missing-review items are surfaced, exposure is aggregated when position or weight fields are relevant, and any limitations in evidence or confidence are clearly reported.
+A task is done when the dataset validates, requested outputs are generated deterministically, calendar exports preserve source links and escaped text when requested, archives verify when requested, stale or missing-review items are surfaced, evidence freshness and source diversity are audited when requested, exposure is aggregated when position or weight fields are relevant, thesis links are grouped when `thesis_id` is present, scenario matrices show bull/base/bear implications when requested, and any limitations in evidence or confidence are clearly reported.

@@ -1,0 +1,101 @@
+{
+  "as_of": "2026-05-13",
+  "fresh_after_days": 14,
+  "max_domain_share": 0.67,
+  "min_sources": 2,
+  "records": [
+    {
+      "dominant_source_domain": "example.com",
+      "dominant_source_share": 1.0,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_age_days": 15,
+      "evidence_checked_at": "2026-04-28",
+      "evidence_url_count": 2,
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "flags": [
+        "stale_evidence_metadata",
+        "source_concentration"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "next_action": "refresh source review; evidence age is 15 days versus 14 allowed; add sources from independent domains or document why one domain is authoritative.",
+      "severity": "high",
+      "source_domain_count": 1,
+      "source_domains": [
+        "example.com"
+      ],
+      "status": "watching",
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "dominant_source_domain": "example.com",
+      "dominant_source_share": 1.0,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_age_days": 4,
+      "evidence_checked_at": "2026-05-09",
+      "evidence_url_count": 2,
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "flags": [
+        "source_concentration"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "next_action": "add sources from independent domains or document why one domain is authoritative.",
+      "severity": "low",
+      "source_domain_count": 1,
+      "source_domains": [
+        "example.com"
+      ],
+      "status": "scheduled",
+      "ticker": "NVDA",
+      "window": "2026-06-02"
+    },
+    {
+      "dominant_source_domain": "example.com",
+      "dominant_source_share": 1.0,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_age_days": null,
+      "evidence_checked_at": null,
+      "evidence_url_count": 1,
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "flags": [
+        "missing_evidence_checked_at",
+        "thin_source_count"
+      ],
+      "id": "demo-fomc-june-2026",
+      "next_action": "record the date evidence was last checked; add independent sources until at least 2 URLs support the record.",
+      "severity": "high",
+      "source_domain_count": 1,
+      "source_domains": [
+        "example.com"
+      ],
+      "status": "confirmed",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    }
+  ],
+  "summary": {
+    "flag_counts": {
+      "missing_evidence_checked_at": 1,
+      "source_concentration": 2,
+      "stale_evidence_metadata": 1,
+      "thin_source_count": 1
+    },
+    "flagged_record_count": 3,
+    "record_count": 3,
+    "severity_counts": {
+      "high": 2,
+      "low": 1
+    }
+  }
+}
