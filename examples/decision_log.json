@@ -1,0 +1,376 @@
+{
+  "as_of": "2026-05-13",
+  "days": 45,
+  "memos": [
+    {
+      "broker_context": {
+        "stale_view_count": 1,
+        "target_price_avg": 35.0,
+        "target_price_range": "31.00-39.00",
+        "view_count": 2,
+        "views": [
+          {
+            "age_days": 12,
+            "as_of": "2026-05-01",
+            "caveat": "View depends on label breadth and launch timing after the decision window.",
+            "institution": "Harbor Life Sciences",
+            "rating": "market perform",
+            "source_url": "https://example.com/pfe-broker-harbor",
+            "stale_source": false,
+            "target_price": 31.0
+          },
+          {
+            "age_days": 33,
+            "as_of": "2026-04-10",
+            "caveat": "Model gives partial credit for approval but not a restrictive label.",
+            "institution": "Summit Research",
+            "rating": "outperform",
+            "source_url": "https://example.com/pfe-broker-summit",
+            "stale_source": true,
+            "target_price": 39.0
+          }
+        ]
+      },
+      "catalyst": {
+        "catalyst_score": 87,
+        "confidence": 0.68,
+        "days_until": 7,
+        "event_type": "regulatory_decision",
+        "id": "demo-pfe-fda-2026",
+        "required_review_action": "verify_source",
+        "review_state": "stale",
+        "status": "watching",
+        "urgency": "high",
+        "window": "2026-05-20..2026-05-24"
+      },
+      "decision_owner": "TBD",
+      "decision_slots": {
+        "follow_up_owner": "TBD",
+        "position_action": "TBD",
+        "pre_event_decision": "TBD",
+        "risk_limit_or_hedge": "TBD"
+      },
+      "decision_status": "draft",
+      "entity": "Pfizer Inc.",
+      "evidence": {
+        "evidence_checked_at": "2026-04-28",
+        "last_reviewed": "2026-04-28",
+        "source_ref": "FDA calendar and PFE pipeline note",
+        "urls": [
+          "https://example.com/fda-calendar",
+          "https://example.com/pfe-pipeline-update"
+        ]
+      },
+      "memo_id": "decision-demo-pfe-fda-2026",
+      "post_event_review": {
+        "evidence_delta": "TBD",
+        "next_action": "TBD",
+        "outcome": "TBD",
+        "review_due": "2026-05-24",
+        "scenario_accuracy": "TBD",
+        "thesis_update": "TBD"
+      },
+      "prepared_on": "2026-05-13",
+      "scenarios": [
+        {
+          "date": "2026-05-20",
+          "impact": "positive",
+          "note": "Approval expands pipeline credibility and supports forward revenue mix.",
+          "review_action": "verify_source:bull:stale",
+          "scenario": "bull",
+          "score": 91
+        },
+        {
+          "date": "2026-05-20..2026-05-24",
+          "impact": "mixed",
+          "note": "Decision is mostly expected but clarifies launch timing.",
+          "review_action": "verify_source:base:stale",
+          "scenario": "base",
+          "score": 87
+        },
+        {
+          "date": "2026-05-24",
+          "impact": "negative",
+          "note": "Delay or restrictive label pressures near-term sentiment.",
+          "review_action": "verify_source:bear:stale",
+          "scenario": "bear",
+          "score": 79
+        }
+      ],
+      "thesis": {
+        "decision_question": "Does the regulatory decision change the thesis for PFE?",
+        "impact": "mixed",
+        "thesis_id": "pharma-pipeline-reset",
+        "working_thesis": "Decision is mostly expected but clarifies launch timing."
+      },
+      "ticker": "PFE",
+      "watchlist_triggers": [
+        {
+          "action": "verify_source",
+          "condition": "Review by 2026-05-13 before catalyst window 2026-05-20..2026-05-24.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if PFE confirms, delays, cancels, or changes the regulatory decision window.",
+          "type": "event_window"
+        },
+        {
+          "action": "refresh_review_notes",
+          "condition": "Last review is stale by 15 days as of 2026-05-13.",
+          "type": "stale_review"
+        },
+        {
+          "action": "verify_source",
+          "condition": "Primary evidence changes, disappears, conflicts with another source, or lacks a dated update.",
+          "type": "source_check"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'pharma-pipeline-reset'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ]
+    },
+    {
+      "broker_context": {
+        "stale_view_count": 0,
+        "target_price_avg": null,
+        "target_price_range": "none",
+        "view_count": 0,
+        "views": []
+      },
+      "catalyst": {
+        "catalyst_score": 83,
+        "confidence": 0.9,
+        "days_until": 35,
+        "event_type": "macro_release",
+        "id": "demo-fomc-june-2026",
+        "required_review_action": "monitor_date",
+        "review_state": "current",
+        "status": "confirmed",
+        "urgency": "medium",
+        "window": "2026-06-17"
+      },
+      "decision_owner": "TBD",
+      "decision_slots": {
+        "follow_up_owner": "TBD",
+        "position_action": "TBD",
+        "pre_event_decision": "TBD",
+        "risk_limit_or_hedge": "TBD"
+      },
+      "decision_status": "draft",
+      "entity": "S&P 500 ETF Trust",
+      "evidence": {
+        "evidence_checked_at": "missing",
+        "last_reviewed": "2026-05-08",
+        "source_ref": "FOMC public calendar",
+        "urls": [
+          "https://example.com/fomc-calendar"
+        ]
+      },
+      "memo_id": "decision-demo-fomc-june-2026",
+      "post_event_review": {
+        "evidence_delta": "TBD",
+        "next_action": "TBD",
+        "outcome": "TBD",
+        "review_due": "2026-06-17",
+        "scenario_accuracy": "TBD",
+        "thesis_update": "TBD"
+      },
+      "prepared_on": "2026-05-13",
+      "scenarios": [
+        {
+          "date": "2026-06-17",
+          "impact": "positive",
+          "note": "Policy language indicates lower real-rate pressure for duration assets.",
+          "review_action": "none",
+          "scenario": "bull",
+          "score": 90
+        },
+        {
+          "date": "2026-06-17",
+          "impact": "mixed",
+          "note": "Statement broadly matches market-implied policy path.",
+          "review_action": "monitor_date",
+          "scenario": "base",
+          "score": 83
+        },
+        {
+          "date": "2026-06-17",
+          "impact": "negative",
+          "note": "Inflation language reprices yields higher and weighs on multiples.",
+          "review_action": "none",
+          "scenario": "bear",
+          "score": 72
+        }
+      ],
+      "thesis": {
+        "decision_question": "Does the macro release change the thesis for SPY?",
+        "impact": "mixed",
+        "thesis_id": "rates-duration-risk",
+        "working_thesis": "Statement broadly matches market-implied policy path."
+      },
+      "ticker": "SPY",
+      "watchlist_triggers": [
+        {
+          "action": "monitor_date",
+          "condition": "Review by 2026-06-10 before catalyst window 2026-06-17.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if SPY confirms, delays, cancels, or changes the macro release window.",
+          "type": "event_window"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'rates-duration-risk'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ]
+    },
+    {
+      "broker_context": {
+        "stale_view_count": 1,
+        "target_price_avg": 1202.5,
+        "target_price_range": "1085.00-1320.00",
+        "view_count": 2,
+        "views": [
+          {
+            "age_days": 38,
+            "as_of": "2026-04-05",
+            "caveat": "Older view predates the final Computex keynote agenda.",
+            "institution": "Metro Capital Markets",
+            "rating": "hold",
+            "source_url": "https://example.com/nvda-broker-metro",
+            "stale_source": true,
+            "target_price": 1085.0
+          },
+          {
+            "age_days": 3,
+            "as_of": "2026-05-10",
+            "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+            "institution": "North Coast Securities",
+            "rating": "buy",
+            "source_url": "https://example.com/nvda-broker-north-coast",
+            "stale_source": false,
+            "target_price": 1320.0
+          }
+        ]
+      },
+      "catalyst": {
+        "catalyst_score": 84,
+        "confidence": 0.74,
+        "days_until": 20,
+        "event_type": "product_launch",
+        "id": "demo-nvda-computex-2026",
+        "required_review_action": "monitor_date",
+        "review_state": "current",
+        "status": "scheduled",
+        "urgency": "medium",
+        "window": "2026-06-02"
+      },
+      "decision_owner": "TBD",
+      "decision_slots": {
+        "follow_up_owner": "TBD",
+        "position_action": "TBD",
+        "pre_event_decision": "TBD",
+        "risk_limit_or_hedge": "TBD"
+      },
+      "decision_status": "draft",
+      "entity": "NVIDIA Corporation",
+      "evidence": {
+        "evidence_checked_at": "2026-05-09",
+        "last_reviewed": "2026-05-09",
+        "source_ref": "NVDA Computex keynote tracker",
+        "urls": [
+          "https://example.com/nvidia-computex-keynote",
+          "https://example.com/channel-check-gpu-supply"
+        ]
+      },
+      "memo_id": "decision-demo-nvda-computex-2026",
+      "post_event_review": {
+        "evidence_delta": "TBD",
+        "next_action": "TBD",
+        "outcome": "TBD",
+        "review_due": "2026-06-02",
+        "scenario_accuracy": "TBD",
+        "thesis_update": "TBD"
+      },
+      "prepared_on": "2026-05-13",
+      "scenarios": [
+        {
+          "date": "2026-06-02",
+          "impact": "positive",
+          "note": "Management confirms accelerated platform demand and shorter supply constraints.",
+          "review_action": "none",
+          "scenario": "bull",
+          "score": 90
+        },
+        {
+          "date": "2026-06-02",
+          "impact": "positive",
+          "note": "Product roadmap details support existing accelerator growth expectations.",
+          "review_action": "monitor_date",
+          "scenario": "base",
+          "score": 84
+        },
+        {
+          "date": "2026-06-02",
+          "impact": "less_positive",
+          "note": "Launch focuses on refresh timing without incremental demand signals.",
+          "review_action": "none",
+          "scenario": "bear",
+          "score": 74
+        }
+      ],
+      "thesis": {
+        "decision_question": "Does the product launch change the thesis for NVDA?",
+        "impact": "positive",
+        "thesis_id": "ai-infrastructure-capex",
+        "working_thesis": "Product roadmap details support existing accelerator growth expectations."
+      },
+      "ticker": "NVDA",
+      "watchlist_triggers": [
+        {
+          "action": "monitor_date",
+          "condition": "Review by 2026-05-26 before catalyst window 2026-06-02.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if NVDA confirms, delays, cancels, or changes the product launch window.",
+          "type": "event_window"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'ai-infrastructure-capex'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ]
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "broker_context_count": 2,
+    "memo_count": 3,
+    "stale_memo_count": 1,
+    "trigger_count": 14
+  }
+}

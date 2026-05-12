@@ -5,7 +5,7 @@ Fresh after: 14 days
 Minimum sources: 2
 Maximum domain share: 0.67
 
-Flagged records: 3 of 3
+Flagged records: 3 of 4
 
 | Severity | Ticker | Record | Evidence Checked | Sources | Dominant Domain | Flags |
 | --- | --- | --- | --- | ---: | --- | --- |

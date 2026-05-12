@@ -1,0 +1,12 @@
+url,source_types,usage_count,tickers,thesis_ids,record_ids,evidence_checked_at,freshness_age_days,freshness_state,broker_institutions,broker_as_of_dates
+https://example.com/fomc-calendar,evidence,1,SPY,rates-duration-risk,demo-fomc-june-2026,missing,missing,missing,,
+https://example.com/fda-calendar,evidence,1,PFE,pharma-pipeline-reset,demo-pfe-fda-2026,2026-04-28,15,stale,,
+https://example.com/nvda-broker-metro,broker,1,NVDA,ai-infrastructure-capex,demo-nvda-computex-2026,2026-04-05,38,stale,Metro Capital Markets,2026-04-05
+https://example.com/pfe-broker-summit,broker,1,PFE,pharma-pipeline-reset,demo-pfe-fda-2026,2026-04-10,33,stale,Summit Research,2026-04-10
+https://example.com/pfe-pipeline-update,evidence,1,PFE,pharma-pipeline-reset,demo-pfe-fda-2026,2026-04-28,15,stale,,
+https://example.com/channel-check-gpu-supply,evidence,1,NVDA,ai-infrastructure-capex,demo-nvda-computex-2026,2026-05-09,4,fresh,,
+https://example.com/msft-q3-earnings,evidence,1,MSFT,unmapped,demo-msft-earnings-2026,2026-05-07,6,fresh,,
+https://example.com/nvda-broker-north-coast,broker,1,NVDA,ai-infrastructure-capex,demo-nvda-computex-2026,2026-05-10,3,fresh,North Coast Securities,2026-05-10
+https://example.com/nvidia-computex-keynote,evidence,1,NVDA,ai-infrastructure-capex,demo-nvda-computex-2026,2026-05-09,4,fresh,,
+https://example.com/pfe-broker-harbor,broker,1,PFE,pharma-pipeline-reset,demo-pfe-fda-2026,2026-05-01,12,fresh,Harbor Life Sciences,2026-05-01
+https://ir.example.org/msft-q3-transcript,evidence,1,MSFT,unmapped,demo-msft-earnings-2026,2026-05-07,6,fresh,,

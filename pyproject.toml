@@ -10,19 +10,45 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [{ name = "Market Catalyst Calendar Contributors" }]
-keywords = ["finance", "investing", "calendar", "catalysts", "cli"]
+maintainers = [{ name = "Market Catalyst Calendar Contributors" }]
+keywords = [
+  "calendar",
+  "catalysts",
+  "cli",
+  "finance",
+  "investing",
+  "portfolio",
+  "research",
+  "stdlib",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "Intended Audience :: Financial and Insurance Industry",
+  "Intended Audience :: Information Technology",
   "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
   "Topic :: Office/Business :: Financial :: Investment",
+  "Topic :: Utilities",
 ]
 
 [project.scripts]
 market-catalyst-calendar = "market_catalyst_calendar.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+market_catalyst_calendar = ["py.typed"]
 
 [tool.setuptools.packages.find]
 include = ["market_catalyst_calendar*"]

@@ -1,4 +1,5 @@
 import json
+import importlib.util
 import subprocess
 import sys
 import tempfile
@@ -11,11 +12,23 @@ from market_catalyst_calendar.models import parse_dataset, validation_errors
 from market_catalyst_calendar.scoring import score_record
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_selfcheck_module():
+    spec = importlib.util.spec_from_file_location("selfcheck", ROOT / "scripts" / "selfcheck.py")
+    if spec is None or spec.loader is None:
+        raise RuntimeError("could not load scripts/selfcheck.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class ModelTests(unittest.TestCase):
     def test_demo_validates(self):
         dataset = parse_dataset(DEMO_DATA)
         self.assertEqual(validation_errors(dataset), [])
-        self.assertEqual(len(dataset.records), 3)
+        self.assertEqual(len(dataset.records), 4)
 
     def test_scoring_prioritizes_near_regulatory_event(self):
         dataset = parse_dataset(DEMO_DATA)
@@ -31,6 +44,8 @@ class ModelTests(unittest.TestCase):
         raw["records"][0]["scenario_notes"]["bull"] = "Demand holds | upside = faster ramps\nWatch hyperscaler orders."
         raw["records"][0]["history"][0]["note"] = "Added after channel checks | needs = review."
         raw["records"][0]["broker_views"][0]["caveat"] = "Target assumes backlog | revenue = visible\nNeeds follow-up."
+        raw["records"][0]["actual_outcome"] = "Keynote confirmed the next platform ramp | demand = intact."
+        raw["records"][0]["outcome_recorded_at"] = "2026-06-03"
 
         imported = csv_to_dataset_json(dataset_to_csv(parse_dataset(raw)))
 
@@ -44,6 +59,8 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(first["source_ref"], raw["records"][0]["source_ref"])
         self.assertEqual(first["evidence_checked_at"], raw["records"][0]["evidence_checked_at"])
         self.assertEqual(first["broker_views"][1]["caveat"], raw["records"][0]["broker_views"][0]["caveat"])
+        self.assertEqual(first["actual_outcome"], raw["records"][0]["actual_outcome"])
+        self.assertEqual(first["outcome_recorded_at"], raw["records"][0]["outcome_recorded_at"])
 
     def test_csv_import_accepts_missing_optional_exposure_columns(self):
         csv_text = dataset_to_csv(parse_dataset(DEMO_DATA))
@@ -54,6 +71,8 @@ class ModelTests(unittest.TestCase):
             CSV_COLUMNS.index("thesis_id"),
             CSV_COLUMNS.index("source_ref"),
             CSV_COLUMNS.index("evidence_checked_at"),
+            CSV_COLUMNS.index("actual_outcome"),
+            CSV_COLUMNS.index("outcome_recorded_at"),
         ]
         filtered = []
         for line in lines:
@@ -68,6 +87,8 @@ class ModelTests(unittest.TestCase):
         self.assertIsNone(first["thesis_id"])
         self.assertIsNone(first["source_ref"])
         self.assertNotIn("evidence_checked_at", first)
+        self.assertNotIn("actual_outcome", first)
+        self.assertNotIn("outcome_recorded_at", first)
 
     def test_portfolio_weight_must_be_decimal_weight(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -80,6 +101,13 @@ class ModelTests(unittest.TestCase):
         raw["records"][0]["broker_views"][0]["source_url"] = "not-a-url"
         with self.assertRaisesRegex(ValueError, "source_url must be an http"):
             parse_dataset(raw)
+
+    def test_outcome_recorded_at_requires_actual_outcome(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["as_of"] = "2026-06-03"
+        raw["records"][0]["outcome_recorded_at"] = "2026-06-03"
+        dataset = parse_dataset(raw)
+        self.assertIn("outcome_recorded_at requires actual_outcome", validation_errors(dataset)[0])
 
 
 class CliTests(unittest.TestCase):
@@ -95,7 +123,7 @@ class CliTests(unittest.TestCase):
     def test_validate_stdin(self):
         result = self.run_cli("validate", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(json.loads(result.stdout), {"ok": True, "record_count": 3})
+        self.assertEqual(json.loads(result.stdout), {"ok": True, "record_count": 4})
 
     def test_upcoming_json_is_deterministic(self):
         result = self.run_cli("upcoming", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
@@ -165,7 +193,7 @@ class CliTests(unittest.TestCase):
 
     def test_thesis_map_json_groups_scores_stale_and_evidence_refs(self):
         raw = json.loads(json.dumps(DEMO_DATA))
-        raw["records"][1]["thesis_id"] = raw["records"][0]["thesis_id"]
+        raw["records"][2]["thesis_id"] = raw["records"][0]["thesis_id"]
         result = self.run_cli("thesis-map", "--as-of", "2026-05-13", input_data=json.dumps(raw))
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
@@ -218,7 +246,7 @@ class CliTests(unittest.TestCase):
         result = self.run_cli("evidence-audit", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload["summary"]["record_count"], 3)
+        self.assertEqual(payload["summary"]["record_count"], 4)
         self.assertEqual(payload["summary"]["flagged_record_count"], 3)
         self.assertEqual(
             payload["summary"]["flag_counts"],
@@ -272,6 +300,35 @@ class CliTests(unittest.TestCase):
         self.assertIn("| NVDA | ai-infrastructure-capex | 2 | 1202.50 | 1085.00-1320.00 | 235.00 | Metro Capital Markets | demo-nvda-computex-2026 |", result.stdout)
         self.assertIn("| Metro Capital Markets | hold | 1085.00 | 2026-04-05 | 38 | Older view predates", result.stdout)
 
+    def test_source_pack_json_deduplicates_evidence_and_broker_urls(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["evidence_urls"].append("https://example.com/pfe-broker-harbor")
+        result = self.run_cli("source-pack", "--as-of", "2026-05-13", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"]["source_count"], 11)
+        self.assertEqual(payload["summary"]["usage_count"], 12)
+        self.assertEqual(payload["summary"]["broker_source_count"], 4)
+        self.assertEqual(payload["summary"]["evidence_source_count"], 8)
+        by_url = {source["url"]: source for source in payload["sources"]}
+        combined = by_url["https://example.com/pfe-broker-harbor"]
+        self.assertEqual(combined["source_types"], ["broker", "evidence"])
+        self.assertEqual(combined["usage_count"], 2)
+        self.assertEqual(combined["tickers"], ["NVDA", "PFE"])
+        self.assertEqual(combined["thesis_ids"], ["ai-infrastructure-capex", "pharma-pipeline-reset"])
+        self.assertEqual(combined["evidence_checked_at"], "2026-05-09")
+        self.assertEqual(combined["freshness_state"], "fresh")
+
+    def test_source_pack_csv_and_markdown_render_source_inventory(self):
+        csv_result = self.run_cli("source-pack", "--as-of", "2026-05-13", "--format", "csv", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(csv_result.returncode, 0, csv_result.stderr)
+        self.assertTrue(csv_result.stdout.startswith("url,source_types,usage_count,tickers,thesis_ids,record_ids,evidence_checked_at"))
+        self.assertIn("https://example.com/fomc-calendar,evidence,1,SPY,rates-duration-risk,demo-fomc-june-2026,missing,missing,missing", csv_result.stdout)
+        md_result = self.run_cli("source-pack", "--as-of", "2026-05-13", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(md_result.returncode, 0, md_result.stderr)
+        self.assertIn("# Market Catalyst Source Pack", md_result.stdout)
+        self.assertIn("| stale | 1 | broker | NVDA | ai-infrastructure-capex | 2026-04-05 | https://example.com/nvda-broker-metro |", md_result.stdout)
+
     def test_watchlist_json_prioritizes_due_items_with_triggers_and_refs(self):
         result = self.run_cli("watchlist", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -300,6 +357,62 @@ class CliTests(unittest.TestCase):
         self.assertIn("| high (78) | 2026-05-26 | twice_weekly | NVDA | product_launch 2026-06-02 |", result.stdout)
         self.assertIn("- Watch item: watch-demo-pfe-fda-2026", result.stdout)
         self.assertIn("Bull/base/bear evidence changes the linked thesis 'pharma-pipeline-reset'. -> update_thesis_reference", result.stdout)
+
+    def test_decision_log_json_builds_memo_stubs_with_context(self):
+        result = self.run_cli("decision-log", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"], {"broker_context_count": 2, "memo_count": 3, "stale_memo_count": 1, "trigger_count": 14})
+        self.assertEqual([memo["memo_id"] for memo in payload["memos"]], ["decision-demo-pfe-fda-2026", "decision-demo-fomc-june-2026", "decision-demo-nvda-computex-2026"])
+        first = payload["memos"][0]
+        self.assertEqual(first["decision_status"], "draft")
+        self.assertEqual(first["thesis"]["thesis_id"], "pharma-pipeline-reset")
+        self.assertEqual(first["catalyst"]["review_state"], "stale")
+        self.assertEqual([scenario["scenario"] for scenario in first["scenarios"]], ["bull", "base", "bear"])
+        self.assertEqual(first["broker_context"]["target_price_range"], "31.00-39.00")
+        self.assertEqual(first["watchlist_triggers"][0]["type"], "review_due")
+        self.assertEqual(first["decision_slots"]["pre_event_decision"], "TBD")
+        self.assertEqual(first["post_event_review"]["review_due"], "2026-05-24")
+
+    def test_decision_log_markdown_renders_memo_sections(self):
+        result = self.run_cli("decision-log", "--as-of", "2026-05-13", "--days", "10", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Decision Log", result.stdout)
+        self.assertIn("## PFE - Pfizer Inc.", result.stdout)
+        self.assertIn("### Broker Context", result.stdout)
+        self.assertIn("- Pre-event decision: TBD", result.stdout)
+        self.assertIn("- Review due: 2026-05-24", result.stdout)
+        self.assertNotIn("## NVDA - NVIDIA Corporation", result.stdout)
+
+    def test_post_event_json_lists_overdue_items_with_templates(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["actual_outcome"] = "Management confirmed faster platform cadence."
+        raw["records"][0]["outcome_recorded_at"] = "2026-06-03"
+        result = self.run_cli("post-event", "--as-of", "2026-06-25", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(
+            payload["summary"],
+            {
+                "completed_count": 0,
+                "item_count": 2,
+                "missing_outcome_count": 2,
+                "missing_recorded_at_count": 2,
+                "overdue_count": 2,
+            },
+        )
+        self.assertEqual([item["id"] for item in payload["items"]], ["demo-pfe-fda-2026", "demo-fomc-june-2026"])
+        self.assertEqual(payload["items"][0]["review_due"], "2026-05-24")
+        self.assertEqual(payload["items"][0]["outcome_review_template"]["outcome_recorded_at"], "2026-06-25")
+        self.assertTrue(payload["items"][0]["outcome_review_template"]["source_update_needed"])
+
+    def test_post_event_markdown_renders_outcome_review_template(self):
+        result = self.run_cli("post-event", "--as-of", "2026-06-25", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Post-Event Review", result.stdout)
+        self.assertIn("| overdue | 2026-05-24 | PFE | regulatory_decision 2026-05-20..2026-05-24 |", result.stdout)
+        self.assertIn("### Outcome Review Template", result.stdout)
+        self.assertIn("- Actual outcome: TBD", result.stdout)
 
     def test_html_dashboard_renders_static_workflow_and_escapes_html(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -333,9 +446,10 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         lines = result.stdout.splitlines()
         self.assertEqual(lines[0].split(","), CSV_COLUMNS)
-        self.assertIn("demo-pfe-fda-2026", lines[1])
-        self.assertIn("demo-nvda-computex-2026", lines[2])
-        self.assertIn("demo-fomc-june-2026", lines[3])
+        self.assertIn("demo-msft-earnings-2026", lines[1])
+        self.assertIn("demo-pfe-fda-2026", lines[2])
+        self.assertIn("demo-nvda-computex-2026", lines[3])
+        self.assertIn("demo-fomc-june-2026", lines[4])
 
     def test_export_ics_is_deterministic_and_escaped(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -379,7 +493,10 @@ class CliTests(unittest.TestCase):
         self.assertEqual(json_result.returncode, 0, json_result.stderr)
         payload = json.loads(json_result.stdout)
         self.assertEqual(payload["as_of"], "2026-05-13")
-        self.assertEqual([record["id"] for record in payload["records"]], ["demo-pfe-fda-2026", "demo-nvda-computex-2026", "demo-fomc-june-2026"])
+        self.assertEqual(
+            [record["id"] for record in payload["records"]],
+            ["demo-msft-earnings-2026", "demo-pfe-fda-2026", "demo-nvda-computex-2026", "demo-fomc-june-2026"],
+        )
         self.assertEqual(validation_errors(parse_dataset(payload)), [])
 
     def test_create_archive_writes_reports_manifest_and_verifies(self):
@@ -400,11 +517,11 @@ class CliTests(unittest.TestCase):
                 "45",
             )
             self.assertEqual(create_result.returncode, 0, create_result.stderr)
-            self.assertEqual(json.loads(create_result.stdout)["file_count"], 21)
+            self.assertEqual(json.loads(create_result.stdout)["file_count"], 28)
 
             manifest = json.loads((archive_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["archive_version"], 1)
-            self.assertEqual(manifest["dataset"]["record_count"], 3)
+            self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(
                 [item["path"] for item in manifest["files"]],
                 [
@@ -414,14 +531,21 @@ class CliTests(unittest.TestCase):
                     "reports/broker_matrix.json",
                     "reports/broker_matrix.md",
                     "reports/dashboard.html",
+                    "reports/decision_log.json",
+                    "reports/decision_log.md",
                     "reports/evidence_audit.json",
                     "reports/evidence_audit.md",
                     "reports/exposure.json",
                     "reports/exposure.md",
+                    "reports/post_event.json",
+                    "reports/post_event.md",
                     "reports/review_plan.json",
                     "reports/review_plan.md",
                     "reports/scenario_matrix.json",
                     "reports/scenario_matrix.md",
+                    "reports/source_pack.csv",
+                    "reports/source_pack.json",
+                    "reports/source_pack.md",
                     "reports/stale.json",
                     "reports/thesis_map.json",
                     "reports/thesis_map.md",
@@ -453,6 +577,21 @@ class CliTests(unittest.TestCase):
             payload = json.loads(verify_result.stdout)
             self.assertFalse(payload["ok"])
             self.assertIn("sha256 mismatch: reports/brief.md", payload["errors"])
+
+
+class SelfcheckDocumentationTests(unittest.TestCase):
+    def test_examples_readme_documents_every_fixture_command(self):
+        selfcheck = load_selfcheck_module()
+        documented = {expected_path for _, expected_path in selfcheck.documented_example_commands()}
+        fixtures = set(selfcheck.example_fixture_paths())
+        self.assertEqual(documented, fixtures)
+
+    def test_documented_example_commands_use_module_entrypoint(self):
+        selfcheck = load_selfcheck_module()
+        commands = [command for command, _ in selfcheck.documented_example_commands()]
+        self.assertTrue(commands)
+        for command in commands:
+            self.assertEqual(command[:3], [sys.executable, "-m", "market_catalyst_calendar"])
 
 
 if __name__ == "__main__":

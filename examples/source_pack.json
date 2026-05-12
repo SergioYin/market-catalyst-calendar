@@ -1,0 +1,284 @@
+{
+  "as_of": "2026-05-13",
+  "fresh_after_days": 14,
+  "sources": [
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "missing",
+      "evidence_checked_dates": [],
+      "freshness_age_days": "missing",
+      "freshness_state": "missing",
+      "record_ids": [
+        "demo-fomc-june-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "rates-duration-risk"
+      ],
+      "tickers": [
+        "SPY"
+      ],
+      "url": "https://example.com/fomc-calendar",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-04-28",
+      "evidence_checked_dates": [
+        "2026-04-28"
+      ],
+      "freshness_age_days": 15,
+      "freshness_state": "stale",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/fda-calendar",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [
+        "2026-04-05"
+      ],
+      "broker_institutions": [
+        "Metro Capital Markets"
+      ],
+      "evidence_checked_at": "2026-04-05",
+      "evidence_checked_dates": [],
+      "freshness_age_days": 38,
+      "freshness_state": "stale",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvda-broker-metro",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [
+        "2026-04-10"
+      ],
+      "broker_institutions": [
+        "Summit Research"
+      ],
+      "evidence_checked_at": "2026-04-10",
+      "evidence_checked_dates": [],
+      "freshness_age_days": 33,
+      "freshness_state": "stale",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-broker-summit",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-04-28",
+      "evidence_checked_dates": [
+        "2026-04-28"
+      ],
+      "freshness_age_days": 15,
+      "freshness_state": "stale",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-pipeline-update",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-05-09",
+      "evidence_checked_dates": [
+        "2026-05-09"
+      ],
+      "freshness_age_days": 4,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/channel-check-gpu-supply",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-05-07",
+      "evidence_checked_dates": [
+        "2026-05-07"
+      ],
+      "freshness_age_days": 6,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-msft-earnings-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "unmapped"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "url": "https://example.com/msft-q3-earnings",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [
+        "2026-05-10"
+      ],
+      "broker_institutions": [
+        "North Coast Securities"
+      ],
+      "evidence_checked_at": "2026-05-10",
+      "evidence_checked_dates": [],
+      "freshness_age_days": 3,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvda-broker-north-coast",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-05-09",
+      "evidence_checked_dates": [
+        "2026-05-09"
+      ],
+      "freshness_age_days": 4,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-nvda-computex-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "ai-infrastructure-capex"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "url": "https://example.com/nvidia-computex-keynote",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [
+        "2026-05-01"
+      ],
+      "broker_institutions": [
+        "Harbor Life Sciences"
+      ],
+      "evidence_checked_at": "2026-05-01",
+      "evidence_checked_dates": [],
+      "freshness_age_days": 12,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-pfe-fda-2026"
+      ],
+      "source_types": [
+        "broker"
+      ],
+      "thesis_ids": [
+        "pharma-pipeline-reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "url": "https://example.com/pfe-broker-harbor",
+      "usage_count": 1
+    },
+    {
+      "broker_as_of_dates": [],
+      "broker_institutions": [],
+      "evidence_checked_at": "2026-05-07",
+      "evidence_checked_dates": [
+        "2026-05-07"
+      ],
+      "freshness_age_days": 6,
+      "freshness_state": "fresh",
+      "record_ids": [
+        "demo-msft-earnings-2026"
+      ],
+      "source_types": [
+        "evidence"
+      ],
+      "thesis_ids": [
+        "unmapped"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "url": "https://ir.example.org/msft-q3-transcript",
+      "usage_count": 1
+    }
+  ],
+  "summary": {
+    "broker_source_count": 4,
+    "evidence_source_count": 7,
+    "missing_freshness_count": 1,
+    "source_count": 11,
+    "stale_source_count": 4,
+    "usage_count": 11
+  }
+}

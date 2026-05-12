@@ -53,6 +53,45 @@
       "ticker": "NVDA"
     },
     {
+      "actual_outcome": "Cloud revenue and operating margin supported the positive thesis with no follow-up catalyst required.",
+      "confidence": 0.82,
+      "date": "2026-05-06",
+      "entity": "Microsoft Corporation",
+      "event_type": "earnings",
+      "evidence_checked_at": "2026-05-07",
+      "evidence_urls": [
+        "https://example.com/msft-q3-earnings",
+        "https://ir.example.org/msft-q3-transcript"
+      ],
+      "history": [
+        {
+          "date": "2026-04-18",
+          "note": "Earnings date confirmed from company investor relations calendar.",
+          "status": "confirmed"
+        },
+        {
+          "date": "2026-05-07",
+          "note": "Outcome recorded after company earnings release and transcript review.",
+          "status": "completed"
+        }
+      ],
+      "id": "demo-msft-earnings-2026",
+      "last_reviewed": "2026-05-07",
+      "outcome_recorded_at": "2026-05-07",
+      "portfolio_weight": 0.064,
+      "position_size": 90000,
+      "required_review_action": "none",
+      "scenario_notes": {
+        "base": "Cloud demand and operating margin track the existing thesis.",
+        "bear": "Growth slows or capital spending pressure offsets revenue upside.",
+        "bull": "Cloud growth accelerates with durable margin expansion."
+      },
+      "source_ref": "MSFT fiscal Q3 earnings release",
+      "status": "completed",
+      "thesis_impact": "positive",
+      "ticker": "MSFT"
+    },
+    {
       "broker_views": [
         {
           "as_of": "2026-05-01",

@@ -1,0 +1,138 @@
+{
+  "as_of": "2026-06-25",
+  "items": [
+    {
+      "actual_outcome": "TBD",
+      "base_scenario": "Decision is mostly expected but clarifies launch timing.",
+      "catalyst_score": 69,
+      "confidence": 0.68,
+      "days_since_window_end": 32,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "outcome_recorded_at": "TBD",
+      "outcome_review_template": {
+        "actual_outcome": "TBD",
+        "evidence_delta": "TBD",
+        "follow_up_action": "TBD",
+        "outcome_recorded_at": "2026-06-25",
+        "position_or_risk_action": "TBD",
+        "scenario_accuracy": {
+          "base_case_hit": "TBD",
+          "bear_case_hit": "TBD",
+          "best_matching_scenario": "TBD",
+          "bull_case_hit": "TBD",
+          "miss_reason": "TBD"
+        },
+        "source_update_needed": true,
+        "thesis_impact_after_event": "TBD"
+      },
+      "outcome_state": "missing_outcome",
+      "post_event_state": "overdue",
+      "recorded_at_state": "missing_recorded_at",
+      "required_review_action": "verify_source",
+      "review_due": "2026-05-24",
+      "source_ref": "FDA calendar and PFE pipeline note",
+      "status": "watching",
+      "thesis_id": "pharma-pipeline-reset",
+      "thesis_impact": "mixed",
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "actual_outcome": "TBD",
+      "base_scenario": "Product roadmap details support existing accelerator growth expectations.",
+      "catalyst_score": 70,
+      "confidence": 0.74,
+      "days_since_window_end": 23,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "outcome_recorded_at": "TBD",
+      "outcome_review_template": {
+        "actual_outcome": "TBD",
+        "evidence_delta": "TBD",
+        "follow_up_action": "TBD",
+        "outcome_recorded_at": "2026-06-25",
+        "position_or_risk_action": "TBD",
+        "scenario_accuracy": {
+          "base_case_hit": "TBD",
+          "bear_case_hit": "TBD",
+          "best_matching_scenario": "TBD",
+          "bull_case_hit": "TBD",
+          "miss_reason": "TBD"
+        },
+        "source_update_needed": false,
+        "thesis_impact_after_event": "TBD"
+      },
+      "outcome_state": "missing_outcome",
+      "post_event_state": "overdue",
+      "recorded_at_state": "missing_recorded_at",
+      "required_review_action": "monitor_date",
+      "review_due": "2026-06-02",
+      "source_ref": "NVDA Computex keynote tracker",
+      "status": "scheduled",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "positive",
+      "ticker": "NVDA",
+      "window": "2026-06-02"
+    },
+    {
+      "actual_outcome": "TBD",
+      "base_scenario": "Statement broadly matches market-implied policy path.",
+      "catalyst_score": 74,
+      "confidence": 0.9,
+      "days_since_window_end": 8,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "id": "demo-fomc-june-2026",
+      "outcome_recorded_at": "TBD",
+      "outcome_review_template": {
+        "actual_outcome": "TBD",
+        "evidence_delta": "TBD",
+        "follow_up_action": "TBD",
+        "outcome_recorded_at": "2026-06-25",
+        "position_or_risk_action": "TBD",
+        "scenario_accuracy": {
+          "base_case_hit": "TBD",
+          "bear_case_hit": "TBD",
+          "best_matching_scenario": "TBD",
+          "bull_case_hit": "TBD",
+          "miss_reason": "TBD"
+        },
+        "source_update_needed": false,
+        "thesis_impact_after_event": "TBD"
+      },
+      "outcome_state": "missing_outcome",
+      "post_event_state": "overdue",
+      "recorded_at_state": "missing_recorded_at",
+      "required_review_action": "monitor_date",
+      "review_due": "2026-06-17",
+      "source_ref": "FOMC public calendar",
+      "status": "confirmed",
+      "thesis_id": "rates-duration-risk",
+      "thesis_impact": "mixed",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    }
+  ],
+  "review_after_days": 0,
+  "summary": {
+    "completed_count": 0,
+    "item_count": 3,
+    "missing_outcome_count": 3,
+    "missing_recorded_at_count": 3,
+    "overdue_count": 3
+  }
+}

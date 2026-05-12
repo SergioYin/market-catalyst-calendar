@@ -76,6 +76,8 @@ class CatalystRecord:
     source_ref: Optional[str]
     evidence_checked_at: Optional[date]
     broker_views: Tuple[BrokerView, ...]
+    actual_outcome: Optional[str]
+    outcome_recorded_at: Optional[date]
 
 
 @dataclass(frozen=True)
@@ -190,6 +192,7 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
     normalized_notes = {str(key): str(value) for key, value in scenario_notes.items()}
     last_reviewed = raw.get("last_reviewed")
     evidence_checked_at = raw.get("evidence_checked_at")
+    outcome_recorded_at = raw.get("outcome_recorded_at")
     position_size = _optional_nonnegative_float(raw, "position_size")
     portfolio_weight = _optional_nonnegative_float(raw, "portfolio_weight")
     if portfolio_weight is not None and portfolio_weight > 1:
@@ -214,6 +217,8 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
         source_ref=_optional_str(raw, "source_ref"),
         evidence_checked_at=parse_date(evidence_checked_at, "evidence_checked_at") if evidence_checked_at else None,
         broker_views=parse_broker_views(raw.get("broker_views")),
+        actual_outcome=_optional_str(raw, "actual_outcome"),
+        outcome_recorded_at=parse_date(outcome_recorded_at, "outcome_recorded_at") if outcome_recorded_at else None,
     )
 
 
@@ -256,6 +261,12 @@ def validation_errors(dataset: Dataset) -> List[str]:
             errors.append(prefix + "last_reviewed cannot be after as_of")
         if record.evidence_checked_at and record.evidence_checked_at > dataset.as_of:
             errors.append(prefix + "evidence_checked_at cannot be after as_of")
+        if record.outcome_recorded_at and record.outcome_recorded_at > dataset.as_of:
+            errors.append(prefix + "outcome_recorded_at cannot be after as_of")
+        if record.outcome_recorded_at and record.outcome_recorded_at < record.window.start:
+            errors.append(prefix + "outcome_recorded_at cannot be before the catalyst window starts")
+        if record.outcome_recorded_at and not record.actual_outcome:
+            errors.append(prefix + "outcome_recorded_at requires actual_outcome")
         for view in record.broker_views:
             if view.as_of > dataset.as_of:
                 errors.append(prefix + f"broker view from {view.institution} cannot be after as_of")

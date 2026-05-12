@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from datetime import date, timedelta
 from typing import Dict, Iterable, List
 
@@ -39,6 +41,10 @@ def record_to_json(record: CatalystRecord, as_of: date) -> Dict[str, object]:
         payload["source_ref"] = record.source_ref
     if record.evidence_checked_at is not None:
         payload["evidence_checked_at"] = record.evidence_checked_at.isoformat()
+    if record.actual_outcome is not None:
+        payload["actual_outcome"] = record.actual_outcome
+    if record.outcome_recorded_at is not None:
+        payload["outcome_recorded_at"] = record.outcome_recorded_at.isoformat()
     if record.broker_views:
         payload["broker_views"] = [
             {
@@ -404,6 +410,305 @@ def broker_matrix_markdown(records: Iterable[CatalystRecord], as_of: date, stale
     return "\n".join(lines)
 
 
+def source_pack_json(records: Iterable[CatalystRecord], as_of: date, fresh_after_days: int) -> Dict[str, object]:
+    sources = _source_pack_sources(records, as_of, fresh_after_days)
+    return {
+        "as_of": as_of.isoformat(),
+        "fresh_after_days": fresh_after_days,
+        "sources": sources,
+        "summary": {
+            "source_count": len(sources),
+            "evidence_source_count": sum(1 for source in sources if "evidence" in source["source_types"]),
+            "broker_source_count": sum(1 for source in sources if "broker" in source["source_types"]),
+            "stale_source_count": sum(1 for source in sources if source["freshness_state"] == "stale"),
+            "missing_freshness_count": sum(1 for source in sources if source["freshness_state"] == "missing"),
+            "usage_count": sum(int(source["usage_count"]) for source in sources),
+        },
+    }
+
+
+def source_pack_csv(records: Iterable[CatalystRecord], as_of: date, fresh_after_days: int) -> str:
+    output = StringIO()
+    columns = [
+        "url",
+        "source_types",
+        "usage_count",
+        "tickers",
+        "thesis_ids",
+        "record_ids",
+        "evidence_checked_at",
+        "freshness_age_days",
+        "freshness_state",
+        "broker_institutions",
+        "broker_as_of_dates",
+    ]
+    writer = csv.DictWriter(output, fieldnames=columns, lineterminator="\n")
+    writer.writeheader()
+    for source in _source_pack_sources(records, as_of, fresh_after_days):
+        writer.writerow(
+            {
+                "url": source["url"],
+                "source_types": ";".join(str(item) for item in source["source_types"]),
+                "usage_count": source["usage_count"],
+                "tickers": ";".join(str(item) for item in source["tickers"]),
+                "thesis_ids": ";".join(str(item) for item in source["thesis_ids"]),
+                "record_ids": ";".join(str(item) for item in source["record_ids"]),
+                "evidence_checked_at": source["evidence_checked_at"],
+                "freshness_age_days": source["freshness_age_days"],
+                "freshness_state": source["freshness_state"],
+                "broker_institutions": ";".join(str(item) for item in source["broker_institutions"]),
+                "broker_as_of_dates": ";".join(str(item) for item in source["broker_as_of_dates"]),
+            }
+        )
+    return output.getvalue()
+
+
+def source_pack_markdown(records: Iterable[CatalystRecord], as_of: date, fresh_after_days: int) -> str:
+    payload = source_pack_json(records, as_of, fresh_after_days)
+    lines = [
+        "# Market Catalyst Source Pack",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Fresh after: {fresh_after_days} days",
+        "",
+    ]
+    if not payload["sources"]:
+        lines.extend(["No source URLs recorded.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Freshness | Uses | Type | Tickers | Thesis IDs | Checked | URL |",
+            "| --- | ---: | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for source in payload["sources"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(source["freshness_state"]),
+                    str(source["usage_count"]),
+                    ", ".join(str(item) for item in source["source_types"]),
+                    ", ".join(str(item) for item in source["tickers"]),
+                    ", ".join(str(item) for item in source["thesis_ids"]),
+                    str(source["evidence_checked_at"]),
+                    str(source["url"]),
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def decision_log_json(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    days: int,
+    stale_after_days: int,
+) -> Dict[str, object]:
+    memos = [_decision_memo(record, as_of, stale_after_days) for record in _decision_log_records(records, as_of, days, stale_after_days)]
+    return {
+        "as_of": as_of.isoformat(),
+        "days": days,
+        "stale_after_days": stale_after_days,
+        "memos": memos,
+        "summary": {
+            "memo_count": len(memos),
+            "broker_context_count": sum(1 for memo in memos if memo["broker_context"]["view_count"]),
+            "stale_memo_count": sum(1 for memo in memos if memo["catalyst"]["review_state"] == "stale"),
+            "trigger_count": sum(len(memo["watchlist_triggers"]) for memo in memos),
+        },
+    }
+
+
+def decision_log_markdown(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    days: int,
+    stale_after_days: int,
+) -> str:
+    payload = decision_log_json(records, as_of, days, stale_after_days)
+    lines = [
+        "# Market Catalyst Decision Log",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Scope: open catalysts due or starting within {days} days; stale after {stale_after_days} days.",
+        "",
+    ]
+    if not payload["memos"]:
+        lines.extend(["No catalyst decision memos.", ""])
+        return "\n".join(lines)
+
+    for memo in payload["memos"]:
+        thesis = memo["thesis"]  # type: ignore[index]
+        catalyst = memo["catalyst"]  # type: ignore[index]
+        evidence = memo["evidence"]  # type: ignore[index]
+        broker = memo["broker_context"]  # type: ignore[index]
+        review = memo["post_event_review"]  # type: ignore[index]
+        lines.extend(
+            [
+                f"## {memo['ticker']} - {memo['entity']}",
+                "",
+                f"- Memo id: {memo['memo_id']}",
+                f"- Decision owner: {memo['decision_owner']}",
+                f"- Decision status: {memo['decision_status']}",
+                f"- Prepared on: {memo['prepared_on']}",
+                "",
+                "### Thesis",
+                "",
+                f"- Thesis id: {thesis['thesis_id']}",
+                f"- Current impact: {thesis['impact']}",
+                f"- Working thesis: {thesis['working_thesis']}",
+                f"- Decision question: {thesis['decision_question']}",
+                "",
+                "### Catalyst",
+                "",
+                f"- Catalyst id: {catalyst['id']}",
+                f"- Event: {catalyst['event_type']} ({catalyst['window']})",
+                f"- Status: {catalyst['status']}; confidence: {catalyst['confidence']}; score: {catalyst['catalyst_score']}",
+                f"- Urgency: {catalyst['urgency']}; review: {catalyst['review_state']}; required action: {catalyst['required_review_action']}",
+                "",
+                "### Evidence",
+                "",
+                f"- Source ref: {evidence['source_ref']}",
+                f"- Evidence checked at: {evidence['evidence_checked_at']}",
+                "- Evidence URLs:",
+            ]
+        )
+        for url in evidence["urls"]:  # type: ignore[index]
+            lines.append(f"  - {url}")
+        lines.extend(["", "### Scenarios", ""])
+        for scenario in memo["scenarios"]:  # type: ignore[index]
+            lines.append(
+                f"- {scenario['scenario']}: score {scenario['score']}; impact {scenario['impact']}; date {scenario['date']}; action {scenario['review_action']}; note: {_markdown_cell(str(scenario['note']))}"
+            )
+        lines.extend(["", "### Broker Context", ""])
+        average_target = "none" if broker["target_price_avg"] is None else _format_price(float(broker["target_price_avg"]))
+        lines.append(
+            f"- View count: {broker['view_count']}; target range: {broker['target_price_range']}; average target: {average_target}; stale views: {broker['stale_view_count']}"
+        )
+        for view in broker["views"]:  # type: ignore[index]
+            lines.append(
+                f"  - {view['institution']} {view['rating']} {_format_price(float(view['target_price']))} as of {view['as_of']}; caveat: {_markdown_cell(str(view['caveat']))}; source: {view['source_url']}"
+            )
+        if not broker["views"]:  # type: ignore[index]
+            lines.append("  - No broker views recorded.")
+        lines.extend(["", "### Watchlist Triggers", ""])
+        for trigger in memo["watchlist_triggers"]:  # type: ignore[index]
+            lines.append(f"- [{trigger['type']}] {trigger['condition']} -> {trigger['action']}")
+        lines.extend(
+            [
+                "",
+                "### Decision Slots",
+                "",
+                "- Pre-event decision: TBD",
+                "- Position action: TBD",
+                "- Risk limit or hedge: TBD",
+                "- Follow-up owner: TBD",
+                "",
+                "### Post-Event Review",
+                "",
+                f"- Review due: {review['review_due']}",
+                f"- Outcome: {review['outcome']}",
+                f"- Thesis update: {review['thesis_update']}",
+                f"- Evidence delta: {review['evidence_delta']}",
+                f"- Scenario accuracy: {review['scenario_accuracy']}",
+                f"- Next action: {review['next_action']}",
+                "",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def post_event_json(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    review_after_days: int,
+) -> Dict[str, object]:
+    items = [_post_event_item(record, as_of, review_after_days) for record in _post_event_records(records, as_of, review_after_days)]
+    return {
+        "as_of": as_of.isoformat(),
+        "review_after_days": review_after_days,
+        "items": items,
+        "summary": {
+            "item_count": len(items),
+            "completed_count": sum(1 for item in items if item["status"] == "completed"),
+            "overdue_count": sum(1 for item in items if item["post_event_state"] == "overdue"),
+            "missing_outcome_count": sum(1 for item in items if item["outcome_state"] == "missing_outcome"),
+            "missing_recorded_at_count": sum(1 for item in items if item["recorded_at_state"] == "missing_recorded_at"),
+        },
+    }
+
+
+def post_event_markdown(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    review_after_days: int,
+) -> str:
+    payload = post_event_json(records, as_of, review_after_days)
+    lines = [
+        "# Market Catalyst Post-Event Review",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Scope: completed catalysts plus events whose window ended at least {review_after_days} days ago and still need outcome review.",
+        "",
+    ]
+    if not payload["items"]:
+        lines.extend(["No catalysts need post-event outcome review.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| State | Due | Ticker | Catalyst | Status | Outcome | Recorded At |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for item in payload["items"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(item["post_event_state"]),
+                    str(item["review_due"]),
+                    str(item["ticker"]),
+                    f"{item['event_type']} {item['window']}",
+                    str(item["status"]),
+                    _markdown_cell(str(item["actual_outcome"])),
+                    str(item["outcome_recorded_at"]),
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    for item in payload["items"]:
+        template = item["outcome_review_template"]  # type: ignore[index]
+        lines.extend(
+            [
+                f"## {item['ticker']} - {item['entity']}",
+                "",
+                f"- Catalyst id: {item['id']}",
+                f"- Review state: {item['post_event_state']}; due: {item['review_due']}; days since window end: {item['days_since_window_end']}",
+                f"- Status: {item['status']}; recorded outcome: {item['actual_outcome']}; recorded at: {item['outcome_recorded_at']}",
+                f"- Thesis id: {item['thesis_id']}; pre-event base case: {_markdown_cell(str(item['base_scenario']))}",
+                "",
+                "### Outcome Review Template",
+                "",
+                f"- Actual outcome: {template['actual_outcome']}",
+                f"- Outcome recorded at: {template['outcome_recorded_at']}",
+                f"- Thesis impact after event: {template['thesis_impact_after_event']}",
+                f"- Scenario accuracy: {_format_template_mapping(template['scenario_accuracy'])}",
+                f"- Evidence delta: {template['evidence_delta']}",
+                f"- Position or risk action: {template['position_or_risk_action']}",
+                f"- Follow-up action: {template['follow_up_action']}",
+                f"- Source update needed: {template['source_update_needed']}",
+                "",
+            ]
+        )
+    return "\n".join(lines)
+
+
 def watchlist_json(
     records: Iterable[CatalystRecord],
     as_of: date,
@@ -488,6 +793,164 @@ def watchlist_markdown(
             lines.append(f"  - {trigger['condition']} -> {trigger['action']}")
         lines.append("")
     return "\n".join(lines)
+
+
+def _decision_log_records(records: Iterable[CatalystRecord], as_of: date, days: int, stale_after_days: int) -> List[CatalystRecord]:
+    return _watchlist_records(records, as_of, days, stale_after_days)
+
+
+def _post_event_records(records: Iterable[CatalystRecord], as_of: date, review_after_days: int) -> List[CatalystRecord]:
+    selected = []
+    for record in records:
+        if record.status == "cancelled":
+            continue
+        review_due = record.window.end + timedelta(days=review_after_days)
+        has_review_gap = record.actual_outcome is None or record.outcome_recorded_at is None
+        if has_review_gap and (record.status == "completed" or review_due <= as_of):
+            selected.append(record)
+    return sorted(selected, key=lambda record: _post_event_sort_key(record, as_of, review_after_days))
+
+
+def _post_event_sort_key(record: CatalystRecord, as_of: date, review_after_days: int) -> tuple[object, ...]:
+    review_due = record.window.end + timedelta(days=review_after_days)
+    completed_rank = 0 if record.status == "completed" else 1
+    overdue_days = max(0, (as_of - review_due).days)
+    return (completed_rank, -overdue_days, review_due, record.window.end, record.ticker, record.record_id)
+
+
+def _post_event_item(record: CatalystRecord, as_of: date, review_after_days: int) -> Dict[str, object]:
+    score = score_record(record, as_of)
+    review_due = record.window.end + timedelta(days=review_after_days)
+    days_since_end = (as_of - record.window.end).days
+    return {
+        "id": record.record_id,
+        "ticker": record.ticker,
+        "entity": record.entity,
+        "event_type": record.event_type,
+        "window": record.window.label,
+        "status": record.status,
+        "confidence": record.confidence,
+        "catalyst_score": score.catalyst_score,
+        "review_due": review_due.isoformat(),
+        "days_since_window_end": days_since_end,
+        "post_event_state": "overdue" if review_due <= as_of else "completed_pending_review",
+        "outcome_state": "recorded" if record.actual_outcome is not None else "missing_outcome",
+        "recorded_at_state": "recorded" if record.outcome_recorded_at is not None else "missing_recorded_at",
+        "actual_outcome": record.actual_outcome or "TBD",
+        "outcome_recorded_at": record.outcome_recorded_at.isoformat() if record.outcome_recorded_at else "TBD",
+        "required_review_action": record.required_review_action,
+        "thesis_id": record.thesis_id or "unmapped",
+        "thesis_impact": record.thesis_impact,
+        "base_scenario": record.scenario_notes.get("base", ""),
+        "evidence_urls": list(record.evidence_urls),
+        "source_ref": record.source_ref or "none",
+        "outcome_review_template": _outcome_review_template(record, as_of),
+    }
+
+
+def _outcome_review_template(record: CatalystRecord, as_of: date) -> Dict[str, object]:
+    return {
+        "actual_outcome": record.actual_outcome or "TBD",
+        "outcome_recorded_at": record.outcome_recorded_at.isoformat() if record.outcome_recorded_at else as_of.isoformat(),
+        "thesis_impact_after_event": "TBD",
+        "scenario_accuracy": {
+            "best_matching_scenario": "TBD",
+            "bull_case_hit": "TBD",
+            "base_case_hit": "TBD",
+            "bear_case_hit": "TBD",
+            "miss_reason": "TBD",
+        },
+        "evidence_delta": "TBD",
+        "position_or_risk_action": "TBD",
+        "follow_up_action": "TBD",
+        "source_update_needed": record.required_review_action in {"verify_source", "refresh_evidence"},
+    }
+
+
+def _format_template_mapping(value: object) -> str:
+    if not isinstance(value, dict):
+        return str(value)
+    return "; ".join(f"{str(key).replace('_', ' ')}: {value[key]}" for key in sorted(value))
+
+
+def _decision_memo(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
+    score = score_record(record, as_of, stale_after_days=stale_after_days)
+    scenario_record = _scenario_matrix_record(record, as_of, stale_after_days)
+    watch_item = _watchlist_item(record, as_of, stale_after_days)
+    return {
+        "memo_id": f"decision-{record.record_id}",
+        "prepared_on": as_of.isoformat(),
+        "decision_owner": "TBD",
+        "decision_status": "draft",
+        "ticker": record.ticker,
+        "entity": record.entity,
+        "thesis": {
+            "thesis_id": record.thesis_id or "unmapped",
+            "impact": record.thesis_impact,
+            "working_thesis": record.scenario_notes.get("base", ""),
+            "decision_question": f"Does the {record.event_type.replace('_', ' ')} change the thesis for {record.ticker}?",
+        },
+        "catalyst": {
+            "id": record.record_id,
+            "event_type": record.event_type,
+            "window": record.window.label,
+            "status": record.status,
+            "confidence": record.confidence,
+            "catalyst_score": score.catalyst_score,
+            "days_until": score.days_until,
+            "urgency": score.urgency,
+            "review_state": score.review_state,
+            "required_review_action": record.required_review_action,
+        },
+        "evidence": {
+            "source_ref": record.source_ref or "none",
+            "evidence_checked_at": record.evidence_checked_at.isoformat() if record.evidence_checked_at else "missing",
+            "urls": list(record.evidence_urls),
+            "last_reviewed": record.last_reviewed.isoformat() if record.last_reviewed else "missing",
+        },
+        "scenarios": scenario_record["scenarios"],
+        "broker_context": _decision_broker_context(record, as_of, stale_after_days),
+        "watchlist_triggers": watch_item["trigger_conditions"],
+        "decision_slots": {
+            "pre_event_decision": "TBD",
+            "position_action": "TBD",
+            "risk_limit_or_hedge": "TBD",
+            "follow_up_owner": "TBD",
+        },
+        "post_event_review": {
+            "review_due": record.window.end.isoformat(),
+            "outcome": "TBD",
+            "thesis_update": "TBD",
+            "evidence_delta": "TBD",
+            "scenario_accuracy": "TBD",
+            "next_action": "TBD",
+        },
+    }
+
+
+def _decision_broker_context(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
+    views = [
+        {
+            "age_days": (as_of - view.as_of).days,
+            "as_of": view.as_of.isoformat(),
+            "caveat": view.caveat,
+            "institution": view.institution,
+            "rating": view.rating,
+            "source_url": view.source_url,
+            "stale_source": (as_of - view.as_of).days > stale_after_days,
+            "target_price": view.target_price,
+        }
+        for view in record.broker_views
+    ]
+    views = sorted(views, key=lambda view: (str(view["institution"]), str(view["as_of"]), str(view["rating"]), float(view["target_price"])))
+    targets = [float(view["target_price"]) for view in views]
+    return {
+        "target_price_avg": round(sum(targets) / len(targets), 2) if targets else None,
+        "target_price_range": f"{_format_price(min(targets))}-{_format_price(max(targets))}" if targets else "none",
+        "stale_view_count": sum(1 for view in views if view["stale_source"]),
+        "view_count": len(views),
+        "views": views,
+    }
 
 
 def _watchlist_records(records: Iterable[CatalystRecord], as_of: date, days: int, stale_after_days: int) -> List[CatalystRecord]:
@@ -772,6 +1235,87 @@ def _broker_groups(records: Iterable[CatalystRecord], as_of: date, stale_after_d
             str(group["thesis_id"]),
         ),
     )
+
+
+def _source_pack_sources(records: Iterable[CatalystRecord], as_of: date, fresh_after_days: int) -> List[Dict[str, object]]:
+    sources: Dict[str, Dict[str, object]] = {}
+    for record in records:
+        thesis_id = record.thesis_id or "unmapped"
+        for url in record.evidence_urls:
+            source = _source_pack_entry(sources, url)
+            _source_pack_add_record(source, record, thesis_id, "evidence")
+            checked = record.evidence_checked_at
+            if checked is not None:
+                source["evidence_checked_dates"].add(checked.isoformat())  # type: ignore[union-attr]
+                source["freshness_dates"].append(checked)  # type: ignore[union-attr]
+        for view in record.broker_views:
+            source = _source_pack_entry(sources, view.source_url)
+            _source_pack_add_record(source, record, thesis_id, "broker")
+            source["broker_institutions"].add(view.institution)  # type: ignore[union-attr]
+            source["broker_as_of_dates"].add(view.as_of.isoformat())  # type: ignore[union-attr]
+            source["freshness_dates"].append(view.as_of)  # type: ignore[union-attr]
+
+    normalized = []
+    for source in sources.values():
+        freshness_dates = source["freshness_dates"]  # type: ignore[assignment]
+        latest = max(freshness_dates) if freshness_dates else None
+        age_days = (as_of - latest).days if latest is not None else None
+        if age_days is None:
+            freshness_state = "missing"
+        elif age_days > fresh_after_days:
+            freshness_state = "stale"
+        else:
+            freshness_state = "fresh"
+        normalized.append(
+            {
+                "broker_as_of_dates": sorted(source["broker_as_of_dates"]),  # type: ignore[arg-type]
+                "broker_institutions": sorted(source["broker_institutions"]),  # type: ignore[arg-type]
+                "evidence_checked_at": latest.isoformat() if latest is not None else "missing",
+                "evidence_checked_dates": sorted(source["evidence_checked_dates"]),  # type: ignore[arg-type]
+                "freshness_age_days": age_days if age_days is not None else "missing",
+                "freshness_state": freshness_state,
+                "record_ids": sorted(source["record_ids"]),  # type: ignore[arg-type]
+                "source_types": sorted(source["source_types"]),  # type: ignore[arg-type]
+                "thesis_ids": sorted(source["thesis_ids"]),  # type: ignore[arg-type]
+                "tickers": sorted(source["tickers"]),  # type: ignore[arg-type]
+                "url": source["url"],
+                "usage_count": source["usage_count"],
+            }
+        )
+    return sorted(
+        normalized,
+        key=lambda source: (
+            {"missing": 0, "stale": 1, "fresh": 2}.get(str(source["freshness_state"]), 3),
+            -int(source["usage_count"]),
+            str(source["url"]),
+        ),
+    )
+
+
+def _source_pack_entry(sources: Dict[str, Dict[str, object]], url: str) -> Dict[str, object]:
+    return sources.setdefault(
+        url,
+        {
+            "broker_as_of_dates": set(),
+            "broker_institutions": set(),
+            "evidence_checked_dates": set(),
+            "freshness_dates": [],
+            "record_ids": set(),
+            "source_types": set(),
+            "thesis_ids": set(),
+            "tickers": set(),
+            "url": url,
+            "usage_count": 0,
+        },
+    )
+
+
+def _source_pack_add_record(source: Dict[str, object], record: CatalystRecord, thesis_id: str, source_type: str) -> None:
+    source["usage_count"] = int(source["usage_count"]) + 1
+    source["record_ids"].add(record.record_id)  # type: ignore[union-attr]
+    source["source_types"].add(source_type)  # type: ignore[union-attr]
+    source["thesis_ids"].add(thesis_id)  # type: ignore[union-attr]
+    source["tickers"].add(record.ticker)  # type: ignore[union-attr]
 
 
 def _scenario_matrix_record(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:

@@ -28,6 +28,8 @@ CSV_COLUMNS = [
     "required_review_action",
     "last_reviewed",
     "evidence_checked_at",
+    "actual_outcome",
+    "outcome_recorded_at",
     "evidence_urls",
     "scenario_notes",
     "history",
@@ -37,7 +39,17 @@ CSV_COLUMNS = [
 REQUIRED_CSV_COLUMNS = [
     column
     for column in CSV_COLUMNS
-    if column not in {"position_size", "portfolio_weight", "thesis_id", "source_ref", "evidence_checked_at", "broker_views"}
+    if column
+    not in {
+        "position_size",
+        "portfolio_weight",
+        "thesis_id",
+        "source_ref",
+        "evidence_checked_at",
+        "actual_outcome",
+        "outcome_recorded_at",
+        "broker_views",
+    }
 ]
 
 ITEM_SEPARATOR = " | "
@@ -99,6 +111,8 @@ def _record_to_row(as_of: str, record: CatalystRecord) -> Dict[str, str]:
         "required_review_action": record.required_review_action,
         "last_reviewed": record.last_reviewed.isoformat() if record.last_reviewed else "",
         "evidence_checked_at": record.evidence_checked_at.isoformat() if record.evidence_checked_at else "",
+        "actual_outcome": record.actual_outcome or "",
+        "outcome_recorded_at": record.outcome_recorded_at.isoformat() if record.outcome_recorded_at else "",
         "evidence_urls": _join_items(record.evidence_urls),
         "scenario_notes": _join_pairs(sorted(record.scenario_notes.items())),
         "history": _join_history(record.history),
@@ -137,6 +151,12 @@ def _row_to_record(row: Dict[str, str], row_number: int) -> Dict[str, object]:
     evidence_checked_at = (row.get("evidence_checked_at") or "").strip()
     if evidence_checked_at:
         record["evidence_checked_at"] = evidence_checked_at
+    actual_outcome = (row.get("actual_outcome") or "").strip()
+    if actual_outcome:
+        record["actual_outcome"] = actual_outcome
+    outcome_recorded_at = (row.get("outcome_recorded_at") or "").strip()
+    if outcome_recorded_at:
+        record["outcome_recorded_at"] = outcome_recorded_at
     return record
 
 

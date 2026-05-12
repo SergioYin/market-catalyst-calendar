@@ -21,13 +21,20 @@ from .render import (
     brief_markdown,
     broker_matrix_json,
     broker_matrix_markdown,
+    decision_log_json,
+    decision_log_markdown,
     exposure_json,
     exposure_markdown,
+    post_event_json,
+    post_event_markdown,
     records_json,
     review_plan_json,
     review_plan_markdown,
     scenario_matrix_json,
     scenario_matrix_markdown,
+    source_pack_csv,
+    source_pack_json,
+    source_pack_markdown,
     thesis_map_json,
     thesis_map_markdown,
     watchlist_json,
@@ -120,6 +127,13 @@ def build_parser() -> argparse.ArgumentParser:
     broker_matrix.add_argument("--format", choices=["json", "markdown"], default="json")
     broker_matrix.set_defaults(func=cmd_broker_matrix)
 
+    source_pack = subparsers.add_parser("source-pack", help="export unique evidence and broker source URLs")
+    add_input(source_pack)
+    add_as_of(source_pack)
+    source_pack.add_argument("--fresh-after-days", type=int, default=14)
+    source_pack.add_argument("--format", choices=["json", "csv", "markdown"], default="json")
+    source_pack.set_defaults(func=cmd_source_pack)
+
     watchlist = subparsers.add_parser("watchlist", help="convert catalysts into prioritized watch items")
     add_input(watchlist)
     add_as_of(watchlist)
@@ -127,6 +141,21 @@ def build_parser() -> argparse.ArgumentParser:
     watchlist.add_argument("--stale-after-days", type=int, default=14)
     watchlist.add_argument("--format", choices=["json", "markdown"], default="json")
     watchlist.set_defaults(func=cmd_watchlist)
+
+    decision_log = subparsers.add_parser("decision-log", help="emit decision memo stubs per catalyst")
+    add_input(decision_log)
+    add_as_of(decision_log)
+    decision_log.add_argument("--days", type=int, default=90, help="look-ahead window in days")
+    decision_log.add_argument("--stale-after-days", type=int, default=14)
+    decision_log.add_argument("--format", choices=["json", "markdown"], default="json")
+    decision_log.set_defaults(func=cmd_decision_log)
+
+    post_event = subparsers.add_parser("post-event", help="render post-event outcome review templates")
+    add_input(post_event)
+    add_as_of(post_event)
+    post_event.add_argument("--review-after-days", type=int, default=0, help="days after event window end before outcome review is due")
+    post_event.add_argument("--format", choices=["json", "markdown"], default="json")
+    post_event.set_defaults(func=cmd_post_event)
 
     html = subparsers.add_parser("html-dashboard", help="render a deterministic static HTML dashboard")
     add_input(html)
@@ -287,6 +316,20 @@ def cmd_broker_matrix(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_source_pack(args: argparse.Namespace) -> int:
+    if args.fresh_after_days < 0:
+        raise ValueError("--fresh-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(source_pack_json(dataset.records, as_of, args.fresh_after_days)), end="")
+    elif args.format == "csv":
+        print(source_pack_csv(dataset.records, as_of, args.fresh_after_days), end="")
+    else:
+        print(source_pack_markdown(dataset.records, as_of, args.fresh_after_days), end="")
+    return 0
+
+
 def cmd_watchlist(args: argparse.Namespace) -> int:
     if args.days < 0:
         raise ValueError("--days must be non-negative")
@@ -298,6 +341,32 @@ def cmd_watchlist(args: argparse.Namespace) -> int:
         print(dump_json(watchlist_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
     else:
         print(watchlist_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_decision_log(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(decision_log_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
+    else:
+        print(decision_log_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_post_event(args: argparse.Namespace) -> int:
+    if args.review_after_days < 0:
+        raise ValueError("--review-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(post_event_json(dataset.records, as_of, args.review_after_days)), end="")
+    else:
+        print(post_event_markdown(dataset.records, as_of, args.review_after_days), end="")
     return 0
 
 

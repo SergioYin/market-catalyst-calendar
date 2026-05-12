@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure, maps catalysts back to investment theses, summarizes broker views, converts catalysts into prioritized watchlists, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports a deterministic demo dataset, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure, maps catalysts back to investment theses, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports a deterministic demo dataset, and packages portable archives with hash verification.
 
 ## Install
 
@@ -32,8 +32,15 @@ python -m market_catalyst_calendar evidence-audit --input examples/demo_records.
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --format csv
+python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
+python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25 --format markdown
 python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
 python -m market_catalyst_calendar export-csv --input examples/demo_records.json --output examples/demo_records.csv
 python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/upcoming.ics
@@ -66,6 +73,7 @@ Each record includes:
 - optional `position_size` and `portfolio_weight`
 - optional `thesis_id` and `source_ref`
 - optional `broker_views`, each with `institution`, `rating`, `target_price`, `as_of`, `source_url`, and `caveat`
+- optional `actual_outcome` and `outcome_recorded_at`
 
 Validation checks schema shape, URL quality, scenario completeness, status/history consistency, confidence ranges, and review-action hygiene for open items.
 
@@ -74,6 +82,8 @@ Validation checks schema shape, URL quality, scenario completeness, status/histo
 `evidence_checked_at` is separate from `last_reviewed`: use it for the date sources were last checked, even when the thesis notes or status did not change.
 
 `broker_views` are record-level analyst or broker snapshots. They are optional and offline: the CLI validates their source URLs and dates, but it does not fetch reports or infer missing target prices.
+
+`actual_outcome` and `outcome_recorded_at` are optional post-event fields. Use them after the catalyst window closes to capture what actually happened and when that outcome was recorded. `outcome_recorded_at` cannot be after dataset `as_of`, cannot be before the event window starts, and requires `actual_outcome`.
 
 ## Exposure Workflow
 
@@ -141,6 +151,21 @@ The JSON and Markdown reports include:
 
 Use it to compare outside sell-side assumptions against catalyst timing without turning broker targets into investment advice.
 
+## Source Pack Workflow
+
+`source-pack` exports a deduplicated inventory of every evidence URL and broker source URL in the dataset. It does not fetch sources; it preserves the dataset's source links with enough context for handoff, audit, or downstream collection.
+
+JSON, CSV, and Markdown outputs include:
+
+- unique URL and source type (`evidence`, `broker`, or both)
+- usage count across records and broker views
+- linked tickers, thesis ids, and catalyst record ids
+- latest freshness date from `evidence_checked_at` or broker `as_of`
+- freshness age and state using `--fresh-after-days` (default `14`)
+- broker institutions and broker source dates when applicable
+
+Use JSON for automation, CSV for external source-collection work, and Markdown for analyst review packets.
+
 ## Watchlist Workflow
 
 `watchlist` converts open catalysts into prioritized watch items for a forward window. It keeps the original catalyst links intact while adding workflow fields an analyst or downstream agent can act on.
@@ -154,6 +179,36 @@ JSON and Markdown outputs include:
 - `thesis_id`, `source_ref`, source refs, evidence URLs, and bull/base/bear scenario refs
 
 Use Markdown for a human watch queue and JSON when passing watch items into another offline agent or ticketing script.
+
+## Decision Log Workflow
+
+`decision-log` emits deterministic decision memo stubs for open catalysts in the requested forward window. It is designed for pre-event decision capture and post-event review without inventing conclusions.
+
+JSON and Markdown outputs include, per catalyst:
+
+- thesis context with `thesis_id`, current impact, working thesis, and decision question
+- catalyst status, confidence, score, urgency, review state, and required action
+- source reference, evidence freshness date, last review date, and evidence URLs
+- bull/base/bear scenarios with scenario score, date, impact, review action, and note
+- broker context with per-view caveats, stale flags, and target-price range when `broker_views` are present
+- watchlist triggers reused from the watchlist workflow
+- blank decision slots and post-event review slots marked `TBD`
+
+Use Markdown when maintaining an analyst decision journal, and JSON when passing memo stubs to another offline process.
+
+## Post-Event Workflow
+
+`post-event` lists catalysts that need outcome review after the event window has passed. It selects non-cancelled records whose `actual_outcome` or `outcome_recorded_at` is still missing when the record is already `completed` or when the review due date has passed. The review due date is the event window end plus `--review-after-days` (default `0`).
+
+JSON and Markdown outputs include, per catalyst:
+
+- event status, window, score, review due date, and days since the window ended
+- outcome state and recorded-at state
+- existing `actual_outcome` and `outcome_recorded_at` values when present, otherwise `TBD`
+- thesis id, base scenario, source reference, and evidence URLs
+- an outcome review template with slots for actual outcome, scenario accuracy, thesis impact after event, evidence delta, position or risk action, follow-up action, and source update need
+
+Use it after events occur to close the loop between pre-event scenarios and what actually happened without inventing conclusions.
 
 ## HTML Dashboard Workflow
 
@@ -201,7 +256,10 @@ Each event includes a stable UID derived from the catalyst id and event window, 
 - `reports/upcoming.ics`
 - `reports/brief.md`
 - `reports/broker_matrix.json` and `reports/broker_matrix.md`
+- `reports/source_pack.json`, `reports/source_pack.csv`, and `reports/source_pack.md`
 - `reports/watchlist.json` and `reports/watchlist.md`
+- `reports/decision_log.json` and `reports/decision_log.md`
+- `reports/post_event.json` and `reports/post_event.md`
 - `reports/dashboard.html`
 - `reports/exposure.json` and `reports/exposure.md`
 - `reports/review_plan.json` and `reports/review_plan.md`
@@ -234,8 +292,15 @@ Checked-in examples live in `examples/`:
 - `evidence_audit.md`: generated Markdown evidence audit
 - `broker_matrix.json`: generated broker view dispersion and linkage matrix
 - `broker_matrix.md`: generated Markdown broker matrix
+- `source_pack.json`: generated unique evidence and broker source inventory
+- `source_pack.csv`: generated CSV source inventory
+- `source_pack.md`: generated Markdown source pack
 - `watchlist.json`: generated prioritized watch item workflow
 - `watchlist.md`: generated Markdown watchlist
+- `decision_log.json`: generated decision memo stubs
+- `decision_log.md`: generated Markdown decision log
+- `post_event.json`: generated post-event outcome review queue
+- `post_event.md`: generated Markdown post-event outcome review template
 - `dashboard.html`: generated static no-JavaScript HTML dashboard
 - `thesis_map.json`: generated thesis grouping data
 - `thesis_map.md`: generated Markdown thesis map
