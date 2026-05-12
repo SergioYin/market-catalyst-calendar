@@ -1,0 +1,348 @@
+{
+  "added": [
+    {
+      "catalyst_score": 75,
+      "confidence": 0.63,
+      "days_until": 16,
+      "entity": "Amazon.com Inc.",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-26",
+      "evidence_urls": [
+        "https://example.com/amzn-kuiper-readiness",
+        "https://example.com/space-launch-manifest"
+      ],
+      "id": "demo-amzn-kuiper-2026",
+      "max_loss": 36000.0,
+      "portfolio_weight": 0.044,
+      "position_size": 70000.0,
+      "required_review_action": "verify_source",
+      "review_state": "needs_review",
+      "risk_budget": 30000.0,
+      "sector": "Communication Services",
+      "source_ref": "Kuiper launch readiness note",
+      "status": "watching",
+      "theme": "Satellite broadband",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "mixed",
+      "ticker": "AMZN",
+      "urgency": "medium",
+      "window": "2026-06-12"
+    }
+  ],
+  "as_of": "2026-05-27",
+  "base_as_of": "2026-05-13",
+  "changed": [
+    {
+      "broker_view_changes": {
+        "added_views": [],
+        "changed_views": [
+          {
+            "field_changes": [
+              {
+                "field": "target_price",
+                "from": 1320.0,
+                "to": 1360.0
+              },
+              {
+                "field": "as_of",
+                "from": "2026-05-10",
+                "to": "2026-05-25"
+              },
+              {
+                "field": "caveat",
+                "from": "Target assumes accelerator backlog converts into second-half revenue.",
+                "to": "Target assumes accelerator backlog and networking attach convert into second-half revenue."
+              }
+            ],
+            "institution": "North Coast Securities",
+            "source_url": "https://example.com/nvda-broker-north-coast"
+          }
+        ],
+        "removed_views": []
+      },
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_change": {
+        "added_urls": [
+          "https://example.com/nvidia-computex-agenda-update"
+        ],
+        "changed": true,
+        "checked_at_change": {
+          "from": "2026-05-09",
+          "to": "2026-05-27"
+        },
+        "removed_urls": [
+          "https://example.com/channel-check-gpu-supply"
+        ],
+        "unchanged_urls": [
+          "https://example.com/nvidia-computex-keynote"
+        ]
+      },
+      "field_changes": [
+        {
+          "field": "confidence",
+          "from": 0.74,
+          "to": 0.81
+        },
+        {
+          "field": "required_review_action",
+          "from": "monitor_date",
+          "to": "update_scenario"
+        },
+        {
+          "field": "last_reviewed",
+          "from": "2026-05-09",
+          "to": "2026-05-27"
+        },
+        {
+          "field": "evidence_checked_at",
+          "from": "2026-05-09",
+          "to": "2026-05-27"
+        },
+        {
+          "field": "position_size",
+          "from": 125000.0,
+          "to": 135000.0
+        },
+        {
+          "field": "portfolio_weight",
+          "from": 0.0825,
+          "to": 0.091
+        },
+        {
+          "field": "risk_budget",
+          "from": 60000.0,
+          "to": 62000.0
+        },
+        {
+          "field": "max_loss",
+          "from": 52000.0,
+          "to": 56000.0
+        },
+        {
+          "field": "source_ref",
+          "from": "NVDA Computex keynote tracker",
+          "to": "NVDA Computex keynote tracker refreshed after agenda update"
+        }
+      ],
+      "history_changes": {
+        "added_entries": [
+          {
+            "date": "2026-05-27",
+            "note": "Company agenda confirmed keynote timing and platform focus.",
+            "status": "confirmed"
+          }
+        ],
+        "removed_entries": []
+      },
+      "id": "demo-nvda-computex-2026",
+      "scenario_note_changes": [
+        {
+          "from": "Product roadmap details support existing accelerator growth expectations.",
+          "key": "base",
+          "to": "Confirmed roadmap details support existing accelerator growth expectations."
+        },
+        {
+          "from": "Management confirms accelerated platform demand and shorter supply constraints.",
+          "key": "bull",
+          "to": "Management confirms accelerated platform demand, tighter supply, and higher software attach."
+        }
+      ],
+      "score_change": {
+        "delta": 5,
+        "from": 88,
+        "review_state_from": "stale",
+        "review_state_to": "needs_review",
+        "to": 93,
+        "urgency_from": "high",
+        "urgency_to": "high"
+      },
+      "status_transition": {
+        "from": "scheduled",
+        "to": "confirmed"
+      },
+      "thesis_impact_change": null,
+      "ticker": "NVDA",
+      "window": "2026-06-02"
+    },
+    {
+      "broker_view_changes": {
+        "added_views": [],
+        "changed_views": [
+          {
+            "field_changes": [
+              {
+                "field": "target_price",
+                "from": 31.0,
+                "to": 33.0
+              },
+              {
+                "field": "as_of",
+                "from": "2026-05-01",
+                "to": "2026-05-24"
+              },
+              {
+                "field": "caveat",
+                "from": "View depends on label breadth and launch timing after the decision window.",
+                "to": "View now gives more credit for label breadth after the decision window."
+              }
+            ],
+            "institution": "Harbor Life Sciences",
+            "source_url": "https://example.com/pfe-broker-harbor"
+          }
+        ],
+        "removed_views": []
+      },
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_change": {
+        "added_urls": [
+          "https://example.com/pfe-label-update"
+        ],
+        "changed": true,
+        "checked_at_change": {
+          "from": "2026-04-28",
+          "to": "2026-05-24"
+        },
+        "removed_urls": [
+          "https://example.com/pfe-pipeline-update"
+        ],
+        "unchanged_urls": [
+          "https://example.com/fda-calendar"
+        ]
+      },
+      "field_changes": [
+        {
+          "field": "confidence",
+          "from": 0.68,
+          "to": 0.76
+        },
+        {
+          "field": "required_review_action",
+          "from": "verify_source",
+          "to": "archive"
+        },
+        {
+          "field": "last_reviewed",
+          "from": "2026-04-28",
+          "to": "2026-05-24"
+        },
+        {
+          "field": "evidence_checked_at",
+          "from": "2026-04-28",
+          "to": "2026-05-24"
+        },
+        {
+          "field": "position_size",
+          "from": 48000.0,
+          "to": 42000.0
+        },
+        {
+          "field": "portfolio_weight",
+          "from": 0.031,
+          "to": 0.026
+        },
+        {
+          "field": "max_loss",
+          "from": 32000.0,
+          "to": 18000.0
+        },
+        {
+          "field": "source_ref",
+          "from": "FDA calendar and PFE pipeline note",
+          "to": "FDA calendar, label note, and PFE pipeline update"
+        },
+        {
+          "field": "actual_outcome",
+          "from": "missing",
+          "to": "Approval arrived inside the expected decision window with label language better than the base case."
+        },
+        {
+          "field": "outcome_recorded_at",
+          "from": "missing",
+          "to": "2026-05-24"
+        }
+      ],
+      "history_changes": {
+        "added_entries": [
+          {
+            "date": "2026-05-24",
+            "note": "Decision posted before the review window closed.",
+            "status": "completed"
+          }
+        ],
+        "removed_entries": []
+      },
+      "id": "demo-pfe-fda-2026",
+      "scenario_note_changes": [
+        {
+          "from": "Decision is mostly expected but clarifies launch timing.",
+          "key": "base",
+          "to": "Approval arrived inside the expected window and clarifies launch timing."
+        },
+        {
+          "from": "Delay or restrictive label pressures near-term sentiment.",
+          "key": "bear",
+          "to": "Label restrictions would still limit near-term uptake."
+        }
+      ],
+      "score_change": {
+        "delta": -34,
+        "from": 69,
+        "review_state_from": "stale",
+        "review_state_to": "closed",
+        "to": 35,
+        "urgency_from": "overdue",
+        "urgency_to": "closed"
+      },
+      "status_transition": {
+        "from": "watching",
+        "to": "completed"
+      },
+      "thesis_impact_change": {
+        "from": "mixed",
+        "to": "positive"
+      },
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    }
+  ],
+  "current_as_of": "2026-05-27",
+  "removed": [
+    {
+      "catalyst_score": 88,
+      "confidence": 0.9,
+      "days_until": 21,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "id": "demo-fomc-june-2026",
+      "max_loss": 90000.0,
+      "portfolio_weight": 0.22,
+      "required_review_action": "monitor_date",
+      "review_state": "stale",
+      "risk_budget": 75000.0,
+      "sector": "Macro",
+      "source_ref": "FOMC public calendar",
+      "status": "confirmed",
+      "theme": "Rates duration",
+      "thesis_id": "rates-duration-risk",
+      "thesis_impact": "mixed",
+      "ticker": "SPY",
+      "urgency": "high",
+      "window": "2026-06-17"
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "added_count": 1,
+    "changed_count": 2,
+    "evidence_change_count": 2,
+    "removed_count": 1,
+    "score_change_count": 2,
+    "status_transition_count": 2,
+    "thesis_impact_change_count": 1
+  }
+}

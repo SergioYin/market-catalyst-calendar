@@ -10,13 +10,17 @@ from pathlib import Path
 from typing import Iterable, List, Optional
 
 from .archive import create_archive, verify_archive
+from .compare import compare_snapshots_json, compare_snapshots_markdown
 from .csv_io import csv_to_dataset_json, dataset_to_csv
 from .dashboard import html_dashboard
-from .demo import DEMO_DATA
+from .demo import DEMO_DATA, DEMO_UPDATED_DATA
+from .demo_bundle import create_demo_bundle
 from .evidence import evidence_audit_json, evidence_audit_markdown
 from .ics import records_to_ics
-from .io import dump_json, load_dataset, read_text
+from .io import dump_json, load_dataset, read_json, read_text
+from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
+from .quality_gate import quality_gate_json, quality_gate_markdown
 from .render import (
     brief_markdown,
     broker_matrix_json,
@@ -30,8 +34,12 @@ from .render import (
     records_json,
     review_plan_json,
     review_plan_markdown,
+    risk_budget_json,
+    risk_budget_markdown,
     scenario_matrix_json,
     scenario_matrix_markdown,
+    sector_map_json,
+    sector_map_markdown,
     source_pack_csv,
     source_pack_json,
     source_pack_markdown,
@@ -88,6 +96,20 @@ def build_parser() -> argparse.ArgumentParser:
     exposure.add_argument("--format", choices=["json", "markdown"], default="json")
     exposure.set_defaults(func=cmd_exposure)
 
+    risk_budget = subparsers.add_parser("risk-budget", help="summarize event risk against catalyst budgets")
+    add_input(risk_budget)
+    add_as_of(risk_budget)
+    risk_budget.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    risk_budget.add_argument("--format", choices=["json", "markdown"], default="json")
+    risk_budget.set_defaults(func=cmd_risk_budget)
+
+    sector_map = subparsers.add_parser("sector-map", help="group catalysts by sector and theme context")
+    add_input(sector_map)
+    add_as_of(sector_map)
+    sector_map.add_argument("--stale-after-days", type=int, default=14)
+    sector_map.add_argument("--format", choices=["json", "markdown"], default="json")
+    sector_map.set_defaults(func=cmd_sector_map)
+
     review_plan = subparsers.add_parser("review-plan", help="create a stale and high-urgency review checklist")
     add_input(review_plan)
     add_as_of(review_plan)
@@ -119,6 +141,16 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_audit.add_argument("--max-domain-share", type=float, default=0.67)
     evidence_audit.add_argument("--format", choices=["json", "markdown"], default="json")
     evidence_audit.set_defaults(func=cmd_evidence_audit)
+
+    quality_gate = subparsers.add_parser("quality-gate", help="apply public research dataset quality gates")
+    add_input(quality_gate)
+    add_as_of(quality_gate)
+    quality_gate.add_argument("--min-evidence-urls", type=int, default=2)
+    quality_gate.add_argument("--max-review-age-days", type=int, default=14)
+    quality_gate.add_argument("--max-evidence-age-days", type=int, default=14)
+    quality_gate.add_argument("--max-broker-age-days", type=int, default=30)
+    quality_gate.add_argument("--format", choices=["json", "markdown"], default="json")
+    quality_gate.set_defaults(func=cmd_quality_gate)
 
     broker_matrix = subparsers.add_parser("broker-matrix", help="summarize broker views by ticker and thesis")
     add_input(broker_matrix)
@@ -157,6 +189,26 @@ def build_parser() -> argparse.ArgumentParser:
     post_event.add_argument("--format", choices=["json", "markdown"], default="json")
     post_event.set_defaults(func=cmd_post_event)
 
+    compare = subparsers.add_parser("compare", help="compare two catalyst dataset snapshots")
+    compare.add_argument("--base", required=True, help="older dataset JSON path")
+    compare.add_argument("--current", required=True, help="newer dataset JSON path")
+    add_as_of(compare)
+    compare.add_argument("--stale-after-days", type=int, default=14)
+    compare.add_argument("--format", choices=["json", "markdown"], default="json")
+    compare.add_argument("--output", "-o", help="output path; stdout when omitted")
+    compare.set_defaults(func=cmd_compare)
+
+    merge = subparsers.add_parser("merge", help="merge multiple catalyst datasets with deterministic conflict handling")
+    merge.add_argument("inputs", nargs="+", help="input dataset JSON paths; use '-' for stdin")
+    merge.add_argument("--as-of", help="merged dataset as_of; defaults to latest input as_of")
+    merge.add_argument(
+        "--prefer-newer-status-history",
+        action="store_true",
+        help="when records conflict, take status/history from the record with the newest history entry",
+    )
+    merge.add_argument("--output", "-o", help="output JSON path; stdout when omitted")
+    merge.set_defaults(func=cmd_merge)
+
     html = subparsers.add_parser("html-dashboard", help="render a deterministic static HTML dashboard")
     add_input(html)
     add_as_of(html)
@@ -166,8 +218,13 @@ def build_parser() -> argparse.ArgumentParser:
     html.set_defaults(func=cmd_html_dashboard)
 
     demo = subparsers.add_parser("export-demo", help="write the built-in demo dataset")
+    demo.add_argument("--snapshot", choices=["base", "updated"], default="base", help="demo snapshot to export")
     demo.add_argument("--output", "-o", help="output path; stdout when omitted")
     demo.set_defaults(func=cmd_export_demo)
+
+    demo_bundle = subparsers.add_parser("demo-bundle", help="write a deterministic directory with every demo output")
+    demo_bundle.add_argument("--output-dir", "-o", required=True, help="empty output directory for bundle files")
+    demo_bundle.set_defaults(func=cmd_demo_bundle)
 
     export_csv = subparsers.add_parser("export-csv", help="export catalyst JSON to deterministic CSV")
     add_input(export_csv)
@@ -257,6 +314,31 @@ def cmd_exposure(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_risk_budget(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    if args.format == "json":
+        print(dump_json(risk_budget_json(records, as_of)), end="")
+    else:
+        print(risk_budget_markdown(records, as_of), end="")
+    return 0
+
+
+def cmd_sector_map(args: argparse.Namespace) -> int:
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(sector_map_json(dataset.records, as_of, args.stale_after_days)), end="")
+    else:
+        print(sector_map_markdown(dataset.records, as_of, args.stale_after_days), end="")
+    return 0
+
+
 def cmd_review_plan(args: argparse.Namespace) -> int:
     dataset = load_dataset(args.input)
     as_of = resolve_as_of(dataset, args.as_of)
@@ -302,6 +384,50 @@ def cmd_evidence_audit(args: argparse.Namespace) -> int:
     else:
         print(evidence_audit_markdown(dataset.records, as_of, args.fresh_after_days, args.min_sources, args.max_domain_share), end="")
     return 0
+
+
+def cmd_quality_gate(args: argparse.Namespace) -> int:
+    if args.min_evidence_urls < 1:
+        raise ValueError("--min-evidence-urls must be at least 1")
+    if args.max_review_age_days < 0:
+        raise ValueError("--max-review-age-days must be non-negative")
+    if args.max_evidence_age_days < 0:
+        raise ValueError("--max-evidence-age-days must be non-negative")
+    if args.max_broker_age_days < 0:
+        raise ValueError("--max-broker-age-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        payload = quality_gate_json(
+            dataset.records,
+            as_of,
+            args.min_evidence_urls,
+            args.max_review_age_days,
+            args.max_evidence_age_days,
+            args.max_broker_age_days,
+        )
+        print(dump_json(payload), end="")
+    else:
+        payload = quality_gate_json(
+            dataset.records,
+            as_of,
+            args.min_evidence_urls,
+            args.max_review_age_days,
+            args.max_evidence_age_days,
+            args.max_broker_age_days,
+        )
+        print(
+            quality_gate_markdown(
+                dataset.records,
+                as_of,
+                args.min_evidence_urls,
+                args.max_review_age_days,
+                args.max_evidence_age_days,
+                args.max_broker_age_days,
+            ),
+            end="",
+        )
+    return 0 if payload["ok"] else 1
 
 
 def cmd_broker_matrix(args: argparse.Namespace) -> int:
@@ -370,6 +496,38 @@ def cmd_post_event(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_compare(args: argparse.Namespace) -> int:
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    base = load_dataset(args.base)
+    current = load_dataset(args.current)
+    as_of = date.fromisoformat(args.as_of) if args.as_of else current.as_of
+    if args.format == "json":
+        text = dump_json(compare_snapshots_json(base, current, as_of, args.stale_after_days))
+    else:
+        text = compare_snapshots_markdown(base, current, as_of, args.stale_after_days)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_merge(args: argparse.Namespace) -> int:
+    if len(args.inputs) < 2:
+        raise ValueError("merge requires at least two input datasets")
+    raw_datasets = [read_json(path) for path in args.inputs]
+    labels = [_source_label(path, index) for index, path in enumerate(args.inputs)]
+    as_of = date.fromisoformat(args.as_of) if args.as_of else None
+    payload = merge_datasets_json(raw_datasets, labels, as_of, args.prefer_newer_status_history)
+    text = dump_json(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["merge"]["validation"]["ok"] else 1
+
+
 def cmd_html_dashboard(args: argparse.Namespace) -> int:
     if args.days < 0:
         raise ValueError("--days must be non-negative")
@@ -386,11 +544,28 @@ def cmd_html_dashboard(args: argparse.Namespace) -> int:
 
 
 def cmd_export_demo(args: argparse.Namespace) -> int:
-    text = dump_json(DEMO_DATA)
+    data = DEMO_DATA if args.snapshot == "base" else DEMO_UPDATED_DATA
+    text = dump_json(data)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:
         print(text, end="")
+    return 0
+
+
+def cmd_demo_bundle(args: argparse.Namespace) -> int:
+    manifest = create_demo_bundle(args.output_dir)
+    print(
+        dump_json(
+            {
+                "bundle_dir": args.output_dir,
+                "file_count": len(manifest["files"]),
+                "manifest": "manifest.json",
+                "ok": True,
+            }
+        ),
+        end="",
+    )
     return 0
 
 
@@ -465,3 +640,9 @@ def upcoming_records(records: Iterable[CatalystRecord], as_of: date, days: int) 
         for record in records
         if record.status not in {"completed", "cancelled"} and 0 <= (record.window.start - as_of).days <= days
     ]
+
+
+def _source_label(path: str, index: int) -> str:
+    if path == "-":
+        return f"stdin-{index}"
+    return Path(path).name

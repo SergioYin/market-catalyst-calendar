@@ -35,6 +35,14 @@ def record_to_json(record: CatalystRecord, as_of: date) -> Dict[str, object]:
         payload["position_size"] = record.position_size
     if record.portfolio_weight is not None:
         payload["portfolio_weight"] = record.portfolio_weight
+    if record.risk_budget is not None:
+        payload["risk_budget"] = record.risk_budget
+    if record.max_loss is not None:
+        payload["max_loss"] = record.max_loss
+    if record.sector is not None:
+        payload["sector"] = record.sector
+    if record.theme is not None:
+        payload["theme"] = record.theme
     if record.thesis_id is not None:
         payload["thesis_id"] = record.thesis_id
     if record.source_ref is not None:
@@ -164,6 +172,155 @@ def exposure_markdown(records: Iterable[CatalystRecord], as_of: date) -> str:
             + " |"
         )
     lines.append("")
+    return "\n".join(lines)
+
+
+def risk_budget_json(records: Iterable[CatalystRecord], as_of: date) -> Dict[str, object]:
+    groups = _risk_budget_groups(records, as_of)
+    return {
+        "as_of": as_of.isoformat(),
+        "groups": groups,
+        "summary": _risk_budget_summary(groups),
+    }
+
+
+def risk_budget_markdown(records: Iterable[CatalystRecord], as_of: date) -> str:
+    payload = risk_budget_json(records, as_of)
+    summary = payload["summary"]  # type: ignore[index]
+    lines = [
+        "# Market Catalyst Risk Budget",
+        "",
+        f"As of: {as_of.isoformat()}",
+        "",
+        f"Total catalysts: {summary['record_count']}",
+        f"Aggregate risk budget: {_format_money(float(summary['risk_budget']))}",
+        f"Aggregate max loss: {_format_money(float(summary['max_loss']))}",
+        f"Aggregate expected event loss: {_format_money(float(summary['expected_event_loss']))}",
+        f"Over-budget groups: {summary['over_budget_group_count']}",
+        f"Over-budget catalysts: {summary['over_budget_record_count']}",
+        "",
+    ]
+    if not payload["groups"]:
+        lines.extend(["No upcoming catalysts with risk budget data.", ""])
+        return "\n".join(lines)
+    lines.extend(
+        [
+            "| Ticker | Thesis | Urgency | Records | Budget | Max Loss | Expected Loss | Utilization | Flags |",
+            "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for group in payload["groups"]:  # type: ignore[index]
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(group["ticker"]),
+                    str(group["thesis_id"]),
+                    str(group["urgency"]),
+                    str(group["record_count"]),
+                    _format_money(float(group["risk_budget"])),
+                    _format_money(float(group["max_loss"])),
+                    _format_money(float(group["expected_event_loss"])),
+                    _format_ratio(group["budget_utilization"]),
+                    ", ".join(str(flag) for flag in group["flags"]) or "none",
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    for group in payload["groups"]:  # type: ignore[index]
+        flagged = [record for record in group["records"] if record["flags"]]  # type: ignore[index]
+        if not flagged:
+            continue
+        lines.extend([f"## {group['ticker']} - {group['thesis_id']} - {group['urgency']}", ""])
+        for record in flagged:
+            lines.append(
+                f"- {record['id']}: max loss {_format_money(float(record['max_loss']))} vs budget {_format_money(float(record['risk_budget']))}; flags: {', '.join(str(flag) for flag in record['flags'])}"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
+def sector_map_json(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> Dict[str, object]:
+    groups = _sector_map_groups(records, as_of, stale_after_days)
+    records_in_groups = [record for group in groups for record in group["records"]]  # type: ignore[index]
+    return {
+        "as_of": as_of.isoformat(),
+        "stale_after_days": stale_after_days,
+        "groups": groups,
+        "summary": {
+            "group_count": len(groups),
+            "record_count": sum(int(group["record_count"]) for group in groups),
+            "open_event_count": sum(int(group["open_event_count"]) for group in groups),
+            "stale_evidence_count": sum(int(group["stale_evidence_count"]) for group in groups),
+            "broker_view_count": sum(int(group["broker_view_count"]) for group in groups),
+            "portfolio_weight": round(sum(float(group["portfolio_weight"]) for group in groups), 6),
+            "weighted_exposure": round(sum(float(group["weighted_exposure"]) for group in groups), 6),
+            "highest_broker_dispersion": max((float(group["broker_dispersion_max"]) for group in groups), default=0.0),
+            "critical_record_count": sum(1 for record in records_in_groups if "stale_evidence" in record["flags"] or record["urgency"] in {"high", "overdue"}),  # type: ignore[index]
+        },
+    }
+
+
+def sector_map_markdown(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> str:
+    payload = sector_map_json(records, as_of, stale_after_days)
+    summary = payload["summary"]  # type: ignore[index]
+    lines = [
+        "# Market Catalyst Sector Map",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Stale evidence after: {stale_after_days} days",
+        "",
+        f"Groups: {summary['group_count']}",
+        f"Open events: {summary['open_event_count']}",
+        f"Stale evidence records: {summary['stale_evidence_count']}",
+        f"Broker views: {summary['broker_view_count']}",
+        f"Aggregate portfolio weight: {_format_percent(float(summary['portfolio_weight']))}",
+        f"Aggregate weighted exposure: {_format_percent(float(summary['weighted_exposure']))}",
+        "",
+    ]
+    if not payload["groups"]:
+        lines.extend(["No catalysts with sector or theme context.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Sector | Theme | Open | Top Score | Urgency Mix | Weight | Weighted Exposure | Stale Evidence | Broker Dispersion | Tickers |",
+            "| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for group in payload["groups"]:  # type: ignore[index]
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(group["sector"]),
+                    str(group["theme"]),
+                    str(group["open_event_count"]),
+                    str(group["highest_score"]),
+                    _format_count_map(group["urgency_count"]),
+                    _format_percent(float(group["portfolio_weight"])),
+                    _format_percent(float(group["weighted_exposure"])),
+                    str(group["stale_evidence_count"]),
+                    _format_price(float(group["broker_dispersion_max"])),
+                    ", ".join(str(ticker) for ticker in group["tickers"]),
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    for group in payload["groups"]:  # type: ignore[index]
+        flagged = [record for record in group["records"] if record["flags"]]  # type: ignore[index]
+        if not flagged:
+            continue
+        lines.extend([f"## {group['sector']} - {group['theme']}", ""])
+        for record in flagged:
+            lines.append(
+                f"- {record['ticker']} {record['id']}: urgency {record['urgency']}; review {record['review_state']}; "
+                f"evidence {record['evidence_state']}; broker dispersion {_format_price(float(record['broker_dispersion']))}; "
+                f"flags: {', '.join(str(flag) for flag in record['flags'])}"
+            )
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -1578,12 +1735,279 @@ def _exposure_summary(groups: Iterable[Dict[str, object]]) -> Dict[str, object]:
     }
 
 
+def _risk_budget_groups(records: Iterable[CatalystRecord], as_of: date) -> List[Dict[str, object]]:
+    groups: Dict[tuple[str, str, str], Dict[str, object]] = {}
+    for record in records:
+        if record.risk_budget is None and record.max_loss is None:
+            continue
+        score = score_record(record, as_of)
+        thesis_id = record.thesis_id or "unmapped"
+        key = (record.ticker, thesis_id, score.urgency)
+        group = groups.setdefault(
+            key,
+            {
+                "ticker": record.ticker,
+                "thesis_id": thesis_id,
+                "urgency": score.urgency,
+                "record_count": 0,
+                "risk_budget": 0.0,
+                "max_loss": 0.0,
+                "expected_event_loss": 0.0,
+                "over_budget_record_count": 0,
+                "missing_budget_count": 0,
+                "missing_max_loss_count": 0,
+                "records": [],
+            },
+        )
+        item = _risk_budget_record(record, score)
+        group["record_count"] = int(group["record_count"]) + 1
+        group["risk_budget"] = float(group["risk_budget"]) + float(item["risk_budget"])
+        group["max_loss"] = float(group["max_loss"]) + float(item["max_loss"])
+        group["expected_event_loss"] = float(group["expected_event_loss"]) + float(item["expected_event_loss"])
+        if "over_budget" in item["flags"]:
+            group["over_budget_record_count"] = int(group["over_budget_record_count"]) + 1
+        if "missing_budget" in item["flags"]:
+            group["missing_budget_count"] = int(group["missing_budget_count"]) + 1
+        if "missing_max_loss" in item["flags"]:
+            group["missing_max_loss_count"] = int(group["missing_max_loss_count"]) + 1
+        group["records"].append(item)  # type: ignore[union-attr]
+
+    ordered = sorted(
+        groups.values(),
+        key=lambda group: (
+            -int(group["over_budget_record_count"]),
+            -float(group["expected_event_loss"]),
+            -float(group["max_loss"]),
+            str(group["ticker"]),
+            str(group["thesis_id"]),
+            str(group["urgency"]),
+        ),
+    )
+    for group in ordered:
+        risk_budget = float(group["risk_budget"])
+        max_loss = float(group["max_loss"])
+        flags = []
+        if risk_budget == 0 and max_loss > 0:
+            flags.append("missing_budget")
+        elif risk_budget > 0 and max_loss > risk_budget:
+            flags.append("over_budget")
+        if int(group["missing_max_loss_count"]):
+            flags.append("missing_max_loss")
+        group["risk_budget"] = round(risk_budget, 2)
+        group["max_loss"] = round(max_loss, 2)
+        group["expected_event_loss"] = round(float(group["expected_event_loss"]), 2)
+        group["budget_remaining"] = round(risk_budget - max_loss, 2)
+        group["budget_utilization"] = round(max_loss / risk_budget, 6) if risk_budget > 0 else None
+        group["flags"] = flags
+        group["records"] = sorted(  # type: ignore[assignment]
+            group["records"],  # type: ignore[arg-type]
+            key=lambda item: (-float(item["expected_event_loss"]), str(item["id"])),
+        )
+    return ordered
+
+
+def _risk_budget_record(record: CatalystRecord, score: Score) -> Dict[str, object]:
+    risk_budget = record.risk_budget or 0.0
+    max_loss = record.max_loss or 0.0
+    expected_event_loss = max_loss * record.confidence * score.catalyst_score / 100
+    flags = []
+    if record.risk_budget is None:
+        flags.append("missing_budget")
+    if record.max_loss is None:
+        flags.append("missing_max_loss")
+    if record.risk_budget is not None and record.max_loss is not None and record.max_loss > record.risk_budget:
+        flags.append("over_budget")
+    return {
+        "id": record.record_id,
+        "ticker": record.ticker,
+        "entity": record.entity,
+        "event_type": record.event_type,
+        "window": record.window.label,
+        "status": record.status,
+        "thesis_id": record.thesis_id or "unmapped",
+        "catalyst_score": score.catalyst_score,
+        "urgency": score.urgency,
+        "confidence": record.confidence,
+        "risk_budget": round(risk_budget, 2),
+        "max_loss": round(max_loss, 2),
+        "expected_event_loss": round(expected_event_loss, 2),
+        "budget_remaining": round(risk_budget - max_loss, 2) if record.risk_budget is not None and record.max_loss is not None else None,
+        "budget_utilization": round(max_loss / risk_budget, 6) if risk_budget > 0 else None,
+        "flags": flags,
+    }
+
+
+def _risk_budget_summary(groups: Iterable[Dict[str, object]]) -> Dict[str, object]:
+    group_list = list(groups)
+    records = [record for group in group_list for record in group["records"]]  # type: ignore[index]
+    return {
+        "group_count": len(group_list),
+        "record_count": sum(int(group["record_count"]) for group in group_list),
+        "risk_budget": round(sum(float(group["risk_budget"]) for group in group_list), 2),
+        "max_loss": round(sum(float(group["max_loss"]) for group in group_list), 2),
+        "expected_event_loss": round(sum(float(group["expected_event_loss"]) for group in group_list), 2),
+        "over_budget_group_count": sum(1 for group in group_list if "over_budget" in group["flags"]),
+        "over_budget_record_count": sum(1 for record in records if "over_budget" in record["flags"]),
+        "missing_budget_count": sum(1 for record in records if "missing_budget" in record["flags"]),
+        "missing_max_loss_count": sum(1 for record in records if "missing_max_loss" in record["flags"]),
+    }
+
+
+def _sector_map_groups(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> List[Dict[str, object]]:
+    groups: Dict[tuple[str, str], Dict[str, object]] = {}
+    for record in records:
+        sector = record.sector or "unmapped"
+        theme = record.theme or "unmapped"
+        if sector == "unmapped" and theme == "unmapped":
+            continue
+        key = (sector, theme)
+        group = groups.setdefault(
+            key,
+            {
+                "sector": sector,
+                "theme": theme,
+                "record_count": 0,
+                "open_event_count": 0,
+                "highest_score": 0,
+                "portfolio_weight": 0.0,
+                "position_size": 0.0,
+                "weighted_exposure": 0.0,
+                "weighted_position_exposure": 0.0,
+                "stale_evidence_count": 0,
+                "missing_evidence_freshness_count": 0,
+                "broker_view_count": 0,
+                "broker_dispersion_max": 0.0,
+                "broker_dispersion_avg": 0.0,
+                "urgency_count": {},
+                "review_state_count": {},
+                "tickers": set(),
+                "themes": set(),
+                "records": [],
+            },
+        )
+        item = _sector_map_record(record, as_of, stale_after_days)
+        group["record_count"] = int(group["record_count"]) + 1
+        group["highest_score"] = max(int(group["highest_score"]), int(item["catalyst_score"]))
+        group["tickers"].add(record.ticker)  # type: ignore[union-attr]
+        group["themes"].add(theme)  # type: ignore[union-attr]
+        _increment_count(group["urgency_count"], str(item["urgency"]))  # type: ignore[arg-type]
+        _increment_count(group["review_state_count"], str(item["review_state"]))  # type: ignore[arg-type]
+        if record.status not in {"completed", "cancelled"}:
+            group["open_event_count"] = int(group["open_event_count"]) + 1
+            portfolio_weight = record.portfolio_weight or 0.0
+            position_size = record.position_size or 0.0
+            event_weight = record.confidence * int(item["catalyst_score"]) / 100
+            group["portfolio_weight"] = float(group["portfolio_weight"]) + portfolio_weight
+            group["position_size"] = float(group["position_size"]) + position_size
+            group["weighted_exposure"] = float(group["weighted_exposure"]) + portfolio_weight * event_weight
+            group["weighted_position_exposure"] = float(group["weighted_position_exposure"]) + position_size * event_weight
+        if item["evidence_state"] in {"missing", "stale"}:
+            group["stale_evidence_count"] = int(group["stale_evidence_count"]) + 1
+        if item["evidence_state"] == "missing":
+            group["missing_evidence_freshness_count"] = int(group["missing_evidence_freshness_count"]) + 1
+        group["broker_view_count"] = int(group["broker_view_count"]) + int(item["broker_view_count"])
+        group["broker_dispersion_max"] = max(float(group["broker_dispersion_max"]), float(item["broker_dispersion"]))
+        group["records"].append(item)  # type: ignore[union-attr]
+
+    ordered = sorted(
+        groups.values(),
+        key=lambda group: (
+            -int(group["stale_evidence_count"]),
+            -float(group["weighted_exposure"]),
+            -float(group["broker_dispersion_max"]),
+            str(group["sector"]),
+            str(group["theme"]),
+        ),
+    )
+    for group in ordered:
+        records_list = sorted(  # type: ignore[assignment]
+            group["records"],  # type: ignore[arg-type]
+            key=lambda item: (-int(item["catalyst_score"]), str(item["ticker"]), str(item["id"])),
+        )
+        dispersions = [float(item["broker_dispersion"]) for item in records_list if float(item["broker_dispersion"]) > 0]
+        group["portfolio_weight"] = round(float(group["portfolio_weight"]), 6)
+        group["position_size"] = round(float(group["position_size"]), 2)
+        group["weighted_exposure"] = round(float(group["weighted_exposure"]), 6)
+        group["weighted_position_exposure"] = round(float(group["weighted_position_exposure"]), 2)
+        group["broker_dispersion_max"] = round(float(group["broker_dispersion_max"]), 2)
+        group["broker_dispersion_avg"] = round(sum(dispersions) / len(dispersions), 2) if dispersions else 0.0
+        group["records"] = records_list
+        group["tickers"] = sorted(group["tickers"])  # type: ignore[arg-type]
+        group["themes"] = sorted(group["themes"])  # type: ignore[arg-type]
+        group["urgency_count"] = dict(sorted(group["urgency_count"].items()))  # type: ignore[union-attr]
+        group["review_state_count"] = dict(sorted(group["review_state_count"].items()))  # type: ignore[union-attr]
+    return ordered
+
+
+def _sector_map_record(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
+    score = score_record(record, as_of, stale_after_days=stale_after_days)
+    evidence_age = (as_of - record.evidence_checked_at).days if record.evidence_checked_at else None
+    if evidence_age is None:
+        evidence_state = "missing"
+    elif evidence_age > stale_after_days:
+        evidence_state = "stale"
+    else:
+        evidence_state = "fresh"
+    targets = [view.target_price for view in record.broker_views]
+    broker_dispersion = max(targets) - min(targets) if targets else 0.0
+    flags = []
+    if evidence_state in {"missing", "stale"}:
+        flags.append(f"{evidence_state}_evidence")
+    if score.urgency in {"high", "overdue"}:
+        flags.append("urgent")
+    if score.review_state == "stale":
+        flags.append("stale_review")
+    if broker_dispersion > 0:
+        flags.append("broker_dispersion")
+    return {
+        "id": record.record_id,
+        "ticker": record.ticker,
+        "entity": record.entity,
+        "event_type": record.event_type,
+        "window": record.window.label,
+        "status": record.status,
+        "sector": record.sector or "unmapped",
+        "theme": record.theme or "unmapped",
+        "thesis_id": record.thesis_id or "unmapped",
+        "catalyst_score": score.catalyst_score,
+        "urgency": score.urgency,
+        "review_state": score.review_state,
+        "days_until": score.days_until,
+        "portfolio_weight": record.portfolio_weight or 0.0,
+        "position_size": record.position_size or 0.0,
+        "weighted_exposure": round((record.portfolio_weight or 0.0) * record.confidence * score.catalyst_score / 100, 6),
+        "weighted_position_exposure": round((record.position_size or 0.0) * record.confidence * score.catalyst_score / 100, 2),
+        "evidence_checked_at": record.evidence_checked_at.isoformat() if record.evidence_checked_at else "missing",
+        "evidence_age_days": evidence_age if evidence_age is not None else "missing",
+        "evidence_state": evidence_state,
+        "broker_view_count": len(record.broker_views),
+        "broker_dispersion": round(broker_dispersion, 2),
+        "flags": flags,
+    }
+
+
+def _increment_count(counts: Dict[str, object], key: str) -> None:
+    counts[key] = int(counts.get(key, 0)) + 1
+
+
+def _format_count_map(value: object) -> str:
+    if not isinstance(value, dict):
+        return str(value)
+    return ", ".join(f"{key}:{value[key]}" for key in sorted(value)) or "none"
+
+
 def _format_percent(value: float) -> str:
     return f"{value * 100:.2f}%"
 
 
 def _format_money(value: float) -> str:
     return f"{value:,.2f}"
+
+
+def _format_ratio(value: object) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):.2f}x"
 
 
 def _format_price(value: float) -> str:

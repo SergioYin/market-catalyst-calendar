@@ -1,0 +1,246 @@
+{
+  "as_of": "2026-05-13",
+  "groups": [
+    {
+      "broker_dispersion_avg": 0.0,
+      "broker_dispersion_max": 0.0,
+      "broker_view_count": 0,
+      "highest_score": 83,
+      "missing_evidence_freshness_count": 1,
+      "open_event_count": 1,
+      "portfolio_weight": 0.22,
+      "position_size": 0.0,
+      "record_count": 1,
+      "records": [
+        {
+          "broker_dispersion": 0.0,
+          "broker_view_count": 0,
+          "catalyst_score": 83,
+          "days_until": 35,
+          "entity": "S&P 500 ETF Trust",
+          "event_type": "macro_release",
+          "evidence_age_days": "missing",
+          "evidence_checked_at": "missing",
+          "evidence_state": "missing",
+          "flags": [
+            "missing_evidence"
+          ],
+          "id": "demo-fomc-june-2026",
+          "portfolio_weight": 0.22,
+          "position_size": 0.0,
+          "review_state": "current",
+          "sector": "Macro",
+          "status": "confirmed",
+          "theme": "Rates duration",
+          "thesis_id": "rates-duration-risk",
+          "ticker": "SPY",
+          "urgency": "medium",
+          "weighted_exposure": 0.16434,
+          "weighted_position_exposure": 0.0,
+          "window": "2026-06-17"
+        }
+      ],
+      "review_state_count": {
+        "current": 1
+      },
+      "sector": "Macro",
+      "stale_evidence_count": 1,
+      "theme": "Rates duration",
+      "themes": [
+        "Rates duration"
+      ],
+      "tickers": [
+        "SPY"
+      ],
+      "urgency_count": {
+        "medium": 1
+      },
+      "weighted_exposure": 0.16434,
+      "weighted_position_exposure": 0.0
+    },
+    {
+      "broker_dispersion_avg": 8.0,
+      "broker_dispersion_max": 8.0,
+      "broker_view_count": 2,
+      "highest_score": 87,
+      "missing_evidence_freshness_count": 0,
+      "open_event_count": 1,
+      "portfolio_weight": 0.031,
+      "position_size": 48000.0,
+      "record_count": 1,
+      "records": [
+        {
+          "broker_dispersion": 8.0,
+          "broker_view_count": 2,
+          "catalyst_score": 87,
+          "days_until": 7,
+          "entity": "Pfizer Inc.",
+          "event_type": "regulatory_decision",
+          "evidence_age_days": 15,
+          "evidence_checked_at": "2026-04-28",
+          "evidence_state": "stale",
+          "flags": [
+            "stale_evidence",
+            "urgent",
+            "stale_review",
+            "broker_dispersion"
+          ],
+          "id": "demo-pfe-fda-2026",
+          "portfolio_weight": 0.031,
+          "position_size": 48000.0,
+          "review_state": "stale",
+          "sector": "Health Care",
+          "status": "watching",
+          "theme": "Pipeline reset",
+          "thesis_id": "pharma-pipeline-reset",
+          "ticker": "PFE",
+          "urgency": "high",
+          "weighted_exposure": 0.01834,
+          "weighted_position_exposure": 28396.8,
+          "window": "2026-05-20..2026-05-24"
+        }
+      ],
+      "review_state_count": {
+        "stale": 1
+      },
+      "sector": "Health Care",
+      "stale_evidence_count": 1,
+      "theme": "Pipeline reset",
+      "themes": [
+        "Pipeline reset"
+      ],
+      "tickers": [
+        "PFE"
+      ],
+      "urgency_count": {
+        "high": 1
+      },
+      "weighted_exposure": 0.01834,
+      "weighted_position_exposure": 28396.8
+    },
+    {
+      "broker_dispersion_avg": 235.0,
+      "broker_dispersion_max": 235.0,
+      "broker_view_count": 2,
+      "highest_score": 84,
+      "missing_evidence_freshness_count": 0,
+      "open_event_count": 1,
+      "portfolio_weight": 0.0825,
+      "position_size": 125000.0,
+      "record_count": 1,
+      "records": [
+        {
+          "broker_dispersion": 235.0,
+          "broker_view_count": 2,
+          "catalyst_score": 84,
+          "days_until": 20,
+          "entity": "NVIDIA Corporation",
+          "event_type": "product_launch",
+          "evidence_age_days": 4,
+          "evidence_checked_at": "2026-05-09",
+          "evidence_state": "fresh",
+          "flags": [
+            "broker_dispersion"
+          ],
+          "id": "demo-nvda-computex-2026",
+          "portfolio_weight": 0.0825,
+          "position_size": 125000.0,
+          "review_state": "current",
+          "sector": "Information Technology",
+          "status": "scheduled",
+          "theme": "AI infrastructure",
+          "thesis_id": "ai-infrastructure-capex",
+          "ticker": "NVDA",
+          "urgency": "medium",
+          "weighted_exposure": 0.051282,
+          "weighted_position_exposure": 77700.0,
+          "window": "2026-06-02"
+        }
+      ],
+      "review_state_count": {
+        "current": 1
+      },
+      "sector": "Information Technology",
+      "stale_evidence_count": 0,
+      "theme": "AI infrastructure",
+      "themes": [
+        "AI infrastructure"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "urgency_count": {
+        "medium": 1
+      },
+      "weighted_exposure": 0.051282,
+      "weighted_position_exposure": 77700.0
+    },
+    {
+      "broker_dispersion_avg": 0.0,
+      "broker_dispersion_max": 0.0,
+      "broker_view_count": 0,
+      "highest_score": 35,
+      "missing_evidence_freshness_count": 0,
+      "open_event_count": 0,
+      "portfolio_weight": 0.0,
+      "position_size": 0.0,
+      "record_count": 1,
+      "records": [
+        {
+          "broker_dispersion": 0.0,
+          "broker_view_count": 0,
+          "catalyst_score": 35,
+          "days_until": -7,
+          "entity": "Microsoft Corporation",
+          "event_type": "earnings",
+          "evidence_age_days": 6,
+          "evidence_checked_at": "2026-05-07",
+          "evidence_state": "fresh",
+          "flags": [],
+          "id": "demo-msft-earnings-2026",
+          "portfolio_weight": 0.064,
+          "position_size": 90000.0,
+          "review_state": "closed",
+          "sector": "Information Technology",
+          "status": "completed",
+          "theme": "Cloud platforms",
+          "thesis_id": "unmapped",
+          "ticker": "MSFT",
+          "urgency": "closed",
+          "weighted_exposure": 0.018368,
+          "weighted_position_exposure": 25830.0,
+          "window": "2026-05-06"
+        }
+      ],
+      "review_state_count": {
+        "closed": 1
+      },
+      "sector": "Information Technology",
+      "stale_evidence_count": 0,
+      "theme": "Cloud platforms",
+      "themes": [
+        "Cloud platforms"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "urgency_count": {
+        "closed": 1
+      },
+      "weighted_exposure": 0.0,
+      "weighted_position_exposure": 0.0
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "broker_view_count": 4,
+    "critical_record_count": 1,
+    "group_count": 4,
+    "highest_broker_dispersion": 235.0,
+    "open_event_count": 3,
+    "portfolio_weight": 0.3335,
+    "record_count": 4,
+    "stale_evidence_count": 2,
+    "weighted_exposure": 0.233962
+  }
+}

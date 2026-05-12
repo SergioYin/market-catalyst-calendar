@@ -72,6 +72,10 @@ class CatalystRecord:
     last_reviewed: Optional[date]
     position_size: Optional[float]
     portfolio_weight: Optional[float]
+    risk_budget: Optional[float]
+    max_loss: Optional[float]
+    sector: Optional[str]
+    theme: Optional[str]
     thesis_id: Optional[str]
     source_ref: Optional[str]
     evidence_checked_at: Optional[date]
@@ -195,6 +199,8 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
     outcome_recorded_at = raw.get("outcome_recorded_at")
     position_size = _optional_nonnegative_float(raw, "position_size")
     portfolio_weight = _optional_nonnegative_float(raw, "portfolio_weight")
+    risk_budget = _optional_nonnegative_float(raw, "risk_budget")
+    max_loss = _optional_nonnegative_float(raw, "max_loss")
     if portfolio_weight is not None and portfolio_weight > 1:
         raise ValueError("portfolio_weight must be between 0 and 1")
     return CatalystRecord(
@@ -213,6 +219,10 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
         last_reviewed=parse_date(last_reviewed, "last_reviewed") if last_reviewed else None,
         position_size=position_size,
         portfolio_weight=portfolio_weight,
+        risk_budget=risk_budget,
+        max_loss=max_loss,
+        sector=_optional_str(raw, "sector"),
+        theme=_optional_str(raw, "theme"),
         thesis_id=_optional_str(raw, "thesis_id"),
         source_ref=_optional_str(raw, "source_ref"),
         evidence_checked_at=parse_date(evidence_checked_at, "evidence_checked_at") if evidence_checked_at else None,

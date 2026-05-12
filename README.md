@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure, maps catalysts back to investment theses, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports a deterministic demo dataset, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, and packages portable archives with hash verification.
 
 ## Install
 
@@ -22,6 +22,10 @@ python -m market_catalyst_calendar stale --input examples/demo_records.json --as
 python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar sector-map --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar sector-map --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar thesis-map --input examples/demo_records.json --as-of 2026-05-13
@@ -30,6 +34,8 @@ python -m market_catalyst_calendar scenario-matrix --input examples/demo_records
 python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar quality-gate --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13
@@ -41,6 +47,11 @@ python -m market_catalyst_calendar decision-log --input examples/demo_records.js
 python -m market_catalyst_calendar decision-log --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25 --format markdown
+python -m market_catalyst_calendar export-demo --snapshot updated --output examples/demo_records_updated.json
+python -m market_catalyst_calendar demo-bundle --output-dir demo-bundle
+python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
+python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
+python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27 --output examples/merge.json
 python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
 python -m market_catalyst_calendar export-csv --input examples/demo_records.json --output examples/demo_records.csv
 python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/upcoming.ics
@@ -71,17 +82,21 @@ Each record includes:
 - `last_reviewed`
 - optional `evidence_checked_at`
 - optional `position_size` and `portfolio_weight`
+- optional `risk_budget` and `max_loss`
+- optional `sector` and `theme`
 - optional `thesis_id` and `source_ref`
 - optional `broker_views`, each with `institution`, `rating`, `target_price`, `as_of`, `source_url`, and `caveat`
 - optional `actual_outcome` and `outcome_recorded_at`
 
 Validation checks schema shape, URL quality, scenario completeness, status/history consistency, confidence ranges, and review-action hygiene for open items.
 
-`portfolio_weight` is a decimal fraction from `0` to `1`, so `0.05` means 5% of the portfolio. `position_size` is a non-negative notional value in the user's own reporting currency. Both fields are optional, which allows catalyst records to exist before a portfolio view is attached.
+`portfolio_weight` is a decimal fraction from `0` to `1`, so `0.05` means 5% of the portfolio. `position_size`, `risk_budget`, and `max_loss` are non-negative notional values in the user's own reporting currency. All four fields are optional, which allows catalyst records to exist before a portfolio or risk view is attached.
 
 `evidence_checked_at` is separate from `last_reviewed`: use it for the date sources were last checked, even when the thesis notes or status did not change.
 
 `broker_views` are record-level analyst or broker snapshots. They are optional and offline: the CLI validates their source URLs and dates, but it does not fetch reports or infer missing target prices.
+
+`sector` and `theme` are optional taxonomy fields. Use `sector` for the broad business or macro bucket and `theme` for the cross-cutting catalyst exposure, such as AI infrastructure, pipeline reset, or rates duration.
 
 `actual_outcome` and `outcome_recorded_at` are optional post-event fields. Use them after the catalyst window closes to capture what actually happened and when that outcome was recorded. `outcome_recorded_at` cannot be after dataset `as_of`, cannot be before the event window starts, and requires `actual_outcome`.
 
@@ -97,6 +112,39 @@ weighted position exposure = position_size * confidence * catalyst_score / 100
 ```
 
 This keeps low-confidence or low-priority catalysts visible while preventing them from counting the same as high-confidence near-term events.
+
+## Risk Budget Workflow
+
+`risk-budget` filters to upcoming open catalysts in the requested look-ahead window, groups records by `ticker`, `thesis_id`, and scored `urgency`, then compares `max_loss` estimates with explicit `risk_budget` limits.
+
+JSON and Markdown outputs include:
+
+- group-level budget, max loss, score/confidence-adjusted expected event loss, budget utilization, and remaining budget
+- record-level catalyst score, confidence, budget, max loss, expected event loss, and flags
+- `over_budget` flags when `max_loss` exceeds `risk_budget`
+- `missing_budget` or `missing_max_loss` flags when only one side of the risk pair is present
+
+Expected event loss is a prioritization metric:
+
+```text
+expected event loss = max_loss * confidence * catalyst_score / 100
+```
+
+Use `risk-budget` before high-urgency events to find catalysts whose stated downside exceeds the allowed risk budget.
+
+## Sector Map Workflow
+
+`sector-map` groups records with `sector` or `theme` context and reports which sector/theme clusters combine catalyst exposure, urgency, stale evidence, and broker-view dispersion.
+
+JSON and Markdown outputs include:
+
+- sector, theme, open record count, highest catalyst score, urgency/review-state counts, and linked tickers
+- aggregate portfolio weight, notional position, and confidence/score-weighted exposure for open records
+- stale or missing evidence freshness counts using `--stale-after-days`
+- broker view count plus maximum and average target-price dispersion within the group
+- per-record flags for stale or missing evidence, high urgency, stale review, and broker dispersion
+
+Use it when sector or thematic concentration matters more than single-name ordering, especially before refreshing a research packet or risk review.
 
 ## Review Plan Workflow
 
@@ -136,6 +184,20 @@ The JSON and Markdown reports include records with any of these flags:
 - `source_concentration`: one source domain exceeds `--max-domain-share`
 
 Defaults are `--fresh-after-days 14`, `--min-sources 2`, and `--max-domain-share 0.67`. Use Markdown for analyst review and JSON for downstream automation.
+
+## Quality Gate Workflow
+
+`quality-gate` applies stricter product rules for datasets intended to be used as public research inputs. It is offline and deterministic, but unlike `validate` it exits with status `1` when any record fails the publication gate.
+
+The JSON and Markdown reports include only failing records and cover:
+
+- `minimum_evidence`: at least `--min-evidence-urls` URLs plus fresh `evidence_checked_at`
+- `scenario_completeness`: substantive bull, base, and bear notes
+- `review_freshness`: `last_reviewed` within `--max-review-age-days`
+- `no_placeholder_urls`: no `example.*`, `.example`, localhost, sample, dummy, TODO, or TBD URLs in evidence or broker sources
+- `broker_caveats`: broker views have substantive caveats and are no older than `--max-broker-age-days`
+
+Defaults are two evidence URLs, 14 days for review and evidence freshness, and 30 days for broker views. Use this before publishing or handing a dataset to another agent that should treat the records as research-ready.
 
 ## Broker Matrix Workflow
 
@@ -210,6 +272,27 @@ JSON and Markdown outputs include, per catalyst:
 
 Use it after events occur to close the loop between pre-event scenarios and what actually happened without inventing conclusions.
 
+## Compare Snapshots Workflow
+
+`compare` reads an older `--base` dataset and a newer `--current` dataset, matches records by stable `id`, scores both snapshots with the same `--as-of`, and reports what changed in JSON or Markdown.
+
+The report includes:
+
+- added and removed catalyst events
+- changed events with score deltas, urgency/review-state changes, and field changes
+- status transitions such as `watching -> completed`
+- evidence URL additions/removals plus `evidence_checked_at` changes
+- thesis-impact changes such as `mixed -> positive`
+- scenario-note, history entry, and broker-view changes
+
+Use it when reviewing a refreshed research packet or checking what changed between archived datasets. `create-archive` remains a single-snapshot package; run `compare` separately when you have both the old and current dataset files.
+
+## Merge Workflow
+
+`merge` reads two or more catalyst datasets, combines records by stable `id`, and writes a reusable JSON dataset. The output keeps a top-level `merge` diagnostic block with input source labels, per-record provenance, conflict fields, chosen source, status/history source, duplicate-ID diagnostics, and validation results.
+
+Conflict resolution is deterministic: by default, the record from the newest dataset `as_of` wins, with later input order as a tie-breaker. `--prefer-newer-status-history` keeps that record-level winner for other fields but takes `status` and `history` from the candidate with the newest history entry. The command exits `1` if the merged dataset fails validation, while still printing JSON diagnostics.
+
 ## HTML Dashboard Workflow
 
 `html-dashboard` renders a deterministic, no-JavaScript HTML file for offline review. It safely escapes dataset text before writing it into the document.
@@ -218,6 +301,8 @@ The dashboard includes:
 
 - score tables for upcoming catalysts
 - exposure summary cards and grouped exposure rows
+- risk-budget breach table
+- sector map
 - thesis map
 - evidence audit
 - bull/base/bear scenario matrix
@@ -227,7 +312,7 @@ Use `--output` to write a portable `.html` artifact, or omit it to stream the HT
 
 ## CSV Workflow
 
-`export-csv` writes the full catalyst dataset to a deterministic spreadsheet-friendly CSV. Rows are sorted by event window, ticker, and id; columns are stable; optional `thesis_id` and `source_ref` are preserved; and `confidence` is formatted without unnecessary trailing noise.
+`export-csv` writes the full catalyst dataset to a deterministic spreadsheet-friendly CSV. Rows are sorted by event window, ticker, and id; columns are stable; optional `sector`, `theme`, `thesis_id`, and `source_ref` are preserved; and `confidence` is formatted without unnecessary trailing noise.
 
 `import-csv` reads that CSV back into the same JSON dataset shape used by `validate`, `upcoming`, `stale`, and `brief`. The CSV includes `window_start` and `window_end`; equal values import as a single `date`, while different values import as a `window`.
 
@@ -262,6 +347,8 @@ Each event includes a stable UID derived from the catalyst id and event window, 
 - `reports/post_event.json` and `reports/post_event.md`
 - `reports/dashboard.html`
 - `reports/exposure.json` and `reports/exposure.md`
+- `reports/risk_budget.json` and `reports/risk_budget.md`
+- `reports/sector_map.json` and `reports/sector_map.md`
 - `reports/review_plan.json` and `reports/review_plan.md`
 - `reports/scenario_matrix.json` and `reports/scenario_matrix.md`
 - `reports/thesis_map.json` and `reports/thesis_map.md`
@@ -269,6 +356,19 @@ Each event includes a stable UID derived from the catalyst id and event window, 
 - `manifest.json`: archive metadata plus byte counts and SHA-256 hashes for every archived file
 
 `verify-archive` reads `manifest.json`, recomputes hashes and byte counts, and fails if any archived file is missing, changed, or untracked. This makes the directory portable without requiring a zip format or non-stdlib tooling.
+
+## Demo Bundle Workflow
+
+`demo-bundle` writes an empty output directory containing a complete deterministic demo packet generated from the built-in base and updated snapshots. It is meant for first-run evaluation, downstream agent fixtures, and offline review without relying on networked tools.
+
+The bundle contains:
+
+- `examples/`: every documented example output, including demo datasets, report JSON, Markdown reports, CSV, ICS, HTML dashboard, compare output, and merge output
+- `README.md`: bundle-local quickstart and a command index for each generated example
+- `quickstart-transcript.txt`: deterministic terminal transcript for validating, listing upcoming events, and observing the expected nonzero quality-gate result
+- `manifest.json`: bundle metadata plus relative file paths, byte counts, SHA-256 hashes, command provenance, and expected exit codes
+
+Unlike `create-archive`, which packages one caller-supplied dataset snapshot, `demo-bundle` always uses the built-in demo data and includes every example output in the same shape as the checked-in `examples/` fixtures.
 
 ## Scoring
 
@@ -284,6 +384,10 @@ Checked-in examples live in `examples/`:
 - `brief.md`: generated Markdown brief
 - `exposure.json`: generated exposure aggregation
 - `exposure.md`: generated Markdown exposure table
+- `risk_budget.json`: generated event risk-budget aggregation
+- `risk_budget.md`: generated Markdown risk-budget workflow
+- `sector_map.json`: generated sector/theme map with exposure, stale evidence, and broker dispersion
+- `sector_map.md`: generated Markdown sector-map workflow
 - `review_plan.json`: generated review checklist data
 - `review_plan.md`: generated Markdown review checklist
 - `scenario_matrix.json`: generated bull/base/bear scenario matrix
@@ -301,6 +405,10 @@ Checked-in examples live in `examples/`:
 - `decision_log.md`: generated Markdown decision log
 - `post_event.json`: generated post-event outcome review queue
 - `post_event.md`: generated Markdown post-event outcome review template
+- `demo_records_updated.json`: deterministic second snapshot for compare examples
+- `compare.json`: generated snapshot comparison data
+- `compare.md`: generated Markdown snapshot comparison report
+- `merge.json`: generated merged dataset with provenance, conflict diagnostics, and validation
 - `dashboard.html`: generated static no-JavaScript HTML dashboard
 - `thesis_map.json`: generated thesis grouping data
 - `thesis_map.md`: generated Markdown thesis map
@@ -309,6 +417,7 @@ Checked-in examples live in `examples/`:
 - `imported_demo_records.json`: JSON imported back from CSV
 
 Archive output is intentionally not checked in because it duplicates the generated examples. Use the commands above to create a fresh archive when needed.
+Demo bundle output is also intentionally not checked in; regenerate it with `demo-bundle` when you need a portable tutorial packet.
 
 ## Selfcheck
 
@@ -316,7 +425,7 @@ Archive output is intentionally not checked in because it duplicates the generat
 python scripts/selfcheck.py
 ```
 
-The selfcheck runs unit tests, exports demo data to a temporary directory, validates it, creates and verifies an archive, and verifies deterministic command output against checked-in examples.
+The selfcheck runs unit tests, exports demo data to a temporary directory, validates it, creates and verifies an archive, creates a demo bundle, and verifies deterministic command output against checked-in examples.
 
 ## Roadmap
 

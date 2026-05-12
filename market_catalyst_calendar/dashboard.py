@@ -11,7 +11,9 @@ from .models import CatalystRecord
 from .render import (
     exposure_json,
     records_json,
+    risk_budget_json,
     scenario_matrix_json,
+    sector_map_json,
     thesis_map_json,
     watchlist_json,
 )
@@ -36,6 +38,8 @@ def html_dashboard(
     ]
     score_payload = records_json(upcoming, as_of)
     exposure_payload = exposure_json(upcoming, as_of)
+    risk_budget_payload = risk_budget_json(upcoming, as_of)
+    sector_payload = sector_map_json(record_list, as_of, stale_after_days)
     thesis_payload = thesis_map_json(record_list, as_of, stale_after_days)
     scenario_payload = scenario_matrix_json(upcoming, as_of, stale_after_days)
     evidence_payload = evidence_audit_json(
@@ -51,14 +55,17 @@ def html_dashboard(
         ("Upcoming", len(score_payload["records"]), f"next {days} days"),
         ("Portfolio Weight", _percent(exposure_payload["summary"]["portfolio_weight"]), "upcoming exposure"),
         ("Weighted Exposure", _percent(exposure_payload["summary"]["weighted_exposure"]), "score adjusted"),
+        ("Budget Breaches", risk_budget_payload["summary"]["over_budget_record_count"], "catalysts over budget"),
+        ("Sector Groups", sector_payload["summary"]["group_count"], "mapped themes"),
         ("Evidence Flags", evidence_payload["summary"]["flagged_record_count"], "records to audit"),
         ("Watch Items", watchlist_payload["summary"]["item_count"], "open catalysts"),
-        ("Stale Thesis Links", thesis_payload["summary"]["stale_count"], "mapped records"),
     ]
 
     sections = [
         _score_table(score_payload["records"]),
         _exposure_summary(exposure_payload),
+        _risk_budget(risk_budget_payload),
+        _sector_map(sector_payload),
         _thesis_map(thesis_payload),
         _evidence_audit(evidence_payload),
         _scenario_matrix(scenario_payload),
@@ -150,6 +157,66 @@ def _exposure_summary(payload: Dict[str, object]) -> str:
         "Exposure Summary",
         "Portfolio and notional exposure adjusted by confidence and catalyst score.",
         totals + _table(["Ticker", "Event", "Urgency", "Records", "Weight", "Weighted", "Position", "Weighted Position"], rows),
+    )
+
+
+def _risk_budget(payload: Dict[str, object]) -> str:
+    summary = payload["summary"]  # type: ignore[index]
+    totals = _definition_grid(
+        [
+            ("Records", summary["record_count"]),
+            ("Risk Budget", _money(summary["risk_budget"])),
+            ("Max Loss", _money(summary["max_loss"])),
+            ("Expected Loss", _money(summary["expected_event_loss"])),
+            ("Over Budget", summary["over_budget_record_count"]),
+        ]
+    )
+    rows = []
+    for group in payload["groups"]:  # type: ignore[index]
+        rows.append(
+            _tr(
+                [
+                    _td(str(group["ticker"]), "ticker"),
+                    _td(str(group["thesis_id"]), "wide"),
+                    _td(str(group["urgency"]), f"pill {_pill_class(str(group['urgency']))}"),
+                    _td(str(group["record_count"]), "num"),
+                    _td(_money(group["risk_budget"]), "num"),
+                    _td(_money(group["max_loss"]), "num strong"),
+                    _td(_money(group["expected_event_loss"]), "num"),
+                    _td(_ratio(group["budget_utilization"]), "num"),
+                    _td(", ".join(str(flag) for flag in group["flags"]) or "none", "wide"),
+                ]
+            )
+        )
+    return _section(
+        "Risk Budget",
+        "Catalyst max-loss estimates compared with explicit event risk budgets.",
+        totals + _table(["Ticker", "Thesis", "Urgency", "Records", "Budget", "Max Loss", "Expected Loss", "Utilization", "Flags"], rows),
+    )
+
+
+def _sector_map(payload: Dict[str, object]) -> str:
+    rows = []
+    for group in payload["groups"]:  # type: ignore[index]
+        rows.append(
+            _tr(
+                [
+                    _td(str(group["sector"]), "wide"),
+                    _td(str(group["theme"]), "wide"),
+                    _td(str(group["open_event_count"]), "num"),
+                    _td(str(group["highest_score"]), "num strong"),
+                    _td(", ".join(f"{key}:{group['urgency_count'][key]}" for key in sorted(group["urgency_count"])), "wide"),
+                    _td(_percent(group["weighted_exposure"]), "num strong"),
+                    _td(str(group["stale_evidence_count"]), "num"),
+                    _td(_money(group["broker_dispersion_max"]), "num"),
+                    _td(", ".join(str(ticker) for ticker in group["tickers"]), "wide"),
+                ]
+            )
+        )
+    return _section(
+        "Sector Map",
+        "Sector and theme clusters with exposure, urgency, stale evidence, and broker dispersion.",
+        _table(["Sector", "Theme", "Open", "Top Score", "Urgency", "Weighted Exposure", "Stale Evidence", "Broker Dispersion", "Tickers"], rows),
     )
 
 
@@ -294,6 +361,12 @@ def _percent(value: object) -> str:
 
 def _money(value: object) -> str:
     return f"{float(value):,.2f}"
+
+
+def _ratio(value: object) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):.2f}x"
 
 
 def _pill_class(value: str) -> str:

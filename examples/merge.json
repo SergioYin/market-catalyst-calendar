@@ -1,0 +1,391 @@
+{
+  "as_of": "2026-05-27",
+  "merge": {
+    "chosen_sources": {
+      "demo-amzn-kuiper-2026": "demo_records_updated.json",
+      "demo-fomc-june-2026": "demo_records.json",
+      "demo-msft-earnings-2026": "demo_records_updated.json",
+      "demo-nvda-computex-2026": "demo_records_updated.json",
+      "demo-pfe-fda-2026": "demo_records_updated.json"
+    },
+    "conflicts": [
+      {
+        "chosen_source": "demo_records_updated.json",
+        "fields": [
+          "broker_views",
+          "confidence",
+          "evidence_checked_at",
+          "evidence_urls",
+          "history",
+          "last_reviewed",
+          "max_loss",
+          "portfolio_weight",
+          "position_size",
+          "required_review_action",
+          "risk_budget",
+          "scenario_notes",
+          "source_ref",
+          "status"
+        ],
+        "id": "demo-nvda-computex-2026",
+        "source_count": 2,
+        "sources": [
+          {
+            "as_of": "2026-05-13",
+            "input_index": 0,
+            "latest_history_date": "2026-05-01",
+            "record_index": 0,
+            "source": "demo_records.json",
+            "status": "scheduled"
+          },
+          {
+            "as_of": "2026-05-27",
+            "input_index": 1,
+            "latest_history_date": "2026-05-27",
+            "record_index": 0,
+            "source": "demo_records_updated.json",
+            "status": "confirmed"
+          }
+        ],
+        "status_history_source": "demo_records_updated.json"
+      },
+      {
+        "chosen_source": "demo_records_updated.json",
+        "fields": [
+          "actual_outcome",
+          "broker_views",
+          "confidence",
+          "evidence_checked_at",
+          "evidence_urls",
+          "history",
+          "last_reviewed",
+          "max_loss",
+          "outcome_recorded_at",
+          "portfolio_weight",
+          "position_size",
+          "required_review_action",
+          "scenario_notes",
+          "source_ref",
+          "status",
+          "thesis_impact"
+        ],
+        "id": "demo-pfe-fda-2026",
+        "source_count": 2,
+        "sources": [
+          {
+            "as_of": "2026-05-13",
+            "input_index": 0,
+            "latest_history_date": "2026-04-28",
+            "record_index": 2,
+            "source": "demo_records.json",
+            "status": "watching"
+          },
+          {
+            "as_of": "2026-05-27",
+            "input_index": 1,
+            "latest_history_date": "2026-05-24",
+            "record_index": 2,
+            "source": "demo_records_updated.json",
+            "status": "completed"
+          }
+        ],
+        "status_history_source": "demo_records_updated.json"
+      }
+    ],
+    "duplicate_ids": [],
+    "prefer_newer_status_history": false,
+    "record_sources": {
+      "demo-amzn-kuiper-2026": [
+        "demo_records_updated.json"
+      ],
+      "demo-fomc-june-2026": [
+        "demo_records.json"
+      ],
+      "demo-msft-earnings-2026": [
+        "demo_records.json",
+        "demo_records_updated.json"
+      ],
+      "demo-nvda-computex-2026": [
+        "demo_records.json",
+        "demo_records_updated.json"
+      ],
+      "demo-pfe-fda-2026": [
+        "demo_records.json",
+        "demo_records_updated.json"
+      ]
+    },
+    "sources": [
+      {
+        "as_of": "2026-05-13",
+        "index": 0,
+        "label": "demo_records.json",
+        "record_count": 4
+      },
+      {
+        "as_of": "2026-05-27",
+        "index": 1,
+        "label": "demo_records_updated.json",
+        "record_count": 4
+      }
+    ],
+    "status_history_sources": {
+      "demo-amzn-kuiper-2026": "demo_records_updated.json",
+      "demo-fomc-june-2026": "demo_records.json",
+      "demo-msft-earnings-2026": "demo_records_updated.json",
+      "demo-nvda-computex-2026": "demo_records_updated.json",
+      "demo-pfe-fda-2026": "demo_records_updated.json"
+    },
+    "summary": {
+      "conflict_count": 2,
+      "duplicate_id_count": 0,
+      "input_count": 2,
+      "merged_record_count": 5,
+      "source_record_count": 8
+    },
+    "validation": {
+      "errors": [],
+      "ok": true
+    }
+  },
+  "records": [
+    {
+      "actual_outcome": "Cloud revenue and operating margin supported the positive thesis with no follow-up catalyst required.",
+      "confidence": 0.82,
+      "date": "2026-05-06",
+      "entity": "Microsoft Corporation",
+      "event_type": "earnings",
+      "evidence_checked_at": "2026-05-07",
+      "evidence_urls": [
+        "https://example.com/msft-q3-earnings",
+        "https://ir.example.org/msft-q3-transcript"
+      ],
+      "history": [
+        {
+          "date": "2026-04-18",
+          "note": "Earnings date confirmed from company investor relations calendar.",
+          "status": "confirmed"
+        },
+        {
+          "date": "2026-05-07",
+          "note": "Outcome recorded after company earnings release and transcript review.",
+          "status": "completed"
+        }
+      ],
+      "id": "demo-msft-earnings-2026",
+      "last_reviewed": "2026-05-07",
+      "max_loss": 24000,
+      "outcome_recorded_at": "2026-05-07",
+      "portfolio_weight": 0.064,
+      "position_size": 90000,
+      "required_review_action": "none",
+      "risk_budget": 35000,
+      "scenario_notes": {
+        "base": "Cloud demand and operating margin track the existing thesis.",
+        "bear": "Growth slows or capital spending pressure offsets revenue upside.",
+        "bull": "Cloud growth accelerates with durable margin expansion."
+      },
+      "sector": "Information Technology",
+      "source_ref": "MSFT fiscal Q3 earnings release",
+      "status": "completed",
+      "theme": "Cloud platforms",
+      "thesis_impact": "positive",
+      "ticker": "MSFT"
+    },
+    {
+      "actual_outcome": "Approval arrived inside the expected decision window with label language better than the base case.",
+      "broker_views": [
+        {
+          "as_of": "2026-05-24",
+          "caveat": "View now gives more credit for label breadth after the decision window.",
+          "institution": "Harbor Life Sciences",
+          "rating": "market perform",
+          "source_url": "https://example.com/pfe-broker-harbor",
+          "target_price": 33.0
+        },
+        {
+          "as_of": "2026-04-10",
+          "caveat": "Model gives partial credit for approval but not a restrictive label.",
+          "institution": "Summit Research",
+          "rating": "outperform",
+          "source_url": "https://example.com/pfe-broker-summit",
+          "target_price": 39.0
+        }
+      ],
+      "confidence": 0.76,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_checked_at": "2026-05-24",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-label-update"
+      ],
+      "history": [
+        {
+          "date": "2026-04-28",
+          "note": "Regulatory decision window estimated from public review timeline.",
+          "status": "watching"
+        },
+        {
+          "date": "2026-05-24",
+          "note": "Decision posted before the review window closed.",
+          "status": "completed"
+        }
+      ],
+      "id": "demo-pfe-fda-2026",
+      "last_reviewed": "2026-05-24",
+      "max_loss": 18000,
+      "outcome_recorded_at": "2026-05-24",
+      "portfolio_weight": 0.026,
+      "position_size": 42000,
+      "required_review_action": "archive",
+      "risk_budget": 25000,
+      "scenario_notes": {
+        "base": "Approval arrived inside the expected window and clarifies launch timing.",
+        "bear": "Label restrictions would still limit near-term uptake.",
+        "bull": "Approval expands pipeline credibility and supports forward revenue mix."
+      },
+      "sector": "Health Care",
+      "source_ref": "FDA calendar, label note, and PFE pipeline update",
+      "status": "completed",
+      "theme": "Pipeline reset",
+      "thesis_id": "pharma-pipeline-reset",
+      "thesis_impact": "positive",
+      "ticker": "PFE",
+      "window": {
+        "end": "2026-05-24",
+        "start": "2026-05-20"
+      }
+    },
+    {
+      "broker_views": [
+        {
+          "as_of": "2026-05-25",
+          "caveat": "Target assumes accelerator backlog and networking attach convert into second-half revenue.",
+          "institution": "North Coast Securities",
+          "rating": "buy",
+          "source_url": "https://example.com/nvda-broker-north-coast",
+          "target_price": 1360.0
+        },
+        {
+          "as_of": "2026-04-05",
+          "caveat": "Older view predates the final Computex keynote agenda.",
+          "institution": "Metro Capital Markets",
+          "rating": "hold",
+          "source_url": "https://example.com/nvda-broker-metro",
+          "target_price": 1085.0
+        }
+      ],
+      "confidence": 0.81,
+      "date": "2026-06-02",
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-27",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/nvidia-computex-agenda-update"
+      ],
+      "history": [
+        {
+          "date": "2026-05-01",
+          "note": "Conference keynote timing added to calendar.",
+          "status": "scheduled"
+        },
+        {
+          "date": "2026-05-27",
+          "note": "Company agenda confirmed keynote timing and platform focus.",
+          "status": "confirmed"
+        }
+      ],
+      "id": "demo-nvda-computex-2026",
+      "last_reviewed": "2026-05-27",
+      "max_loss": 56000,
+      "portfolio_weight": 0.091,
+      "position_size": 135000,
+      "required_review_action": "update_scenario",
+      "risk_budget": 62000,
+      "scenario_notes": {
+        "base": "Confirmed roadmap details support existing accelerator growth expectations.",
+        "bear": "Launch focuses on refresh timing without incremental demand signals.",
+        "bull": "Management confirms accelerated platform demand, tighter supply, and higher software attach."
+      },
+      "sector": "Information Technology",
+      "source_ref": "NVDA Computex keynote tracker refreshed after agenda update",
+      "status": "confirmed",
+      "theme": "AI infrastructure",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "positive",
+      "ticker": "NVDA"
+    },
+    {
+      "confidence": 0.63,
+      "date": "2026-06-12",
+      "entity": "Amazon.com Inc.",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-26",
+      "evidence_urls": [
+        "https://example.com/amzn-kuiper-readiness",
+        "https://example.com/space-launch-manifest"
+      ],
+      "history": [
+        {
+          "date": "2026-05-26",
+          "note": "Added after supplier and launch readiness notes pointed to a June milestone.",
+          "status": "watching"
+        }
+      ],
+      "id": "demo-amzn-kuiper-2026",
+      "last_reviewed": "2026-05-26",
+      "max_loss": 36000,
+      "portfolio_weight": 0.044,
+      "position_size": 70000,
+      "required_review_action": "verify_source",
+      "risk_budget": 30000,
+      "scenario_notes": {
+        "base": "Launch validates roadmap but keeps investment spending elevated.",
+        "bear": "Delay or cost escalation adds pressure to margin expectations.",
+        "bull": "Launch milestone supports services optionality without near-term capex surprise."
+      },
+      "sector": "Communication Services",
+      "source_ref": "Kuiper launch readiness note",
+      "status": "watching",
+      "theme": "Satellite broadband",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "mixed",
+      "ticker": "AMZN"
+    },
+    {
+      "confidence": 0.9,
+      "date": "2026-06-17",
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "history": [
+        {
+          "date": "2026-05-08",
+          "note": "FOMC date confirmed from public central bank calendar.",
+          "status": "confirmed"
+        }
+      ],
+      "id": "demo-fomc-june-2026",
+      "last_reviewed": "2026-05-08",
+      "max_loss": 90000,
+      "portfolio_weight": 0.22,
+      "required_review_action": "monitor_date",
+      "risk_budget": 75000,
+      "scenario_notes": {
+        "base": "Statement broadly matches market-implied policy path.",
+        "bear": "Inflation language reprices yields higher and weighs on multiples.",
+        "bull": "Policy language indicates lower real-rate pressure for duration assets."
+      },
+      "sector": "Macro",
+      "source_ref": "FOMC public calendar",
+      "status": "confirmed",
+      "theme": "Rates duration",
+      "thesis_id": "rates-duration-risk",
+      "thesis_impact": "mixed",
+      "ticker": "SPY"
+    }
+  ]
+}

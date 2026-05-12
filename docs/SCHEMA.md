@@ -26,6 +26,10 @@ Record object:
 | `confidence` | number | Yes | Decimal from `0` to `1`. |
 | `position_size` | number or null | No | Non-negative notional exposure in the user's reporting currency. |
 | `portfolio_weight` | number or null | No | Decimal from `0` to `1`; `0.05` means 5%. |
+| `risk_budget` | number or null | No | Non-negative event risk budget in the user's reporting currency. |
+| `max_loss` | number or null | No | Non-negative estimated maximum catalyst loss in the user's reporting currency. |
+| `sector` | non-empty string or null | No | Broad sector, industry, or macro bucket used by `sector-map`. |
+| `theme` | non-empty string or null | No | Cross-cutting catalyst theme used by `sector-map`. |
 | `thesis_id` | non-empty string or null | No | Links the record to an external thesis. |
 | `source_ref` | non-empty string or null | No | Human-readable source note or internal source reference. |
 | `status` | enum string | Yes | One of `rumored`, `watching`, `scheduled`, `confirmed`, `completed`, `delayed`, `cancelled`. |
@@ -64,10 +68,10 @@ Broker view object:
 `export-csv` and `import-csv` use this stable column order:
 
 ```text
-as_of,id,ticker,entity,event_type,window_start,window_end,confidence,position_size,portfolio_weight,thesis_id,source_ref,status,thesis_impact,required_review_action,last_reviewed,evidence_checked_at,actual_outcome,outcome_recorded_at,evidence_urls,scenario_notes,history,broker_views
+as_of,id,ticker,entity,event_type,window_start,window_end,confidence,position_size,portfolio_weight,risk_budget,max_loss,sector,theme,thesis_id,source_ref,status,thesis_impact,required_review_action,last_reviewed,evidence_checked_at,actual_outcome,outcome_recorded_at,evidence_urls,scenario_notes,history,broker_views
 ```
 
-Required CSV columns are all columns except `position_size`, `portfolio_weight`, `thesis_id`, `source_ref`, `evidence_checked_at`, `actual_outcome`, `outcome_recorded_at`, and `broker_views`.
+Required CSV columns are all columns except `position_size`, `portfolio_weight`, `risk_budget`, `max_loss`, `sector`, `theme`, `thesis_id`, `source_ref`, `evidence_checked_at`, `actual_outcome`, `outcome_recorded_at`, and `broker_views`.
 
 All rows must share the same `as_of`. Equal `window_start` and `window_end` import as `date`; different values import as `window`. Multi-value cells percent-encode each component before joining:
 
@@ -132,7 +136,7 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 | `records[].urgency` | string | `overdue`, `high`, `medium`, `low`, or `closed`. |
 | `records[].review_state` | string | `closed`, `stale`, `needs_review`, or `current`. |
 | `records[].days_until` | int | Days from `as_of` to window start. |
-| Optional fields | mixed | `position_size`, `portfolio_weight`, `thesis_id`, `source_ref`, `evidence_checked_at`, `broker_views`, `actual_outcome`, `outcome_recorded_at` appear only when present. |
+| Optional fields | mixed | `position_size`, `portfolio_weight`, `risk_budget`, `max_loss`, `sector`, `theme`, `thesis_id`, `source_ref`, `evidence_checked_at`, `broker_views`, `actual_outcome`, `outcome_recorded_at` appear only when present. |
 
 `exposure`
 
@@ -140,6 +144,32 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Group fields: `ticker`, `event_type`, `urgency`, `record_count`, `portfolio_weight`, `position_size`, `weighted_exposure`, `weighted_position_exposure`, `records`.
 - Summary fields: `group_count`, `record_count`, `portfolio_weight`, `position_size`, `weighted_exposure`, `weighted_position_exposure`.
 - Markdown: exposure totals plus grouped table.
+
+`risk-budget`
+
+- Input: dataset JSON.
+- Parameters: `--as-of`, `--days`, `--format json|markdown`.
+- Selection: upcoming open records with `risk_budget` or `max_loss` present.
+- Grouping: `ticker`, `thesis_id` (or `unmapped`), and scored `urgency`.
+- JSON: `{ "as_of": date, "groups": [group, ...], "summary": object }`.
+- Group fields: `ticker`, `thesis_id`, `urgency`, `record_count`, `risk_budget`, `max_loss`, `expected_event_loss`, `budget_remaining`, `budget_utilization`, `over_budget_record_count`, `missing_budget_count`, `missing_max_loss_count`, `flags`, `records`.
+- Record fields: `id`, `ticker`, `entity`, `event_type`, `window`, `status`, `thesis_id`, `catalyst_score`, `urgency`, `confidence`, `risk_budget`, `max_loss`, `expected_event_loss`, `budget_remaining`, `budget_utilization`, `flags`.
+- Summary fields: `group_count`, `record_count`, `risk_budget`, `max_loss`, `expected_event_loss`, `over_budget_group_count`, `over_budget_record_count`, `missing_budget_count`, `missing_max_loss_count`.
+- Flags: `over_budget` when `max_loss > risk_budget`, `missing_budget` when max loss is present without a budget, and `missing_max_loss` when budget is present without a max-loss estimate.
+- Markdown: risk-budget totals, grouped budget table, and flagged catalyst details.
+
+`sector-map`
+
+- Input: dataset JSON.
+- Parameters: `--as-of`, `--stale-after-days`, `--format json|markdown`.
+- Selection: records with `sector` or `theme` present. Missing one side is reported as `unmapped`.
+- Grouping: `sector` and `theme`.
+- JSON: `{ "as_of": date, "stale_after_days": int, "groups": [group, ...], "summary": object }`.
+- Group fields: `sector`, `theme`, `record_count`, `open_event_count`, `highest_score`, `portfolio_weight`, `position_size`, `weighted_exposure`, `weighted_position_exposure`, `stale_evidence_count`, `missing_evidence_freshness_count`, `broker_view_count`, `broker_dispersion_max`, `broker_dispersion_avg`, `urgency_count`, `review_state_count`, `tickers`, `themes`, `records`.
+- Record fields: `id`, `ticker`, `entity`, `event_type`, `window`, `status`, `sector`, `theme`, `thesis_id`, `catalyst_score`, `urgency`, `review_state`, `days_until`, `portfolio_weight`, `position_size`, `weighted_exposure`, `weighted_position_exposure`, `evidence_checked_at`, `evidence_age_days`, `evidence_state`, `broker_view_count`, `broker_dispersion`, `flags`.
+- Summary fields: `group_count`, `record_count`, `open_event_count`, `stale_evidence_count`, `broker_view_count`, `portfolio_weight`, `weighted_exposure`, `highest_broker_dispersion`, `critical_record_count`.
+- Flags: `missing_evidence` or `stale_evidence`, `urgent`, `stale_review`, and `broker_dispersion`.
+- Markdown: sector/theme summary table plus flagged catalyst details.
 
 `review-plan`
 
@@ -208,6 +238,34 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `item_count`, `completed_count`, `overdue_count`, `missing_outcome_count`, `missing_recorded_at_count`.
 - Markdown: outcome review queue plus templates.
 
+`compare`
+
+- Inputs: `--base` older dataset JSON path and `--current` newer dataset JSON path.
+- Parameters: `--as-of`, `--stale-after-days`, `--format json|markdown`, optional `--output`.
+- Matching: records are matched by stable `id`; unmatched current records are added events and unmatched base records are removed events.
+- Scoring: base and current records are scored with the same `as_of` and `stale_after_days`.
+- JSON: `{ "as_of": date, "base_as_of": date, "current_as_of": date, "stale_after_days": int, "added": [record summary, ...], "removed": [record summary, ...], "changed": [change, ...], "summary": object }`.
+- Changed event fields: `id`, `ticker`, `entity`, `event_type`, `window`, `score_change`, `status_transition`, `evidence_change`, `thesis_impact_change`, `field_changes`, `scenario_note_changes`, `history_changes`, `broker_view_changes`.
+- Score change fields: `from`, `to`, `delta`, `urgency_from`, `urgency_to`, `review_state_from`, `review_state_to`.
+- Evidence change fields: `added_urls`, `removed_urls`, `unchanged_urls`, `checked_at_change`, `changed`.
+- Broker view change fields: `added_views`, `removed_views`, `changed_views`; changed views are matched by `institution` and `source_url`.
+- Summary fields: `added_count`, `removed_count`, `changed_count`, `score_change_count`, `status_transition_count`, `evidence_change_count`, `thesis_impact_change_count`.
+- Markdown: added/removed tables plus changed-event summary and details.
+
+`merge`
+
+- Inputs: two or more dataset JSON paths as positional arguments.
+- Parameters: optional `--as-of`, optional `--prefer-newer-status-history`, optional `--output`.
+- Matching: records are grouped by stable `id`; merged output contains at most one record per id.
+- Conflict handling: by default the candidate from the newest input dataset `as_of` wins, with later input order and later record index as deterministic tie-breakers.
+- Status/history override: `--prefer-newer-status-history` keeps the normal winning record for all other fields, but takes `status` and `history` from the candidate whose latest history entry is newest.
+- JSON: canonical dataset shape plus top-level `merge` diagnostics: `{ "as_of": date, "records": [record, ...], "merge": object }`.
+- Merge diagnostics fields: `sources`, `record_sources`, `chosen_sources`, `status_history_sources`, `conflicts`, `duplicate_ids`, `prefer_newer_status_history`, `summary`, `validation`.
+- Conflict fields: `id`, `fields`, `sources`, `source_count`, `chosen_source`, `status_history_source`.
+- Duplicate-ID diagnostics report repeated ids within an input source and their original record indexes.
+- Validation fields: `ok` and `errors`, using the same validation rules as `validate`.
+- Exit status: `0` when the merged dataset validates, `1` when JSON diagnostics are produced but validation fails, and `2` for parse/filesystem/argument errors.
+
 `html-dashboard`
 
 - Output: deterministic no-JavaScript HTML document.
@@ -242,7 +300,7 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 
 - Input: dataset JSON.
 - Parameters: `--output-dir`, `--as-of`, `--days`, `--stale-after-days`.
-- Files: writes `dataset/dataset.json`, `dataset/dataset.csv`, all generated report fixtures, `reports/upcoming.ics`, and `manifest.json`.
+- Files: writes `dataset/dataset.json`, `dataset/dataset.csv`, all generated report fixtures including risk-budget and sector-map reports, `reports/upcoming.ics`, and `manifest.json`.
 - Stdout: `{ "archive_dir": string, "file_count": int, "manifest": "manifest.json", "ok": true }`.
 - The output directory must be empty when it already exists.
 

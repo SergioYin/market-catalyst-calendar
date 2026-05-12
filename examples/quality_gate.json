@@ -1,0 +1,179 @@
+{
+  "as_of": "2026-05-13",
+  "ok": false,
+  "policy": {
+    "max_broker_age_days": 30,
+    "max_evidence_age_days": 14,
+    "max_review_age_days": 14,
+    "min_evidence_urls": 2,
+    "placeholder_hosts": [
+      "example.com",
+      "example.net",
+      "example.org",
+      "localhost"
+    ],
+    "required_scenarios": [
+      "bull",
+      "base",
+      "bear"
+    ]
+  },
+  "records": [
+    {
+      "entity": "Microsoft Corporation",
+      "failed_rules": [
+        "no_placeholder_urls"
+      ],
+      "id": "demo-msft-earnings-2026",
+      "issues": [
+        {
+          "detail": "evidence URL https://example.com/msft-q3-earnings is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        }
+      ],
+      "next_action": "replace placeholder URLs with public source URLs.",
+      "record_status": "completed",
+      "status": "fail",
+      "ticker": "MSFT",
+      "window": "2026-05-06"
+    },
+    {
+      "entity": "Pfizer Inc.",
+      "failed_rules": [
+        "broker_caveats",
+        "minimum_evidence",
+        "no_placeholder_urls",
+        "review_freshness"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "issues": [
+        {
+          "detail": "evidence metadata is 15 days old; maximum is 14",
+          "rule": "minimum_evidence",
+          "severity": "high"
+        },
+        {
+          "detail": "last review is 15 days old; maximum is 14",
+          "rule": "review_freshness",
+          "severity": "high"
+        },
+        {
+          "detail": "evidence URL https://example.com/fda-calendar is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "evidence URL https://example.com/pfe-pipeline-update is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "broker URL for Summit Research (https://example.com/pfe-broker-summit) is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "broker URL for Harbor Life Sciences (https://example.com/pfe-broker-harbor) is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "Summit Research broker view is 33 days old; maximum is 30",
+          "rule": "broker_caveats",
+          "severity": "medium"
+        }
+      ],
+      "next_action": "add independent evidence URLs and refresh evidence metadata; refresh analyst review date; replace placeholder URLs with public source URLs; refresh broker views and document explicit caveats.",
+      "record_status": "watching",
+      "status": "fail",
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "entity": "NVIDIA Corporation",
+      "failed_rules": [
+        "broker_caveats",
+        "no_placeholder_urls"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "issues": [
+        {
+          "detail": "evidence URL https://example.com/nvidia-computex-keynote is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "evidence URL https://example.com/channel-check-gpu-supply is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "broker URL for Metro Capital Markets (https://example.com/nvda-broker-metro) is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "broker URL for North Coast Securities (https://example.com/nvda-broker-north-coast) is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        },
+        {
+          "detail": "Metro Capital Markets broker view is 38 days old; maximum is 30",
+          "rule": "broker_caveats",
+          "severity": "medium"
+        }
+      ],
+      "next_action": "replace placeholder URLs with public source URLs; refresh broker views and document explicit caveats.",
+      "record_status": "scheduled",
+      "status": "fail",
+      "ticker": "NVDA",
+      "window": "2026-06-02"
+    },
+    {
+      "entity": "S&P 500 ETF Trust",
+      "failed_rules": [
+        "minimum_evidence",
+        "no_placeholder_urls"
+      ],
+      "id": "demo-fomc-june-2026",
+      "issues": [
+        {
+          "detail": "1 evidence URLs present; 2 required",
+          "rule": "minimum_evidence",
+          "severity": "critical"
+        },
+        {
+          "detail": "evidence_checked_at is missing",
+          "rule": "minimum_evidence",
+          "severity": "high"
+        },
+        {
+          "detail": "evidence URL https://example.com/fomc-calendar is a placeholder host",
+          "rule": "no_placeholder_urls",
+          "severity": "critical"
+        }
+      ],
+      "next_action": "add independent evidence URLs and refresh evidence metadata; replace placeholder URLs with public source URLs.",
+      "record_status": "confirmed",
+      "status": "fail",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    }
+  ],
+  "summary": {
+    "failed_record_count": 4,
+    "record_count": 4,
+    "rule_counts": {
+      "broker_caveats": 2,
+      "minimum_evidence": 3,
+      "no_placeholder_urls": 10,
+      "review_freshness": 1
+    },
+    "severity_counts": {
+      "critical": 11,
+      "high": 3,
+      "medium": 2
+    }
+  }
+}

@@ -1,15 +1,15 @@
 {
-  "as_of": "2026-05-13",
+  "as_of": "2026-05-27",
   "records": [
     {
       "broker_views": [
         {
-          "as_of": "2026-05-10",
-          "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+          "as_of": "2026-05-25",
+          "caveat": "Target assumes accelerator backlog and networking attach convert into second-half revenue.",
           "institution": "North Coast Securities",
           "rating": "buy",
           "source_url": "https://example.com/nvda-broker-north-coast",
-          "target_price": 1320.0
+          "target_price": 1360.0
         },
         {
           "as_of": "2026-04-05",
@@ -20,37 +20,42 @@
           "target_price": 1085.0
         }
       ],
-      "confidence": 0.74,
+      "confidence": 0.81,
       "date": "2026-06-02",
       "entity": "NVIDIA Corporation",
       "event_type": "product_launch",
-      "evidence_checked_at": "2026-05-09",
+      "evidence_checked_at": "2026-05-27",
       "evidence_urls": [
         "https://example.com/nvidia-computex-keynote",
-        "https://example.com/channel-check-gpu-supply"
+        "https://example.com/nvidia-computex-agenda-update"
       ],
       "history": [
         {
           "date": "2026-05-01",
           "note": "Conference keynote timing added to calendar.",
           "status": "scheduled"
+        },
+        {
+          "date": "2026-05-27",
+          "note": "Company agenda confirmed keynote timing and platform focus.",
+          "status": "confirmed"
         }
       ],
       "id": "demo-nvda-computex-2026",
-      "last_reviewed": "2026-05-09",
-      "max_loss": 52000,
-      "portfolio_weight": 0.0825,
-      "position_size": 125000,
-      "required_review_action": "monitor_date",
-      "risk_budget": 60000,
+      "last_reviewed": "2026-05-27",
+      "max_loss": 56000,
+      "portfolio_weight": 0.091,
+      "position_size": 135000,
+      "required_review_action": "update_scenario",
+      "risk_budget": 62000,
       "scenario_notes": {
-        "base": "Product roadmap details support existing accelerator growth expectations.",
+        "base": "Confirmed roadmap details support existing accelerator growth expectations.",
         "bear": "Launch focuses on refresh timing without incremental demand signals.",
-        "bull": "Management confirms accelerated platform demand and shorter supply constraints."
+        "bull": "Management confirms accelerated platform demand, tighter supply, and higher software attach."
       },
       "sector": "Information Technology",
-      "source_ref": "NVDA Computex keynote tracker",
-      "status": "scheduled",
+      "source_ref": "NVDA Computex keynote tracker refreshed after agenda update",
+      "status": "confirmed",
       "theme": "AI infrastructure",
       "thesis_id": "ai-infrastructure-capex",
       "thesis_impact": "positive",
@@ -100,14 +105,15 @@
       "ticker": "MSFT"
     },
     {
+      "actual_outcome": "Approval arrived inside the expected decision window with label language better than the base case.",
       "broker_views": [
         {
-          "as_of": "2026-05-01",
-          "caveat": "View depends on label breadth and launch timing after the decision window.",
+          "as_of": "2026-05-24",
+          "caveat": "View now gives more credit for label breadth after the decision window.",
           "institution": "Harbor Life Sciences",
           "rating": "market perform",
           "source_url": "https://example.com/pfe-broker-harbor",
-          "target_price": 31.0
+          "target_price": 33.0
         },
         {
           "as_of": "2026-04-10",
@@ -118,39 +124,45 @@
           "target_price": 39.0
         }
       ],
-      "confidence": 0.68,
+      "confidence": 0.76,
       "entity": "Pfizer Inc.",
       "event_type": "regulatory_decision",
-      "evidence_checked_at": "2026-04-28",
+      "evidence_checked_at": "2026-05-24",
       "evidence_urls": [
         "https://example.com/fda-calendar",
-        "https://example.com/pfe-pipeline-update"
+        "https://example.com/pfe-label-update"
       ],
       "history": [
         {
           "date": "2026-04-28",
           "note": "Regulatory decision window estimated from public review timeline.",
           "status": "watching"
+        },
+        {
+          "date": "2026-05-24",
+          "note": "Decision posted before the review window closed.",
+          "status": "completed"
         }
       ],
       "id": "demo-pfe-fda-2026",
-      "last_reviewed": "2026-04-28",
-      "max_loss": 32000,
-      "portfolio_weight": 0.031,
-      "position_size": 48000,
-      "required_review_action": "verify_source",
+      "last_reviewed": "2026-05-24",
+      "max_loss": 18000,
+      "outcome_recorded_at": "2026-05-24",
+      "portfolio_weight": 0.026,
+      "position_size": 42000,
+      "required_review_action": "archive",
       "risk_budget": 25000,
       "scenario_notes": {
-        "base": "Decision is mostly expected but clarifies launch timing.",
-        "bear": "Delay or restrictive label pressures near-term sentiment.",
+        "base": "Approval arrived inside the expected window and clarifies launch timing.",
+        "bear": "Label restrictions would still limit near-term uptake.",
         "bull": "Approval expands pipeline credibility and supports forward revenue mix."
       },
       "sector": "Health Care",
-      "source_ref": "FDA calendar and PFE pipeline note",
-      "status": "watching",
+      "source_ref": "FDA calendar, label note, and PFE pipeline update",
+      "status": "completed",
       "theme": "Pipeline reset",
       "thesis_id": "pharma-pipeline-reset",
-      "thesis_impact": "mixed",
+      "thesis_impact": "positive",
       "ticker": "PFE",
       "window": {
         "end": "2026-05-24",
@@ -158,38 +170,41 @@
       }
     },
     {
-      "confidence": 0.9,
-      "date": "2026-06-17",
-      "entity": "S&P 500 ETF Trust",
-      "event_type": "macro_release",
+      "confidence": 0.63,
+      "date": "2026-06-12",
+      "entity": "Amazon.com Inc.",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-26",
       "evidence_urls": [
-        "https://example.com/fomc-calendar"
+        "https://example.com/amzn-kuiper-readiness",
+        "https://example.com/space-launch-manifest"
       ],
       "history": [
         {
-          "date": "2026-05-08",
-          "note": "FOMC date confirmed from public central bank calendar.",
-          "status": "confirmed"
+          "date": "2026-05-26",
+          "note": "Added after supplier and launch readiness notes pointed to a June milestone.",
+          "status": "watching"
         }
       ],
-      "id": "demo-fomc-june-2026",
-      "last_reviewed": "2026-05-08",
-      "max_loss": 90000,
-      "portfolio_weight": 0.22,
-      "required_review_action": "monitor_date",
-      "risk_budget": 75000,
+      "id": "demo-amzn-kuiper-2026",
+      "last_reviewed": "2026-05-26",
+      "max_loss": 36000,
+      "portfolio_weight": 0.044,
+      "position_size": 70000,
+      "required_review_action": "verify_source",
+      "risk_budget": 30000,
       "scenario_notes": {
-        "base": "Statement broadly matches market-implied policy path.",
-        "bear": "Inflation language reprices yields higher and weighs on multiples.",
-        "bull": "Policy language indicates lower real-rate pressure for duration assets."
+        "base": "Launch validates roadmap but keeps investment spending elevated.",
+        "bear": "Delay or cost escalation adds pressure to margin expectations.",
+        "bull": "Launch milestone supports services optionality without near-term capex surprise."
       },
-      "sector": "Macro",
-      "source_ref": "FOMC public calendar",
-      "status": "confirmed",
-      "theme": "Rates duration",
-      "thesis_id": "rates-duration-risk",
+      "sector": "Communication Services",
+      "source_ref": "Kuiper launch readiness note",
+      "status": "watching",
+      "theme": "Satellite broadband",
+      "thesis_id": "ai-infrastructure-capex",
       "thesis_impact": "mixed",
-      "ticker": "SPY"
+      "ticker": "AMZN"
     }
   ]
 }
