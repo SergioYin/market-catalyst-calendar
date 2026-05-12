@@ -1,0 +1,63 @@
+{
+  "as_of": "2026-05-13",
+  "records": [
+    {
+      "catalyst_score": 87,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "portfolio_weight": 0.031,
+      "position_size": 48000.0,
+      "required_review_action": "verify_source",
+      "review_state": "stale",
+      "status": "watching",
+      "thesis_impact": "mixed",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "catalyst_score": 84,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "portfolio_weight": 0.0825,
+      "position_size": 125000.0,
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "status": "scheduled",
+      "thesis_impact": "positive",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "window": "2026-06-02"
+    },
+    {
+      "catalyst_score": 83,
+      "days_until": 35,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "id": "demo-fomc-june-2026",
+      "portfolio_weight": 0.22,
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "status": "confirmed",
+      "thesis_impact": "mixed",
+      "ticker": "SPY",
+      "urgency": "medium",
+      "window": "2026-06-17"
+    }
+  ]
+}

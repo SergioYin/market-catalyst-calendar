@@ -1,0 +1,236 @@
+"""Command line interface."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from datetime import date
+from pathlib import Path
+from typing import Iterable, List, Optional
+
+from .archive import create_archive, verify_archive
+from .csv_io import csv_to_dataset_json, dataset_to_csv
+from .demo import DEMO_DATA
+from .io import dump_json, load_dataset, read_text
+from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
+from .render import brief_markdown, exposure_json, exposure_markdown, records_json, review_plan_json, review_plan_markdown
+from .scoring import score_record
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return args.func(args)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="market-catalyst-calendar")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    validate = subparsers.add_parser("validate", help="validate catalyst JSON")
+    add_input(validate)
+    validate.set_defaults(func=cmd_validate)
+
+    upcoming = subparsers.add_parser("upcoming", help="list upcoming catalysts")
+    add_input(upcoming)
+    add_as_of(upcoming)
+    upcoming.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    upcoming.add_argument("--format", choices=["json", "markdown"], default="json")
+    upcoming.set_defaults(func=cmd_upcoming)
+
+    stale = subparsers.add_parser("stale", help="list catalysts that need review")
+    add_input(stale)
+    add_as_of(stale)
+    stale.add_argument("--stale-after-days", type=int, default=14)
+    stale.add_argument("--format", choices=["json", "markdown"], default="json")
+    stale.set_defaults(func=cmd_stale)
+
+    brief = subparsers.add_parser("brief", help="render a Markdown catalyst brief")
+    add_input(brief)
+    add_as_of(brief)
+    brief.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    brief.set_defaults(func=cmd_brief)
+
+    exposure = subparsers.add_parser("exposure", help="aggregate upcoming catalyst exposure")
+    add_input(exposure)
+    add_as_of(exposure)
+    exposure.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    exposure.add_argument("--format", choices=["json", "markdown"], default="json")
+    exposure.set_defaults(func=cmd_exposure)
+
+    review_plan = subparsers.add_parser("review-plan", help="create a stale and high-urgency review checklist")
+    add_input(review_plan)
+    add_as_of(review_plan)
+    review_plan.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    review_plan.add_argument("--stale-after-days", type=int, default=14)
+    review_plan.add_argument("--format", choices=["json", "markdown"], default="json")
+    review_plan.set_defaults(func=cmd_review_plan)
+
+    demo = subparsers.add_parser("export-demo", help="write the built-in demo dataset")
+    demo.add_argument("--output", "-o", help="output path; stdout when omitted")
+    demo.set_defaults(func=cmd_export_demo)
+
+    export_csv = subparsers.add_parser("export-csv", help="export catalyst JSON to deterministic CSV")
+    add_input(export_csv)
+    export_csv.add_argument("--output", "-o", help="output CSV path; stdout when omitted")
+    export_csv.set_defaults(func=cmd_export_csv)
+
+    import_csv = subparsers.add_parser("import-csv", help="import CSV into catalyst JSON")
+    import_csv.add_argument("--input", "-i", default="-", help="input CSV path; defaults to stdin")
+    import_csv.add_argument("--output", "-o", help="output JSON path; stdout when omitted")
+    import_csv.set_defaults(func=cmd_import_csv)
+
+    create_archive_parser = subparsers.add_parser("create-archive", help="create a portable archive directory")
+    add_input(create_archive_parser)
+    add_as_of(create_archive_parser)
+    create_archive_parser.add_argument("--output-dir", "-o", required=True, help="empty output directory for archive files")
+    create_archive_parser.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    create_archive_parser.add_argument("--stale-after-days", type=int, default=14)
+    create_archive_parser.set_defaults(func=cmd_create_archive)
+
+    verify_archive_parser = subparsers.add_parser("verify-archive", help="verify archive manifest hashes")
+    verify_archive_parser.add_argument("archive_dir", help="archive directory containing manifest.json")
+    verify_archive_parser.set_defaults(func=cmd_verify_archive)
+    return parser
+
+
+def add_input(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--input", "-i", default="-", help="input JSON path; defaults to stdin")
+
+
+def add_as_of(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--as-of", help="ISO date override; defaults to dataset as_of")
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    errors = validation_errors(dataset)
+    if errors:
+        print(dump_json({"ok": False, "errors": errors}), end="")
+        return 1
+    print(dump_json({"ok": True, "record_count": len(dataset.records)}), end="")
+    return 0
+
+
+def cmd_upcoming(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    write_records(records, as_of, args.format)
+    return 0
+
+
+def cmd_stale(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = [
+        record
+        for record in dataset.records
+        if score_record(record, as_of, stale_after_days=args.stale_after_days).review_state == "stale"
+    ]
+    write_records(records, as_of, args.format)
+    return 0
+
+
+def cmd_brief(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    print(brief_markdown(records, as_of), end="")
+    return 0
+
+
+def cmd_exposure(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    records = upcoming_records(dataset.records, as_of, args.days)
+    if args.format == "json":
+        print(dump_json(exposure_json(records, as_of)), end="")
+    else:
+        print(exposure_markdown(records, as_of), end="")
+    return 0
+
+
+def cmd_review_plan(args: argparse.Namespace) -> int:
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(review_plan_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
+    else:
+        print(review_plan_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_export_demo(args: argparse.Namespace) -> int:
+    text = dump_json(DEMO_DATA)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_export_csv(args: argparse.Namespace) -> int:
+    text = dataset_to_csv(load_dataset(args.input))
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_import_csv(args: argparse.Namespace) -> int:
+    text = dump_json(csv_to_dataset_json(read_text(args.input)))
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_create_archive(args: argparse.Namespace) -> int:
+    manifest = create_archive(args.input, args.output_dir, args.as_of, args.days, args.stale_after_days)
+    print(
+        dump_json(
+            {
+                "archive_dir": args.output_dir,
+                "file_count": len(manifest["files"]),
+                "manifest": "manifest.json",
+                "ok": True,
+            }
+        ),
+        end="",
+    )
+    return 0
+
+
+def cmd_verify_archive(args: argparse.Namespace) -> int:
+    report = verify_archive(args.archive_dir)
+    print(dump_json(report), end="")
+    return 0 if report["ok"] else 1
+
+
+def write_records(records: Iterable[CatalystRecord], as_of: date, fmt: str) -> None:
+    if fmt == "json":
+        print(dump_json(records_json(records, as_of)), end="")
+    else:
+        print(brief_markdown(records, as_of, title="Market Catalyst Records"), end="")
+
+
+def resolve_as_of(dataset: Dataset, override: Optional[str]) -> date:
+    if override:
+        return date.fromisoformat(override)
+    return dataset.as_of
+
+
+def upcoming_records(records: Iterable[CatalystRecord], as_of: date, days: int) -> List[CatalystRecord]:
+    return [
+        record
+        for record in records
+        if record.status not in {"completed", "cancelled"} and 0 <= (record.window.start - as_of).days <= days
+    ]

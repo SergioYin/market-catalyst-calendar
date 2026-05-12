@@ -1,0 +1,96 @@
+{
+  "as_of": "2026-05-13",
+  "records": [
+    {
+      "confidence": 0.74,
+      "date": "2026-06-02",
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "history": [
+        {
+          "date": "2026-05-01",
+          "note": "Conference keynote timing added to calendar.",
+          "status": "scheduled"
+        }
+      ],
+      "id": "demo-nvda-computex-2026",
+      "last_reviewed": "2026-05-09",
+      "portfolio_weight": 0.0825,
+      "position_size": 125000,
+      "required_review_action": "monitor_date",
+      "scenario_notes": {
+        "base": "Product roadmap details support existing accelerator growth expectations.",
+        "bear": "Launch focuses on refresh timing without incremental demand signals.",
+        "bull": "Management confirms accelerated platform demand and shorter supply constraints."
+      },
+      "status": "scheduled",
+      "thesis_impact": "positive",
+      "ticker": "NVDA"
+    },
+    {
+      "confidence": 0.68,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "history": [
+        {
+          "date": "2026-04-28",
+          "note": "Regulatory decision window estimated from public review timeline.",
+          "status": "watching"
+        }
+      ],
+      "id": "demo-pfe-fda-2026",
+      "last_reviewed": "2026-04-28",
+      "portfolio_weight": 0.031,
+      "position_size": 48000,
+      "required_review_action": "verify_source",
+      "scenario_notes": {
+        "base": "Decision is mostly expected but clarifies launch timing.",
+        "bear": "Delay or restrictive label pressures near-term sentiment.",
+        "bull": "Approval expands pipeline credibility and supports forward revenue mix."
+      },
+      "status": "watching",
+      "thesis_impact": "mixed",
+      "ticker": "PFE",
+      "window": {
+        "end": "2026-05-24",
+        "start": "2026-05-20"
+      }
+    },
+    {
+      "confidence": 0.9,
+      "date": "2026-06-17",
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "history": [
+        {
+          "date": "2026-05-08",
+          "note": "FOMC date confirmed from public central bank calendar.",
+          "status": "confirmed"
+        }
+      ],
+      "id": "demo-fomc-june-2026",
+      "last_reviewed": "2026-05-08",
+      "portfolio_weight": 0.22,
+      "required_review_action": "monitor_date",
+      "scenario_notes": {
+        "base": "Statement broadly matches market-implied policy path.",
+        "bear": "Inflation language reprices yields higher and weighs on multiples.",
+        "bull": "Policy language indicates lower real-rate pressure for duration assets."
+      },
+      "status": "confirmed",
+      "thesis_impact": "mixed",
+      "ticker": "SPY"
+    }
+  ]
+}

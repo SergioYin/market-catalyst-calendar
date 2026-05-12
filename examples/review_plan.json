@@ -1,0 +1,33 @@
+{
+  "as_of": "2026-05-13",
+  "days": 45,
+  "records": [
+    {
+      "catalyst_score": 87,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_gap": "verify the source that anchors the event date/window; confirm whether any source changed since last review.",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "last_reviewed": "2026-04-28",
+      "next_action": "Stale by 15 days. Verify the primary source and confirm the event window before updating status.",
+      "required_review_action": "verify_source",
+      "review_state": "stale",
+      "scenario_update_prompt": "Revise bull/base/bear cases for PFE regulatory decision after checking evidence; preserve thesis impact 'mixed' or explain a change. Current base case: Decision is mostly expected but clarifies launch timing.",
+      "selection_reasons": [
+        "stale",
+        "high_urgency_upcoming"
+      ],
+      "stale_days": 15,
+      "status": "watching",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    }
+  ],
+  "stale_after_days": 14
+}

@@ -1,0 +1,25 @@
+{
+  "as_of": "2026-05-13",
+  "records": [
+    {
+      "catalyst_score": 87,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "portfolio_weight": 0.031,
+      "position_size": 48000.0,
+      "required_review_action": "verify_source",
+      "review_state": "stale",
+      "status": "watching",
+      "thesis_impact": "mixed",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    }
+  ]
+}

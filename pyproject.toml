@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-catalyst-calendar"
+version = "0.1.0"
+description = "Stdlib-only CLI for validating and briefing source-attributed market catalyst records."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Market Catalyst Calendar Contributors" }]
+keywords = ["finance", "investing", "calendar", "catalysts", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Financial and Insurance Industry",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Office/Business :: Financial :: Investment",
+]
+
+[project.scripts]
+market-catalyst-calendar = "market_catalyst_calendar.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["market_catalyst_calendar*"]
