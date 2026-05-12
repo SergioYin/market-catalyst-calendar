@@ -46,6 +46,16 @@ class HistoryEntry:
 
 
 @dataclass(frozen=True)
+class BrokerView:
+    institution: str
+    rating: str
+    target_price: float
+    as_of: date
+    source_url: str
+    caveat: str
+
+
+@dataclass(frozen=True)
 class CatalystRecord:
     record_id: str
     ticker: str
@@ -65,6 +75,7 @@ class CatalystRecord:
     thesis_id: Optional[str]
     source_ref: Optional[str]
     evidence_checked_at: Optional[date]
+    broker_views: Tuple[BrokerView, ...]
 
 
 @dataclass(frozen=True)
@@ -116,6 +127,37 @@ def parse_history(raw: Any) -> Tuple[HistoryEntry, ...]:
             )
         )
     return tuple(sorted(entries, key=lambda entry: (entry.date, entry.status, entry.note)))
+
+
+def parse_broker_views(raw: Any) -> Tuple[BrokerView, ...]:
+    if raw is None:
+        return tuple()
+    if not isinstance(raw, list):
+        raise ValueError("broker_views must be a list")
+    views: List[BrokerView] = []
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise ValueError(f"broker_views[{index}] must be an object")
+        target_price = item.get("target_price")
+        if not isinstance(target_price, (int, float)) or isinstance(target_price, bool):
+            raise ValueError(f"broker_views[{index}].target_price must be a non-negative number")
+        target_price = float(target_price)
+        if target_price < 0:
+            raise ValueError(f"broker_views[{index}].target_price must be non-negative")
+        source_url = _required_str(item, "source_url", f"broker_views[{index}]")
+        if not _valid_url(source_url):
+            raise ValueError(f"broker_views[{index}].source_url must be an http(s) URL")
+        views.append(
+            BrokerView(
+                institution=_required_str(item, "institution", f"broker_views[{index}]"),
+                rating=_required_str(item, "rating", f"broker_views[{index}]"),
+                target_price=target_price,
+                as_of=parse_date(item.get("as_of"), f"broker_views[{index}].as_of"),
+                source_url=source_url,
+                caveat=_required_str(item, "caveat", f"broker_views[{index}]"),
+            )
+        )
+    return tuple(sorted(views, key=lambda view: (view.as_of, view.institution, view.rating, view.target_price, view.source_url)))
 
 
 def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
@@ -171,6 +213,7 @@ def parse_record(raw: Dict[str, Any]) -> CatalystRecord:
         thesis_id=_optional_str(raw, "thesis_id"),
         source_ref=_optional_str(raw, "source_ref"),
         evidence_checked_at=parse_date(evidence_checked_at, "evidence_checked_at") if evidence_checked_at else None,
+        broker_views=parse_broker_views(raw.get("broker_views")),
     )
 
 
@@ -213,6 +256,9 @@ def validation_errors(dataset: Dataset) -> List[str]:
             errors.append(prefix + "last_reviewed cannot be after as_of")
         if record.evidence_checked_at and record.evidence_checked_at > dataset.as_of:
             errors.append(prefix + "evidence_checked_at cannot be after as_of")
+        for view in record.broker_views:
+            if view.as_of > dataset.as_of:
+                errors.append(prefix + f"broker view from {view.institution} cannot be after as_of")
         if record.history:
             latest = max(record.history, key=lambda entry: entry.date)
             if latest.date > dataset.as_of:

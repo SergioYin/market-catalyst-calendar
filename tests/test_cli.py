@@ -30,6 +30,7 @@ class ModelTests(unittest.TestCase):
         ]
         raw["records"][0]["scenario_notes"]["bull"] = "Demand holds | upside = faster ramps\nWatch hyperscaler orders."
         raw["records"][0]["history"][0]["note"] = "Added after channel checks | needs = review."
+        raw["records"][0]["broker_views"][0]["caveat"] = "Target assumes backlog | revenue = visible\nNeeds follow-up."
 
         imported = csv_to_dataset_json(dataset_to_csv(parse_dataset(raw)))
 
@@ -42,6 +43,7 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(first["thesis_id"], raw["records"][0]["thesis_id"])
         self.assertEqual(first["source_ref"], raw["records"][0]["source_ref"])
         self.assertEqual(first["evidence_checked_at"], raw["records"][0]["evidence_checked_at"])
+        self.assertEqual(first["broker_views"][1]["caveat"], raw["records"][0]["broker_views"][0]["caveat"])
 
     def test_csv_import_accepts_missing_optional_exposure_columns(self):
         csv_text = dataset_to_csv(parse_dataset(DEMO_DATA))
@@ -71,6 +73,12 @@ class ModelTests(unittest.TestCase):
         raw = json.loads(json.dumps(DEMO_DATA))
         raw["records"][0]["portfolio_weight"] = 8.25
         with self.assertRaisesRegex(ValueError, "portfolio_weight must be between 0 and 1"):
+            parse_dataset(raw)
+
+    def test_broker_view_source_url_must_be_valid(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["broker_views"][0]["source_url"] = "not-a-url"
+        with self.assertRaisesRegex(ValueError, "source_url must be an http"):
             parse_dataset(raw)
 
 
@@ -241,6 +249,78 @@ class CliTests(unittest.TestCase):
         self.assertIn("| high | PFE | demo-pfe-fda-2026 | 2026-04-28 | 2 | example.com (1.00) |", result.stdout)
         self.assertIn("record the date evidence was last checked", result.stdout)
 
+    def test_broker_matrix_json_groups_dispersion_staleness_and_catalysts(self):
+        result = self.run_cli("broker-matrix", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"], {"group_count": 2, "linked_catalyst_count": 2, "stale_view_count": 2, "view_count": 4})
+        first = payload["groups"][0]
+        self.assertEqual(first["ticker"], "NVDA")
+        self.assertEqual(first["thesis_id"], "ai-infrastructure-capex")
+        self.assertEqual(first["target_price_min"], 1085.0)
+        self.assertEqual(first["target_price_max"], 1320.0)
+        self.assertEqual(first["target_price_avg"], 1202.5)
+        self.assertEqual(first["target_price_dispersion"], 235.0)
+        self.assertEqual(first["stale_sources"][0]["institution"], "Metro Capital Markets")
+        self.assertEqual(first["linked_catalysts"][0]["id"], "demo-nvda-computex-2026")
+        self.assertEqual(first["rating_count"], {"buy": 1, "hold": 1})
+
+    def test_broker_matrix_markdown_renders_summary_and_details(self):
+        result = self.run_cli("broker-matrix", "--as-of", "2026-05-13", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Broker Matrix", result.stdout)
+        self.assertIn("| NVDA | ai-infrastructure-capex | 2 | 1202.50 | 1085.00-1320.00 | 235.00 | Metro Capital Markets | demo-nvda-computex-2026 |", result.stdout)
+        self.assertIn("| Metro Capital Markets | hold | 1085.00 | 2026-04-05 | 38 | Older view predates", result.stdout)
+
+    def test_watchlist_json_prioritizes_due_items_with_triggers_and_refs(self):
+        result = self.run_cli("watchlist", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"], {"critical_count": 1, "due_now_count": 1, "high_count": 2, "item_count": 3, "low_count": 0, "medium_count": 0})
+        self.assertEqual([item["catalyst_id"] for item in payload["items"]], ["demo-pfe-fda-2026", "demo-fomc-june-2026", "demo-nvda-computex-2026"])
+        first = payload["items"][0]
+        self.assertEqual(first["watch_id"], "watch-demo-pfe-fda-2026")
+        self.assertEqual(first["priority"], "critical")
+        self.assertEqual(first["priority_score"], 100)
+        self.assertEqual(first["due_date"], "2026-05-13")
+        self.assertEqual(first["review_cadence"], "daily_until_resolved")
+        self.assertEqual(first["thesis_id"], "pharma-pipeline-reset")
+        self.assertIn("FDA calendar and PFE pipeline note", first["source_refs"])
+        self.assertIn("https://example.com/fda-calendar", first["evidence_urls"])
+        self.assertEqual(
+            [trigger["type"] for trigger in first["trigger_conditions"]],
+            ["review_due", "event_window", "stale_review", "source_check", "thesis_link", "exposure_change"],
+        )
+
+    def test_watchlist_markdown_renders_table_and_trigger_details(self):
+        result = self.run_cli("watchlist", "--as-of", "2026-05-13", "--days", "45", "--format", "markdown", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Watchlist", result.stdout)
+        self.assertIn("| critical (100) | 2026-05-13 | daily_until_resolved | PFE | regulatory_decision 2026-05-20..2026-05-24 |", result.stdout)
+        self.assertIn("| high (78) | 2026-05-26 | twice_weekly | NVDA | product_launch 2026-06-02 |", result.stdout)
+        self.assertIn("- Watch item: watch-demo-pfe-fda-2026", result.stdout)
+        self.assertIn("Bull/base/bear evidence changes the linked thesis 'pharma-pipeline-reset'. -> update_thesis_reference", result.stdout)
+
+    def test_html_dashboard_renders_static_workflow_and_escapes_html(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["entity"] = 'NVIDIA <script>alert("x")</script>'
+        raw["records"][0]["scenario_notes"]["base"] = "Roadmap <b>expands</b> & supply holds."
+        raw["records"][0]["source_ref"] = "Keynote <tracker>"
+
+        result = self.run_cli("html-dashboard", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(raw))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.startswith("<!doctype html>\n"))
+        self.assertIn("<h2>Score Tables</h2>", result.stdout)
+        self.assertIn("<h2>Exposure Summary</h2>", result.stdout)
+        self.assertIn("<h2>Thesis Map</h2>", result.stdout)
+        self.assertIn("<h2>Evidence Audit</h2>", result.stdout)
+        self.assertIn("<h2>Scenario Matrix</h2>", result.stdout)
+        self.assertIn("<h2>Watchlist</h2>", result.stdout)
+        self.assertIn("Roadmap &lt;b&gt;expands&lt;/b&gt; &amp; supply holds.", result.stdout)
+        self.assertNotIn("<script>alert", result.stdout)
+        self.assertNotIn("<b>expands</b>", result.stdout)
+
     def test_invalid_record_fails_validation(self):
         bad = dict(DEMO_DATA)
         bad["records"] = [dict(DEMO_DATA["records"][0], evidence_urls=[])]
@@ -320,7 +400,7 @@ class CliTests(unittest.TestCase):
                 "45",
             )
             self.assertEqual(create_result.returncode, 0, create_result.stderr)
-            self.assertEqual(json.loads(create_result.stdout)["file_count"], 16)
+            self.assertEqual(json.loads(create_result.stdout)["file_count"], 21)
 
             manifest = json.loads((archive_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["archive_version"], 1)
@@ -331,6 +411,9 @@ class CliTests(unittest.TestCase):
                     "dataset/dataset.csv",
                     "dataset/dataset.json",
                     "reports/brief.md",
+                    "reports/broker_matrix.json",
+                    "reports/broker_matrix.md",
+                    "reports/dashboard.html",
                     "reports/evidence_audit.json",
                     "reports/evidence_audit.md",
                     "reports/exposure.json",
@@ -344,6 +427,8 @@ class CliTests(unittest.TestCase):
                     "reports/thesis_map.md",
                     "reports/upcoming.ics",
                     "reports/upcoming.json",
+                    "reports/watchlist.json",
+                    "reports/watchlist.md",
                 ],
             )
 

@@ -1,0 +1,130 @@
+{
+  "as_of": "2026-05-13",
+  "groups": [
+    {
+      "linked_catalysts": [
+        {
+          "catalyst_score": 84,
+          "days_until": 20,
+          "event_type": "product_launch",
+          "id": "demo-nvda-computex-2026",
+          "review_state": "current",
+          "status": "scheduled",
+          "urgency": "medium",
+          "window": "2026-06-02"
+        }
+      ],
+      "rating_count": {
+        "buy": 1,
+        "hold": 1
+      },
+      "ratings": [
+        "buy",
+        "hold"
+      ],
+      "stale_sources": [
+        {
+          "age_days": 38,
+          "as_of": "2026-04-05",
+          "institution": "Metro Capital Markets",
+          "source_url": "https://example.com/nvda-broker-metro"
+        }
+      ],
+      "target_price_avg": 1202.5,
+      "target_price_dispersion": 235.0,
+      "target_price_max": 1320.0,
+      "target_price_min": 1085.0,
+      "thesis_id": "ai-infrastructure-capex",
+      "ticker": "NVDA",
+      "view_count": 2,
+      "views": [
+        {
+          "age_days": 38,
+          "as_of": "2026-04-05",
+          "caveat": "Older view predates the final Computex keynote agenda.",
+          "institution": "Metro Capital Markets",
+          "rating": "hold",
+          "source_url": "https://example.com/nvda-broker-metro",
+          "stale_source": true,
+          "target_price": 1085.0
+        },
+        {
+          "age_days": 3,
+          "as_of": "2026-05-10",
+          "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+          "institution": "North Coast Securities",
+          "rating": "buy",
+          "source_url": "https://example.com/nvda-broker-north-coast",
+          "stale_source": false,
+          "target_price": 1320.0
+        }
+      ]
+    },
+    {
+      "linked_catalysts": [
+        {
+          "catalyst_score": 87,
+          "days_until": 7,
+          "event_type": "regulatory_decision",
+          "id": "demo-pfe-fda-2026",
+          "review_state": "needs_review",
+          "status": "watching",
+          "urgency": "high",
+          "window": "2026-05-20..2026-05-24"
+        }
+      ],
+      "rating_count": {
+        "market perform": 1,
+        "outperform": 1
+      },
+      "ratings": [
+        "market perform",
+        "outperform"
+      ],
+      "stale_sources": [
+        {
+          "age_days": 33,
+          "as_of": "2026-04-10",
+          "institution": "Summit Research",
+          "source_url": "https://example.com/pfe-broker-summit"
+        }
+      ],
+      "target_price_avg": 35.0,
+      "target_price_dispersion": 8.0,
+      "target_price_max": 39.0,
+      "target_price_min": 31.0,
+      "thesis_id": "pharma-pipeline-reset",
+      "ticker": "PFE",
+      "view_count": 2,
+      "views": [
+        {
+          "age_days": 12,
+          "as_of": "2026-05-01",
+          "caveat": "View depends on label breadth and launch timing after the decision window.",
+          "institution": "Harbor Life Sciences",
+          "rating": "market perform",
+          "source_url": "https://example.com/pfe-broker-harbor",
+          "stale_source": false,
+          "target_price": 31.0
+        },
+        {
+          "age_days": 33,
+          "as_of": "2026-04-10",
+          "caveat": "Model gives partial credit for approval but not a restrictive label.",
+          "institution": "Summit Research",
+          "rating": "outperform",
+          "source_url": "https://example.com/pfe-broker-summit",
+          "stale_source": true,
+          "target_price": 39.0
+        }
+      ]
+    }
+  ],
+  "stale_after_days": 30,
+  "summary": {
+    "group_count": 2,
+    "linked_catalyst_count": 2,
+    "stale_view_count": 2,
+    "view_count": 4
+  }
+}

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from typing import Dict, Iterable, List
 
 from .models import CatalystRecord, sorted_records
@@ -39,6 +39,18 @@ def record_to_json(record: CatalystRecord, as_of: date) -> Dict[str, object]:
         payload["source_ref"] = record.source_ref
     if record.evidence_checked_at is not None:
         payload["evidence_checked_at"] = record.evidence_checked_at.isoformat()
+    if record.broker_views:
+        payload["broker_views"] = [
+            {
+                "as_of": view.as_of.isoformat(),
+                "caveat": view.caveat,
+                "institution": view.institution,
+                "rating": view.rating,
+                "source_url": view.source_url,
+                "target_price": view.target_price,
+            }
+            for view in record.broker_views
+        ]
     return payload
 
 
@@ -317,6 +329,310 @@ def scenario_matrix_markdown(records: Iterable[CatalystRecord], as_of: date, sta
     return "\n".join(lines)
 
 
+def broker_matrix_json(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> Dict[str, object]:
+    groups = _broker_groups(records, as_of, stale_after_days)
+    return {
+        "as_of": as_of.isoformat(),
+        "stale_after_days": stale_after_days,
+        "groups": groups,
+        "summary": {
+            "group_count": len(groups),
+            "view_count": sum(int(group["view_count"]) for group in groups),
+            "stale_view_count": sum(len(group["stale_sources"]) for group in groups),
+            "linked_catalyst_count": sum(len(group["linked_catalysts"]) for group in groups),
+        },
+    }
+
+
+def broker_matrix_markdown(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> str:
+    payload = broker_matrix_json(records, as_of, stale_after_days)
+    lines = [
+        "# Market Catalyst Broker Matrix",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Stale broker source after: {stale_after_days} days",
+        "",
+    ]
+    if not payload["groups"]:
+        lines.extend(["No broker views recorded.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Ticker | Thesis | Views | Target Avg | Target Range | Dispersion | Stale Sources | Linked Catalysts |",
+            "| --- | --- | ---: | ---: | --- | ---: | --- | --- |",
+        ]
+    )
+    for group in payload["groups"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(group["ticker"]),
+                    str(group["thesis_id"]),
+                    str(group["view_count"]),
+                    _format_price(float(group["target_price_avg"])),
+                    _format_target_range(group),
+                    _format_price(float(group["target_price_dispersion"])),
+                    ", ".join(str(item["institution"]) for item in group["stale_sources"]) or "none",
+                    ", ".join(str(item["id"]) for item in group["linked_catalysts"]) or "none",
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    for group in payload["groups"]:
+        lines.extend([f"## {group['ticker']} - {group['thesis_id']}", ""])
+        lines.extend(["| Institution | Rating | Target | As Of | Age | Caveat | Source |", "| --- | --- | ---: | --- | ---: | --- | --- |"])
+        for view in group["views"]:
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        str(view["institution"]),
+                        str(view["rating"]),
+                        _format_price(float(view["target_price"])),
+                        str(view["as_of"]),
+                        str(view["age_days"]),
+                        _markdown_cell(str(view["caveat"])),
+                        str(view["source_url"]),
+                    ]
+                )
+                + " |"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
+def watchlist_json(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    days: int,
+    stale_after_days: int,
+) -> Dict[str, object]:
+    items = [_watchlist_item(record, as_of, stale_after_days) for record in _watchlist_records(records, as_of, days, stale_after_days)]
+    return {
+        "as_of": as_of.isoformat(),
+        "days": days,
+        "stale_after_days": stale_after_days,
+        "items": items,
+        "summary": {
+            "item_count": len(items),
+            "critical_count": sum(1 for item in items if item["priority"] == "critical"),
+            "high_count": sum(1 for item in items if item["priority"] == "high"),
+            "medium_count": sum(1 for item in items if item["priority"] == "medium"),
+            "low_count": sum(1 for item in items if item["priority"] == "low"),
+            "due_now_count": sum(1 for item in items if item["due_state"] == "due_now"),
+        },
+    }
+
+
+def watchlist_markdown(
+    records: Iterable[CatalystRecord],
+    as_of: date,
+    days: int,
+    stale_after_days: int,
+) -> str:
+    payload = watchlist_json(records, as_of, days, stale_after_days)
+    lines = [
+        "# Market Catalyst Watchlist",
+        "",
+        f"As of: {as_of.isoformat()}",
+        f"Scope: open catalysts due or starting within {days} days; stale after {stale_after_days} days.",
+        "",
+    ]
+    if not payload["items"]:
+        lines.extend(["No catalyst watch items.", ""])
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "| Priority | Due | Cadence | Ticker | Catalyst | Triggers | Thesis | Sources |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for item in payload["items"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    f"{item['priority']} ({item['priority_score']})",
+                    str(item["due_date"]),
+                    str(item["review_cadence"]),
+                    str(item["ticker"]),
+                    f"{item['event_type']} {item['window']}",
+                    _markdown_cell("; ".join(str(trigger["condition"]) for trigger in item["trigger_conditions"])),
+                    str(item["thesis_id"]),
+                    _markdown_cell(", ".join(str(source) for source in item["source_refs"])),
+                ]
+            )
+            + " |"
+        )
+    lines.append("")
+    for item in payload["items"]:
+        lines.extend(
+            [
+                f"## {item['ticker']} - {item['entity']}",
+                "",
+                f"- Watch item: {item['watch_id']}",
+                f"- Catalyst: {item['catalyst_id']} ({item['event_type']}, {item['window']})",
+                f"- Priority: {item['priority']} ({item['priority_score']}); urgency: {item['urgency']}; review: {item['review_state']}",
+                f"- Due: {item['due_date']} ({item['due_state']}); cadence: {item['review_cadence']}",
+                f"- Required action: {item['required_review_action']}",
+                f"- Thesis ref: {item['thesis_id']}; source ref: {item['source_ref']}",
+                f"- Evidence links: {', '.join(str(url) for url in item['evidence_urls'])}",
+                "- Trigger conditions:",
+            ]
+        )
+        for trigger in item["trigger_conditions"]:
+            lines.append(f"  - {trigger['condition']} -> {trigger['action']}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _watchlist_records(records: Iterable[CatalystRecord], as_of: date, days: int, stale_after_days: int) -> List[CatalystRecord]:
+    selected = []
+    for record in records:
+        if record.status in {"completed", "cancelled"}:
+            continue
+        days_until = (record.window.start - as_of).days
+        if days_until <= days:
+            selected.append(record)
+    return sorted(selected, key=lambda record: _watchlist_sort_key(record, as_of, stale_after_days))
+
+
+def _watchlist_sort_key(record: CatalystRecord, as_of: date, stale_after_days: int) -> tuple[object, ...]:
+    score = score_record(record, as_of, stale_after_days=stale_after_days)
+    priority_score = _watchlist_priority_score(record, score)
+    return (-priority_score, _watchlist_due_date(record, as_of, score), record.window.start, record.ticker, record.record_id)
+
+
+def _watchlist_item(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
+    score = score_record(record, as_of, stale_after_days=stale_after_days)
+    due_date = _watchlist_due_date(record, as_of, score)
+    source_refs = []
+    if record.source_ref is not None:
+        source_refs.append(record.source_ref)
+    source_refs.extend(record.evidence_urls)
+    priority_score = _watchlist_priority_score(record, score)
+    return {
+        "watch_id": f"watch-{record.record_id}",
+        "catalyst_id": record.record_id,
+        "ticker": record.ticker,
+        "entity": record.entity,
+        "event_type": record.event_type,
+        "window": record.window.label,
+        "status": record.status,
+        "catalyst_score": score.catalyst_score,
+        "priority_score": priority_score,
+        "priority": _watchlist_priority(priority_score),
+        "urgency": score.urgency,
+        "review_state": score.review_state,
+        "days_until": score.days_until,
+        "due_date": due_date.isoformat(),
+        "due_state": "due_now" if due_date <= as_of else "scheduled",
+        "review_cadence": _watchlist_cadence(score, due_date, as_of),
+        "trigger_conditions": _watchlist_triggers(record, as_of, score, due_date),
+        "required_review_action": record.required_review_action,
+        "thesis_id": record.thesis_id or "unmapped",
+        "source_ref": record.source_ref or "none",
+        "source_refs": source_refs,
+        "evidence_urls": list(record.evidence_urls),
+        "scenario_refs": {
+            "bull": record.scenario_notes.get("bull", ""),
+            "base": record.scenario_notes.get("base", ""),
+            "bear": record.scenario_notes.get("bear", ""),
+        },
+    }
+
+
+def _watchlist_priority_score(record: CatalystRecord, score: Score) -> int:
+    base_score = round(score.catalyst_score * 0.75)
+    stale_boost = 12 if score.review_state == "stale" else 0
+    urgency_boost = {"overdue": 18, "high": 14, "medium": 7, "low": 0, "closed": 0}.get(score.urgency, 0)
+    exposure_boost = min(10, round((record.portfolio_weight or 0.0) * 100))
+    action_boost = 6 if record.required_review_action in {"verify_source", "refresh_evidence", "update_scenario"} else 0
+    return max(0, min(100, base_score + stale_boost + urgency_boost + exposure_boost + action_boost))
+
+
+def _watchlist_priority(priority_score: int) -> str:
+    if priority_score >= 90:
+        return "critical"
+    if priority_score >= 75:
+        return "high"
+    if priority_score >= 55:
+        return "medium"
+    return "low"
+
+
+def _watchlist_due_date(record: CatalystRecord, as_of: date, score: Score) -> date:
+    if score.review_state == "stale" or score.days_until <= 0:
+        return as_of
+    if score.urgency == "high":
+        return max(as_of, record.window.start - timedelta(days=3))
+    if score.urgency == "medium":
+        return max(as_of, record.window.start - timedelta(days=7))
+    return max(as_of, record.window.start - timedelta(days=14))
+
+
+def _watchlist_cadence(score: Score, due_date: date, as_of: date) -> str:
+    if due_date <= as_of or score.urgency in {"overdue", "high"}:
+        return "daily_until_resolved"
+    if score.days_until <= 30:
+        return "twice_weekly"
+    if score.days_until <= 90:
+        return "weekly"
+    return "monthly"
+
+
+def _watchlist_triggers(record: CatalystRecord, as_of: date, score: Score, due_date: date) -> List[Dict[str, object]]:
+    triggers: List[Dict[str, object]] = [
+        {
+            "type": "review_due",
+            "condition": f"Review by {due_date.isoformat()} before catalyst window {record.window.label}.",
+            "action": record.required_review_action,
+        },
+        {
+            "type": "event_window",
+            "condition": f"Escalate if {record.ticker} confirms, delays, cancels, or changes the {record.event_type.replace('_', ' ')} window.",
+            "action": "update_status_and_history",
+        },
+    ]
+    if score.review_state == "stale":
+        triggers.append(
+            {
+                "type": "stale_review",
+                "condition": f"Last review is stale by {score.stale_days} days as of {as_of.isoformat()}.",
+                "action": "refresh_review_notes",
+            }
+        )
+    if record.required_review_action in {"verify_source", "refresh_evidence"}:
+        triggers.append(
+            {
+                "type": "source_check",
+                "condition": "Primary evidence changes, disappears, conflicts with another source, or lacks a dated update.",
+                "action": record.required_review_action,
+            }
+        )
+    if record.thesis_id is not None:
+        triggers.append(
+            {
+                "type": "thesis_link",
+                "condition": f"Bull/base/bear evidence changes the linked thesis '{record.thesis_id}'.",
+                "action": "update_thesis_reference",
+            }
+        )
+    if record.portfolio_weight is not None or record.position_size is not None:
+        triggers.append(
+            {
+                "type": "exposure_change",
+                "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+                "action": "refresh_exposure_context",
+            }
+        )
+    return triggers
+
+
 def _exposure_groups(records: Iterable[CatalystRecord], as_of: date) -> List[Dict[str, object]]:
     groups: Dict[tuple[str, str, str], Dict[str, object]] = {}
     for record in records:
@@ -363,6 +679,99 @@ def _exposure_groups(records: Iterable[CatalystRecord], as_of: date) -> List[Dic
         group["weighted_position_exposure"] = round(float(group["weighted_position_exposure"]), 2)
         group["records"] = sorted(group["records"])  # type: ignore[arg-type]
     return ordered
+
+
+def _broker_groups(records: Iterable[CatalystRecord], as_of: date, stale_after_days: int) -> List[Dict[str, object]]:
+    groups: Dict[tuple[str, str], Dict[str, object]] = {}
+    for record in records:
+        if not record.broker_views:
+            continue
+        thesis_id = record.thesis_id or "unmapped"
+        key = (record.ticker, thesis_id)
+        group = groups.setdefault(
+            key,
+            {
+                "ticker": record.ticker,
+                "thesis_id": thesis_id,
+                "views": [],
+                "linked_catalysts": {},
+            },
+        )
+        score = score_record(record, as_of, stale_after_days=stale_after_days)
+        group["linked_catalysts"][record.record_id] = {  # type: ignore[index]
+            "catalyst_score": score.catalyst_score,
+            "days_until": score.days_until,
+            "event_type": record.event_type,
+            "id": record.record_id,
+            "review_state": score.review_state,
+            "status": record.status,
+            "urgency": score.urgency,
+            "window": record.window.label,
+        }
+        for view in record.broker_views:
+            age_days = (as_of - view.as_of).days
+            group["views"].append(  # type: ignore[union-attr]
+                {
+                    "age_days": age_days,
+                    "as_of": view.as_of.isoformat(),
+                    "caveat": view.caveat,
+                    "institution": view.institution,
+                    "rating": view.rating,
+                    "source_url": view.source_url,
+                    "stale_source": age_days > stale_after_days,
+                    "target_price": view.target_price,
+                }
+            )
+
+    normalized = []
+    for group in groups.values():
+        views = sorted(
+            group["views"],  # type: ignore[arg-type]
+            key=lambda view: (str(view["institution"]), str(view["as_of"]), str(view["rating"]), float(view["target_price"])),
+        )
+        targets = [float(view["target_price"]) for view in views]
+        target_min = min(targets)
+        target_max = max(targets)
+        target_avg = sum(targets) / len(targets)
+        ratings = sorted(set(str(view["rating"]) for view in views))
+        linked = sorted(
+            group["linked_catalysts"].values(),  # type: ignore[union-attr]
+            key=lambda item: (-int(item["catalyst_score"]), str(item["window"]), str(item["id"])),
+        )
+        normalized.append(
+            {
+                "linked_catalysts": linked,
+                "rating_count": {rating: sum(1 for view in views if view["rating"] == rating) for rating in ratings},
+                "ratings": ratings,
+                "stale_sources": [
+                    {
+                        "age_days": view["age_days"],
+                        "as_of": view["as_of"],
+                        "institution": view["institution"],
+                        "source_url": view["source_url"],
+                    }
+                    for view in views
+                    if view["stale_source"]
+                ],
+                "target_price_avg": round(target_avg, 2),
+                "target_price_dispersion": round(target_max - target_min, 2),
+                "target_price_max": round(target_max, 2),
+                "target_price_min": round(target_min, 2),
+                "thesis_id": group["thesis_id"],
+                "ticker": group["ticker"],
+                "view_count": len(views),
+                "views": views,
+            }
+        )
+    return sorted(
+        normalized,
+        key=lambda group: (
+            -float(group["target_price_dispersion"]),
+            -len(group["stale_sources"]),
+            str(group["ticker"]),
+            str(group["thesis_id"]),
+        ),
+    )
 
 
 def _scenario_matrix_record(record: CatalystRecord, as_of: date, stale_after_days: int) -> Dict[str, object]:
@@ -631,6 +1040,14 @@ def _format_percent(value: float) -> str:
 
 def _format_money(value: float) -> str:
     return f"{value:,.2f}"
+
+
+def _format_price(value: float) -> str:
+    return f"{value:.2f}"
+
+
+def _format_target_range(group: Dict[str, object]) -> str:
+    return f"{_format_price(float(group['target_price_min']))}-{_format_price(float(group['target_price_max']))}"
 
 
 def _markdown_cell(value: str) -> str:

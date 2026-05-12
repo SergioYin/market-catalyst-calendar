@@ -2,6 +2,24 @@
   "as_of": "2026-05-13",
   "records": [
     {
+      "broker_views": [
+        {
+          "as_of": "2026-04-10",
+          "caveat": "Model gives partial credit for approval but not a restrictive label.",
+          "institution": "Summit Research",
+          "rating": "outperform",
+          "source_url": "https://example.com/pfe-broker-summit",
+          "target_price": 39.0
+        },
+        {
+          "as_of": "2026-05-01",
+          "caveat": "View depends on label breadth and launch timing after the decision window.",
+          "institution": "Harbor Life Sciences",
+          "rating": "market perform",
+          "source_url": "https://example.com/pfe-broker-harbor",
+          "target_price": 31.0
+        }
+      ],
       "catalyst_score": 87,
       "days_until": 7,
       "entity": "Pfizer Inc.",

@@ -35,6 +35,24 @@ DEMO_DATA = {
             "required_review_action": "monitor_date",
             "last_reviewed": "2026-05-09",
             "evidence_checked_at": "2026-05-09",
+            "broker_views": [
+                {
+                    "institution": "North Coast Securities",
+                    "rating": "buy",
+                    "target_price": 1320.0,
+                    "as_of": "2026-05-10",
+                    "source_url": "https://example.com/nvda-broker-north-coast",
+                    "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+                },
+                {
+                    "institution": "Metro Capital Markets",
+                    "rating": "hold",
+                    "target_price": 1085.0,
+                    "as_of": "2026-04-05",
+                    "source_url": "https://example.com/nvda-broker-metro",
+                    "caveat": "Older view predates the final Computex keynote agenda.",
+                },
+            ],
         },
         {
             "id": "demo-pfe-fda-2026",
@@ -68,6 +86,24 @@ DEMO_DATA = {
             "required_review_action": "verify_source",
             "last_reviewed": "2026-04-28",
             "evidence_checked_at": "2026-04-28",
+            "broker_views": [
+                {
+                    "institution": "Harbor Life Sciences",
+                    "rating": "market perform",
+                    "target_price": 31.0,
+                    "as_of": "2026-05-01",
+                    "source_url": "https://example.com/pfe-broker-harbor",
+                    "caveat": "View depends on label breadth and launch timing after the decision window.",
+                },
+                {
+                    "institution": "Summit Research",
+                    "rating": "outperform",
+                    "target_price": 39.0,
+                    "as_of": "2026-04-10",
+                    "source_url": "https://example.com/pfe-broker-summit",
+                    "caveat": "Model gives partial credit for approval but not a restrictive label.",
+                },
+            ],
         },
         {
             "id": "demo-fomc-june-2026",

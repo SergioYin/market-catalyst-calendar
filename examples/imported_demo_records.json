@@ -2,6 +2,24 @@
   "as_of": "2026-05-13",
   "records": [
     {
+      "broker_views": [
+        {
+          "as_of": "2026-04-10",
+          "caveat": "Model gives partial credit for approval but not a restrictive label.",
+          "institution": "Summit Research",
+          "rating": "outperform",
+          "source_url": "https://example.com/pfe-broker-summit",
+          "target_price": 39.0
+        },
+        {
+          "as_of": "2026-05-01",
+          "caveat": "View depends on label breadth and launch timing after the decision window.",
+          "institution": "Harbor Life Sciences",
+          "rating": "market perform",
+          "source_url": "https://example.com/pfe-broker-harbor",
+          "target_price": 31.0
+        }
+      ],
       "confidence": 0.68,
       "entity": "Pfizer Inc.",
       "event_type": "regulatory_decision",
@@ -38,6 +56,24 @@
       }
     },
     {
+      "broker_views": [
+        {
+          "as_of": "2026-04-05",
+          "caveat": "Older view predates the final Computex keynote agenda.",
+          "institution": "Metro Capital Markets",
+          "rating": "hold",
+          "source_url": "https://example.com/nvda-broker-metro",
+          "target_price": 1085.0
+        },
+        {
+          "as_of": "2026-05-10",
+          "caveat": "Target assumes accelerator backlog converts into second-half revenue.",
+          "institution": "North Coast Securities",
+          "rating": "buy",
+          "source_url": "https://example.com/nvda-broker-north-coast",
+          "target_price": 1320.0
+        }
+      ],
       "confidence": 0.74,
       "date": "2026-06-02",
       "entity": "NVIDIA Corporation",
@@ -71,6 +107,7 @@
       "ticker": "NVDA"
     },
     {
+      "broker_views": [],
       "confidence": 0.9,
       "date": "2026-06-17",
       "entity": "S&P 500 ETF Trust",

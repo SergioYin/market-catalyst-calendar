@@ -31,12 +31,13 @@ CSV_COLUMNS = [
     "evidence_urls",
     "scenario_notes",
     "history",
+    "broker_views",
 ]
 
 REQUIRED_CSV_COLUMNS = [
     column
     for column in CSV_COLUMNS
-    if column not in {"position_size", "portfolio_weight", "thesis_id", "source_ref", "evidence_checked_at"}
+    if column not in {"position_size", "portfolio_weight", "thesis_id", "source_ref", "evidence_checked_at", "broker_views"}
 ]
 
 ITEM_SEPARATOR = " | "
@@ -101,6 +102,7 @@ def _record_to_row(as_of: str, record: CatalystRecord) -> Dict[str, str]:
         "evidence_urls": _join_items(record.evidence_urls),
         "scenario_notes": _join_pairs(sorted(record.scenario_notes.items())),
         "history": _join_history(record.history),
+        "broker_views": _join_broker_views(record.broker_views),
     }
 
 
@@ -123,6 +125,7 @@ def _row_to_record(row: Dict[str, str], row_number: int) -> Dict[str, object]:
         "scenario_notes": dict(_split_pairs(row.get("scenario_notes", ""), row_number, "scenario_notes")),
         "required_review_action": _required_cell(row, "required_review_action", row_number),
         "history": _split_history(row.get("history", ""), row_number),
+        "broker_views": _split_broker_views(row.get("broker_views", ""), row_number),
     }
     if window_start == window_end:
         record["date"] = window_start
@@ -206,6 +209,45 @@ def _split_history(value: str, row_number: int) -> List[Dict[str, str]]:
             raise ValueError(f"row {row_number}: malformed history item")
         entries.append({"date": _decode(parts[0]), "status": _decode(parts[1]), "note": _decode(parts[2])})
     return entries
+
+
+def _join_broker_views(values) -> str:
+    rows = []
+    for view in values:
+        rows.append(
+            PART_SEPARATOR.join(
+                [
+                    _encode(view.institution),
+                    _encode(view.rating),
+                    _encode(f"{view.target_price:.12g}"),
+                    _encode(view.as_of.isoformat()),
+                    _encode(view.source_url),
+                    _encode(view.caveat),
+                ]
+            )
+        )
+    return ITEM_SEPARATOR.join(rows)
+
+
+def _split_broker_views(value: str, row_number: int) -> List[Dict[str, object]]:
+    if not value:
+        return []
+    views: List[Dict[str, object]] = []
+    for item in value.split(ITEM_SEPARATOR):
+        parts = item.split(PART_SEPARATOR)
+        if len(parts) != 6:
+            raise ValueError(f"row {row_number}: malformed broker_views item")
+        views.append(
+            {
+                "institution": _decode(parts[0]),
+                "rating": _decode(parts[1]),
+                "target_price": _parse_optional_float(_decode(parts[2]), row_number, "broker_views.target_price"),
+                "as_of": _decode(parts[3]),
+                "source_url": _decode(parts[4]),
+                "caveat": _decode(parts[5]),
+            }
+        )
+    return views
 
 
 def _required_cell(row: Dict[str, str], column: str, row_number: int) -> str:

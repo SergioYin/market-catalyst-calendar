@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure, maps catalysts back to investment theses, renders Markdown briefs, exports calendar and CSV files, exports a deterministic demo dataset, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure, maps catalysts back to investment theses, summarizes broker views, converts catalysts into prioritized watchlists, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports a deterministic demo dataset, and packages portable archives with hash verification.
 
 ## Install
 
@@ -30,6 +30,11 @@ python -m market_catalyst_calendar scenario-matrix --input examples/demo_records
 python -m market_catalyst_calendar scenario-matrix --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar evidence-audit --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
 python -m market_catalyst_calendar export-csv --input examples/demo_records.json --output examples/demo_records.csv
 python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/upcoming.ics
 python -m market_catalyst_calendar import-csv --input examples/demo_records.csv --output examples/imported_demo_records.json
@@ -60,12 +65,15 @@ Each record includes:
 - optional `evidence_checked_at`
 - optional `position_size` and `portfolio_weight`
 - optional `thesis_id` and `source_ref`
+- optional `broker_views`, each with `institution`, `rating`, `target_price`, `as_of`, `source_url`, and `caveat`
 
 Validation checks schema shape, URL quality, scenario completeness, status/history consistency, confidence ranges, and review-action hygiene for open items.
 
 `portfolio_weight` is a decimal fraction from `0` to `1`, so `0.05` means 5% of the portfolio. `position_size` is a non-negative notional value in the user's own reporting currency. Both fields are optional, which allows catalyst records to exist before a portfolio view is attached.
 
 `evidence_checked_at` is separate from `last_reviewed`: use it for the date sources were last checked, even when the thesis notes or status did not change.
+
+`broker_views` are record-level analyst or broker snapshots. They are optional and offline: the CLI validates their source URLs and dates, but it does not fetch reports or infer missing target prices.
 
 ## Exposure Workflow
 
@@ -119,6 +127,49 @@ The JSON and Markdown reports include records with any of these flags:
 
 Defaults are `--fresh-after-days 14`, `--min-sources 2`, and `--max-domain-share 0.67`. Use Markdown for analyst review and JSON for downstream automation.
 
+## Broker Matrix Workflow
+
+`broker-matrix` groups optional `broker_views` by `ticker` and `thesis_id` and reports target-price dispersion, rating counts, stale source flags, and linked catalyst records.
+
+The JSON and Markdown reports include:
+
+- target price minimum, maximum, average, and dispersion
+- rating counts across institutions
+- stale broker sources older than `--stale-after-days` (default `30`)
+- linked catalyst id, event type, window, status, urgency, review state, and catalyst score
+- per-view source URL and caveat text
+
+Use it to compare outside sell-side assumptions against catalyst timing without turning broker targets into investment advice.
+
+## Watchlist Workflow
+
+`watchlist` converts open catalysts into prioritized watch items for a forward window. It keeps the original catalyst links intact while adding workflow fields an analyst or downstream agent can act on.
+
+JSON and Markdown outputs include:
+
+- watch id, catalyst id, ticker, entity, event type, status, and event window
+- priority score and band derived from catalyst score, urgency, stale state, exposure, and required action
+- trigger conditions for review due dates, event window changes, stale review, source checks, thesis changes, and exposure changes
+- due date, due state, and review cadence
+- `thesis_id`, `source_ref`, source refs, evidence URLs, and bull/base/bear scenario refs
+
+Use Markdown for a human watch queue and JSON when passing watch items into another offline agent or ticketing script.
+
+## HTML Dashboard Workflow
+
+`html-dashboard` renders a deterministic, no-JavaScript HTML file for offline review. It safely escapes dataset text before writing it into the document.
+
+The dashboard includes:
+
+- score tables for upcoming catalysts
+- exposure summary cards and grouped exposure rows
+- thesis map
+- evidence audit
+- bull/base/bear scenario matrix
+- prioritized watchlist
+
+Use `--output` to write a portable `.html` artifact, or omit it to stream the HTML to stdout.
+
 ## CSV Workflow
 
 `export-csv` writes the full catalyst dataset to a deterministic spreadsheet-friendly CSV. Rows are sorted by event window, ticker, and id; columns are stable; optional `thesis_id` and `source_ref` are preserved; and `confidence` is formatted without unnecessary trailing noise.
@@ -130,6 +181,7 @@ Multi-value cells use safe encoded separators:
 - `evidence_urls`: URL-encoded values joined by ` | `
 - `scenario_notes`: URL-encoded `key = value` pairs joined by ` | `
 - `history`: URL-encoded `date = status = note` entries joined by ` | `
+- `broker_views`: URL-encoded `institution = rating = target_price = as_of = source_url = caveat` entries joined by ` | `
 
 Because each component is percent-encoded before joining, commas, newlines, pipes, equals signs, and URL query strings survive a CSV round trip.
 
@@ -148,6 +200,9 @@ Each event includes a stable UID derived from the catalyst id and event window, 
 - `reports/upcoming.json` and `reports/stale.json`
 - `reports/upcoming.ics`
 - `reports/brief.md`
+- `reports/broker_matrix.json` and `reports/broker_matrix.md`
+- `reports/watchlist.json` and `reports/watchlist.md`
+- `reports/dashboard.html`
 - `reports/exposure.json` and `reports/exposure.md`
 - `reports/review_plan.json` and `reports/review_plan.md`
 - `reports/scenario_matrix.json` and `reports/scenario_matrix.md`
@@ -177,6 +232,11 @@ Checked-in examples live in `examples/`:
 - `scenario_matrix.md`: generated Markdown scenario matrix
 - `evidence_audit.json`: generated evidence freshness and diversity audit
 - `evidence_audit.md`: generated Markdown evidence audit
+- `broker_matrix.json`: generated broker view dispersion and linkage matrix
+- `broker_matrix.md`: generated Markdown broker matrix
+- `watchlist.json`: generated prioritized watch item workflow
+- `watchlist.md`: generated Markdown watchlist
+- `dashboard.html`: generated static no-JavaScript HTML dashboard
 - `thesis_map.json`: generated thesis grouping data
 - `thesis_map.md`: generated Markdown thesis map
 - `upcoming.ics`: generated iCalendar export for upcoming catalysts

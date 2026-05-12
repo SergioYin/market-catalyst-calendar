@@ -1,0 +1,194 @@
+{
+  "as_of": "2026-05-13",
+  "days": 45,
+  "items": [
+    {
+      "catalyst_id": "demo-pfe-fda-2026",
+      "catalyst_score": 87,
+      "days_until": 7,
+      "due_date": "2026-05-13",
+      "due_state": "due_now",
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "priority": "critical",
+      "priority_score": 100,
+      "required_review_action": "verify_source",
+      "review_cadence": "daily_until_resolved",
+      "review_state": "stale",
+      "scenario_refs": {
+        "base": "Decision is mostly expected but clarifies launch timing.",
+        "bear": "Delay or restrictive label pressures near-term sentiment.",
+        "bull": "Approval expands pipeline credibility and supports forward revenue mix."
+      },
+      "source_ref": "FDA calendar and PFE pipeline note",
+      "source_refs": [
+        "FDA calendar and PFE pipeline note",
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "status": "watching",
+      "thesis_id": "pharma-pipeline-reset",
+      "ticker": "PFE",
+      "trigger_conditions": [
+        {
+          "action": "verify_source",
+          "condition": "Review by 2026-05-13 before catalyst window 2026-05-20..2026-05-24.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if PFE confirms, delays, cancels, or changes the regulatory decision window.",
+          "type": "event_window"
+        },
+        {
+          "action": "refresh_review_notes",
+          "condition": "Last review is stale by 15 days as of 2026-05-13.",
+          "type": "stale_review"
+        },
+        {
+          "action": "verify_source",
+          "condition": "Primary evidence changes, disappears, conflicts with another source, or lacks a dated update.",
+          "type": "source_check"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'pharma-pipeline-reset'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ],
+      "urgency": "high",
+      "watch_id": "watch-demo-pfe-fda-2026",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "catalyst_id": "demo-fomc-june-2026",
+      "catalyst_score": 83,
+      "days_until": 35,
+      "due_date": "2026-06-10",
+      "due_state": "scheduled",
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "priority": "high",
+      "priority_score": 79,
+      "required_review_action": "monitor_date",
+      "review_cadence": "weekly",
+      "review_state": "current",
+      "scenario_refs": {
+        "base": "Statement broadly matches market-implied policy path.",
+        "bear": "Inflation language reprices yields higher and weighs on multiples.",
+        "bull": "Policy language indicates lower real-rate pressure for duration assets."
+      },
+      "source_ref": "FOMC public calendar",
+      "source_refs": [
+        "FOMC public calendar",
+        "https://example.com/fomc-calendar"
+      ],
+      "status": "confirmed",
+      "thesis_id": "rates-duration-risk",
+      "ticker": "SPY",
+      "trigger_conditions": [
+        {
+          "action": "monitor_date",
+          "condition": "Review by 2026-06-10 before catalyst window 2026-06-17.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if SPY confirms, delays, cancels, or changes the macro release window.",
+          "type": "event_window"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'rates-duration-risk'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ],
+      "urgency": "medium",
+      "watch_id": "watch-demo-fomc-june-2026",
+      "window": "2026-06-17"
+    },
+    {
+      "catalyst_id": "demo-nvda-computex-2026",
+      "catalyst_score": 84,
+      "days_until": 20,
+      "due_date": "2026-05-26",
+      "due_state": "scheduled",
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "priority": "high",
+      "priority_score": 78,
+      "required_review_action": "monitor_date",
+      "review_cadence": "twice_weekly",
+      "review_state": "current",
+      "scenario_refs": {
+        "base": "Product roadmap details support existing accelerator growth expectations.",
+        "bear": "Launch focuses on refresh timing without incremental demand signals.",
+        "bull": "Management confirms accelerated platform demand and shorter supply constraints."
+      },
+      "source_ref": "NVDA Computex keynote tracker",
+      "source_refs": [
+        "NVDA Computex keynote tracker",
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "status": "scheduled",
+      "thesis_id": "ai-infrastructure-capex",
+      "ticker": "NVDA",
+      "trigger_conditions": [
+        {
+          "action": "monitor_date",
+          "condition": "Review by 2026-05-26 before catalyst window 2026-06-02.",
+          "type": "review_due"
+        },
+        {
+          "action": "update_status_and_history",
+          "condition": "Escalate if NVDA confirms, delays, cancels, or changes the product launch window.",
+          "type": "event_window"
+        },
+        {
+          "action": "update_thesis_reference",
+          "condition": "Bull/base/bear evidence changes the linked thesis 'ai-infrastructure-capex'.",
+          "type": "thesis_link"
+        },
+        {
+          "action": "refresh_exposure_context",
+          "condition": "Position size, portfolio weight, or risk budget changes before the event.",
+          "type": "exposure_change"
+        }
+      ],
+      "urgency": "medium",
+      "watch_id": "watch-demo-nvda-computex-2026",
+      "window": "2026-06-02"
+    }
+  ],
+  "stale_after_days": 14,
+  "summary": {
+    "critical_count": 1,
+    "due_now_count": 1,
+    "high_count": 2,
+    "item_count": 3,
+    "low_count": 0,
+    "medium_count": 0
+  }
+}

@@ -11,6 +11,7 @@ from typing import Iterable, List, Optional
 
 from .archive import create_archive, verify_archive
 from .csv_io import csv_to_dataset_json, dataset_to_csv
+from .dashboard import html_dashboard
 from .demo import DEMO_DATA
 from .evidence import evidence_audit_json, evidence_audit_markdown
 from .ics import records_to_ics
@@ -18,6 +19,8 @@ from .io import dump_json, load_dataset, read_text
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
 from .render import (
     brief_markdown,
+    broker_matrix_json,
+    broker_matrix_markdown,
     exposure_json,
     exposure_markdown,
     records_json,
@@ -27,6 +30,8 @@ from .render import (
     scenario_matrix_markdown,
     thesis_map_json,
     thesis_map_markdown,
+    watchlist_json,
+    watchlist_markdown,
 )
 from .scoring import score_record
 
@@ -107,6 +112,29 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_audit.add_argument("--max-domain-share", type=float, default=0.67)
     evidence_audit.add_argument("--format", choices=["json", "markdown"], default="json")
     evidence_audit.set_defaults(func=cmd_evidence_audit)
+
+    broker_matrix = subparsers.add_parser("broker-matrix", help="summarize broker views by ticker and thesis")
+    add_input(broker_matrix)
+    add_as_of(broker_matrix)
+    broker_matrix.add_argument("--stale-after-days", type=int, default=30)
+    broker_matrix.add_argument("--format", choices=["json", "markdown"], default="json")
+    broker_matrix.set_defaults(func=cmd_broker_matrix)
+
+    watchlist = subparsers.add_parser("watchlist", help="convert catalysts into prioritized watch items")
+    add_input(watchlist)
+    add_as_of(watchlist)
+    watchlist.add_argument("--days", type=int, default=90, help="look-ahead window in days")
+    watchlist.add_argument("--stale-after-days", type=int, default=14)
+    watchlist.add_argument("--format", choices=["json", "markdown"], default="json")
+    watchlist.set_defaults(func=cmd_watchlist)
+
+    html = subparsers.add_parser("html-dashboard", help="render a deterministic static HTML dashboard")
+    add_input(html)
+    add_as_of(html)
+    html.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    html.add_argument("--stale-after-days", type=int, default=14)
+    html.add_argument("--output", "-o", help="output HTML path; stdout when omitted")
+    html.set_defaults(func=cmd_html_dashboard)
 
     demo = subparsers.add_parser("export-demo", help="write the built-in demo dataset")
     demo.add_argument("--output", "-o", help="output path; stdout when omitted")
@@ -244,6 +272,47 @@ def cmd_evidence_audit(args: argparse.Namespace) -> int:
         print(dump_json(evidence_audit_json(dataset.records, as_of, args.fresh_after_days, args.min_sources, args.max_domain_share)), end="")
     else:
         print(evidence_audit_markdown(dataset.records, as_of, args.fresh_after_days, args.min_sources, args.max_domain_share), end="")
+    return 0
+
+
+def cmd_broker_matrix(args: argparse.Namespace) -> int:
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(broker_matrix_json(dataset.records, as_of, args.stale_after_days)), end="")
+    else:
+        print(broker_matrix_markdown(dataset.records, as_of, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_watchlist(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(watchlist_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
+    else:
+        print(watchlist_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_html_dashboard(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    text = html_dashboard(dataset.records, as_of, args.days, args.stale_after_days)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
     return 0
 
 
