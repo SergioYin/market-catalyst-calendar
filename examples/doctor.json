@@ -1,0 +1,426 @@
+{
+  "as_of": "2026-05-13",
+  "diagnostics": [
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/msft-q3-earnings is a placeholder host",
+      "record_id": "demo-msft-earnings-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "MSFT"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-003",
+      "detail": "evidence metadata is 15 days old; maximum is 14",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "minimum_evidence",
+      "severity": "high",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-REVIEW-002",
+      "detail": "last review is 15 days old; maximum is 14",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "review_freshness",
+      "severity": "high",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/fda-calendar is a placeholder host",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/pfe-pipeline-update is a placeholder host",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-SOURCE-002",
+      "detail": "broker URL for Summit Research (https://example.com/pfe-broker-summit) is a placeholder host",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-SOURCE-002",
+      "detail": "broker URL for Harbor Life Sciences (https://example.com/pfe-broker-harbor) is a placeholder host",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-BROKER-004",
+      "detail": "Summit Research broker view is 33 days old; maximum is 30",
+      "record_id": "demo-pfe-fda-2026",
+      "rule": "broker_caveats",
+      "severity": "medium",
+      "source": "quality-gate",
+      "ticker": "PFE"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/nvidia-computex-keynote is a placeholder host",
+      "record_id": "demo-nvda-computex-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "NVDA"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/channel-check-gpu-supply is a placeholder host",
+      "record_id": "demo-nvda-computex-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "NVDA"
+    },
+    {
+      "code": "MCC-QG-SOURCE-002",
+      "detail": "broker URL for Metro Capital Markets (https://example.com/nvda-broker-metro) is a placeholder host",
+      "record_id": "demo-nvda-computex-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "NVDA"
+    },
+    {
+      "code": "MCC-QG-SOURCE-002",
+      "detail": "broker URL for North Coast Securities (https://example.com/nvda-broker-north-coast) is a placeholder host",
+      "record_id": "demo-nvda-computex-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "NVDA"
+    },
+    {
+      "code": "MCC-QG-BROKER-004",
+      "detail": "Metro Capital Markets broker view is 38 days old; maximum is 30",
+      "record_id": "demo-nvda-computex-2026",
+      "rule": "broker_caveats",
+      "severity": "medium",
+      "source": "quality-gate",
+      "ticker": "NVDA"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-001",
+      "detail": "1 evidence URLs present; 2 required",
+      "record_id": "demo-fomc-june-2026",
+      "rule": "minimum_evidence",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "SPY"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-002",
+      "detail": "evidence_checked_at is missing",
+      "record_id": "demo-fomc-june-2026",
+      "rule": "minimum_evidence",
+      "severity": "high",
+      "source": "quality-gate",
+      "ticker": "SPY"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "evidence URL https://example.com/fomc-calendar is a placeholder host",
+      "record_id": "demo-fomc-june-2026",
+      "rule": "no_placeholder_urls",
+      "severity": "critical",
+      "source": "quality-gate",
+      "ticker": "SPY"
+    }
+  ],
+  "manual_actions": [],
+  "modifies_input": false,
+  "next_steps": [
+    "Review suggested values before applying them; placeholder replacement URLs are deterministic prompts, not verified sources.",
+    "After editing a copy of the dataset, rerun validate --profile public and quality-gate --profile public."
+  ],
+  "ok": false,
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/records/0/broker_views/0/source_url",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-1"
+    },
+    {
+      "op": "replace",
+      "path": "/records/0/broker_views/1/as_of",
+      "value": "2026-05-13"
+    },
+    {
+      "op": "replace",
+      "path": "/records/0/broker_views/1/source_url",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-2"
+    },
+    {
+      "op": "replace",
+      "path": "/records/0/evidence_urls/0",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-1"
+    },
+    {
+      "op": "replace",
+      "path": "/records/0/evidence_urls/1",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-2"
+    },
+    {
+      "op": "replace",
+      "path": "/records/1/evidence_urls/0",
+      "value": "https://research.exampledata.com/demo-msft-earnings-2026/evidence-1"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/broker_views/0/source_url",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-1"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/broker_views/1/as_of",
+      "value": "2026-05-13"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/broker_views/1/source_url",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-2"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/evidence_checked_at",
+      "value": "2026-05-13"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/evidence_urls/0",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-1"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/evidence_urls/1",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-2"
+    },
+    {
+      "op": "replace",
+      "path": "/records/2/last_reviewed",
+      "value": "2026-05-13"
+    },
+    {
+      "op": "add",
+      "path": "/records/3/evidence_checked_at",
+      "value": "2026-05-13"
+    },
+    {
+      "op": "add",
+      "path": "/records/3/evidence_urls/-",
+      "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-2"
+    },
+    {
+      "op": "replace",
+      "path": "/records/3/evidence_urls/0",
+      "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-1"
+    }
+  ],
+  "profile": "public",
+  "repairs": [
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-002"
+      ],
+      "op": "replace",
+      "path": "/records/0/broker_views/0/source_url",
+      "reason": "replace placeholder broker URL with a real public source URL",
+      "record_id": "demo-nvda-computex-2026",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-1"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-BROKER-004"
+      ],
+      "op": "replace",
+      "path": "/records/0/broker_views/1/as_of",
+      "reason": "refresh broker view date after source review",
+      "record_id": "demo-nvda-computex-2026",
+      "value": "2026-05-13"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-002"
+      ],
+      "op": "replace",
+      "path": "/records/0/broker_views/1/source_url",
+      "reason": "replace placeholder broker URL with a real public source URL",
+      "record_id": "demo-nvda-computex-2026",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-2"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/0/evidence_urls/0",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-nvda-computex-2026",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-1"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/0/evidence_urls/1",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-nvda-computex-2026",
+      "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-2"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/1/evidence_urls/0",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-msft-earnings-2026",
+      "value": "https://research.exampledata.com/demo-msft-earnings-2026/evidence-1"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-002"
+      ],
+      "op": "replace",
+      "path": "/records/2/broker_views/0/source_url",
+      "reason": "replace placeholder broker URL with a real public source URL",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-1"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-BROKER-004"
+      ],
+      "op": "replace",
+      "path": "/records/2/broker_views/1/as_of",
+      "reason": "refresh broker view date after source review",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "2026-05-13"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-002"
+      ],
+      "op": "replace",
+      "path": "/records/2/broker_views/1/source_url",
+      "reason": "replace placeholder broker URL with a real public source URL",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-2"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-EVIDENCE-003"
+      ],
+      "op": "replace",
+      "path": "/records/2/evidence_checked_at",
+      "reason": "refresh evidence freshness metadata",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "2026-05-13"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/2/evidence_urls/0",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-1"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/2/evidence_urls/1",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-2"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-REVIEW-002"
+      ],
+      "op": "replace",
+      "path": "/records/2/last_reviewed",
+      "reason": "refresh analyst review date",
+      "record_id": "demo-pfe-fda-2026",
+      "value": "2026-05-13"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-EVIDENCE-002"
+      ],
+      "op": "add",
+      "path": "/records/3/evidence_checked_at",
+      "reason": "refresh evidence freshness metadata",
+      "record_id": "demo-fomc-june-2026",
+      "value": "2026-05-13"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-EVIDENCE-001"
+      ],
+      "op": "add",
+      "path": "/records/3/evidence_urls/-",
+      "reason": "add an independent evidence URL",
+      "record_id": "demo-fomc-june-2026",
+      "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-2"
+    },
+    {
+      "confidence": "medium",
+      "diagnostic_codes": [
+        "MCC-QG-SOURCE-001"
+      ],
+      "op": "replace",
+      "path": "/records/3/evidence_urls/0",
+      "reason": "replace placeholder evidence URL with a real public source URL",
+      "record_id": "demo-fomc-june-2026",
+      "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-1"
+    }
+  ],
+  "schema_version": "doctor/v1",
+  "summary": {
+    "diagnostic_count": 16,
+    "manual_action_count": 0,
+    "quality_failure_count": 4,
+    "record_count": 4,
+    "repair_count": 16,
+    "validation_error_count": 0
+  }
+}

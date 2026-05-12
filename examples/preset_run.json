@@ -1,0 +1,78 @@
+{
+  "artifacts": [
+    {
+      "bytes": 38,
+      "command": "python -m market_catalyst_calendar validate --profile basic --input examples/demo_records.json",
+      "exit_code": 0,
+      "path": "validate.json",
+      "sha256": "c6866e65d33c30d53e1f3c3c0c54e07f295188ba30fb088225c2d7497e7e3f73",
+      "workflow": "validate"
+    },
+    {
+      "bytes": 6316,
+      "command": "python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13",
+      "exit_code": 1,
+      "path": "quality_gate.json",
+      "sha256": "eb2268844dd6602a793cd1c7b3e62c976811ca66c52074f2a47e95e7429a33c0",
+      "workflow": "quality-gate"
+    },
+    {
+      "bytes": 3861,
+      "command": "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "exit_code": 0,
+      "path": "upcoming.json",
+      "sha256": "bfefef8050a1e37694d68339903282a1e1902bcd6c74473dec827e10b3e9dc1d",
+      "workflow": "upcoming"
+    },
+    {
+      "bytes": 1229,
+      "command": "python -m market_catalyst_calendar review-plan --input examples/demo_records.json --as-of 2026-05-13 --days 45 --stale-after-days 14",
+      "exit_code": 0,
+      "path": "review_plan.json",
+      "sha256": "32da9b6ce6a5982c55add00f735934d5e788a78c68db703289541dc9d7048b02",
+      "workflow": "review-plan"
+    },
+    {
+      "bytes": 6402,
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --fresh-after-days 14",
+      "exit_code": 0,
+      "path": "source_pack.json",
+      "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94",
+      "workflow": "source-pack"
+    },
+    {
+      "bytes": 6836,
+      "command": "python -m market_catalyst_calendar watchlist --input examples/demo_records.json --as-of 2026-05-13 --days 45 --stale-after-days 14",
+      "exit_code": 0,
+      "path": "watchlist.json",
+      "sha256": "6ba1e1001eed110e3ce901d1b67f5c60b32faf3abee35a1adda1545167d1f289",
+      "workflow": "watchlist"
+    },
+    {
+      "bytes": 13638,
+      "command": "python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --stale-after-days 14 --fresh-after-days 14 --output-dir /tmp/market-catalyst-calendar-preset-example",
+      "exit_code": 0,
+      "path": "agent_handoff.json",
+      "sha256": "c967fb910c482b0eb211ae58865ebeb2659efb67d7c40f4a70f5d6ba2c556d6c",
+      "workflow": "agent-handoff"
+    }
+  ],
+  "as_of": "2026-05-13",
+  "input": "examples/demo_records.json",
+  "manifest": "manifest.json",
+  "ok": true,
+  "parameters": {
+    "days": 45,
+    "output_dir": "/tmp/market-catalyst-calendar-preset-example",
+    "profile": "public",
+    "stale_after_days": 14
+  },
+  "preset": "desk-packet",
+  "schema_version": "preset-run/v1",
+  "summary": {
+    "artifact_count": 8,
+    "record_count": 4,
+    "report_failure_count": 1,
+    "workflow_count": 7
+  }
+}

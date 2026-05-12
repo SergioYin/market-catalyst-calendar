@@ -17,6 +17,22 @@
       "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
     },
     {
+      "bytes": 463,
+      "command": "python -m market_catalyst_calendar export-preset-example",
+      "command_args": [
+        "export-preset-example"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/presets.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "c66813f4d714ee66faa04396a4c06664662c5a08ef0636864bb7b013eab2261b"
+    },
+    {
       "bytes": 3861,
       "command": "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
@@ -475,6 +491,82 @@
       "sha256": "44717b8d6ca70ae186846bc2f0d786c59a819ce525ee9047c83ecc2f2b960f00"
     },
     {
+      "bytes": 13526,
+      "command": "python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13",
+      "command_args": [
+        "doctor",
+        "--profile",
+        "public",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/doctor.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "1165debea9fecec0dcca1a9aab206e5bdd9d6d4fb402e79126e2ab90764795ae"
+    },
+    {
+      "bytes": 2787,
+      "command": "python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+      "command_args": [
+        "doctor",
+        "--profile",
+        "public",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/doctor.md",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "066999808460718e37def8ba12322a383945b820c2ba089c7a37dd79ba313d39"
+    },
+    {
+      "bytes": 2206,
+      "command": "python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format patch",
+      "command_args": [
+        "doctor",
+        "--profile",
+        "public",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--format",
+        "patch"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/doctor_patch.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "30575d19339950140042623c1f648656b20e52033b3e358f43d1d448fa60cca2"
+    },
+    {
       "bytes": 3671,
       "command": "python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13",
       "command_args": [
@@ -769,6 +861,30 @@
       "sha256": "3cc6c1ab23900cd9baa6bd91348cffe2952ae212ed32db98deb155e4b303d53e"
     },
     {
+      "bytes": 7707,
+      "command": "python -m market_catalyst_calendar tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json",
+      "command_args": [
+        "tutorial",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--dataset-path",
+        "examples/demo_records.json"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/tutorial.md",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "ce1dfe39eb836ffcdb8a27615ea8abf77e7cb19717dc581bec4b8b75cd062d6e"
+    },
+    {
       "bytes": 13009,
       "command": "python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
@@ -817,6 +933,62 @@
         "Audit the exact commands and source URLs an agent should preserve."
       ],
       "sha256": "b2a07d0943264d3ec26c0d596026de155148e5dd7fa332a1ff1a1f53ce53b069"
+    },
+    {
+      "bytes": 2974,
+      "command": "python -m market_catalyst_calendar run-preset --presets examples/presets.json --name desk-packet",
+      "command_args": [
+        "run-preset",
+        "--presets",
+        "examples/presets.json",
+        "--name",
+        "desk-packet"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/presets.json"
+      ],
+      "output_type": "json",
+      "path": "examples/preset_run.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "dfa83b4934eecd9dd4aa1767e556797dcbec91a54b31ce3200f8d55028fef736"
+    },
+    {
+      "bytes": 19174,
+      "command": "python -m market_catalyst_calendar taxonomy",
+      "command_args": [
+        "taxonomy"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/taxonomy.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "c98529398a930bde1abfaf49875e54156b25313380a18a1f920b2e89026b555b"
+    },
+    {
+      "bytes": 6573,
+      "command": "python -m market_catalyst_calendar taxonomy --format markdown",
+      "command_args": [
+        "taxonomy",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "markdown",
+      "path": "examples/taxonomy.md",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "dd0ade209455e6aa2ee8e9fe04900fe5d871a3c19252d645a5cbf7343473371b"
     },
     {
       "bytes": 4548,
@@ -1044,17 +1216,53 @@
         "Test parser behavior for encoded multi-value cells."
       ],
       "sha256": "65698120b5c74f32e7d0d3c303459d06f214f5e4cf1c1ecc9787dd6c554f0be5"
+    },
+    {
+      "bytes": 1831,
+      "command": "python -m market_catalyst_calendar finalize-release --example",
+      "command_args": [
+        "finalize-release",
+        "--example"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/finalize_release.json",
+      "recommended_use_cases": [
+        "Review one deterministic release checklist before handoff.",
+        "Combine audit, smoke, fixture, and changelog status for release notes."
+      ],
+      "sha256": "a5c22b0759f9e4b12bd43f7406f462eed0ecf39d4e860a4d29dc7df94fcce38b"
+    },
+    {
+      "bytes": 615,
+      "command": "python -m market_catalyst_calendar finalize-release --example --format markdown",
+      "command_args": [
+        "finalize-release",
+        "--example",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "markdown",
+      "path": "examples/finalize_release.md",
+      "recommended_use_cases": [
+        "Review one deterministic release checklist before handoff.",
+        "Combine audit, smoke, fixture, and changelog status for release notes."
+      ],
+      "sha256": "b49829d734d1eebabf8cff8886c35062ce8fd93b5064b81ce9b774558cc33ffa"
     }
   ],
   "schema_version": "fixture-gallery/v1",
   "summary": {
-    "fixture_count": 44,
+    "fixture_count": 54,
     "output_type_counts": {
       "csv": 2,
       "html": 1,
       "ics": 1,
-      "json": 22,
-      "markdown": 18
+      "json": 28,
+      "markdown": 22
     }
   }
 }

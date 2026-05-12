@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs and a static HTML dashboard, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, and packages portable archives with hash verification.
 
 ## Install
 
@@ -37,6 +37,8 @@ python -m market_catalyst_calendar evidence-audit --input examples/demo_records.
 python -m market_catalyst_calendar validate --profile public --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar quality-gate --profile strict --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13
+python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format patch
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13 --format markdown
 python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13
@@ -49,8 +51,13 @@ python -m market_catalyst_calendar decision-log --input examples/demo_records.js
 python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45
 python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown
 python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar export-preset-example --output examples/presets.json
+python -m market_catalyst_calendar run-preset --presets examples/presets.json --name desk-packet
+python -m market_catalyst_calendar taxonomy
+python -m market_catalyst_calendar taxonomy --format markdown
 python -m market_catalyst_calendar fixture-gallery
 python -m market_catalyst_calendar fixture-gallery --format markdown
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
@@ -61,6 +68,7 @@ python -m market_catalyst_calendar compare --base examples/demo_records.json --c
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
 python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27 --output examples/merge.json
 python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
+python -m market_catalyst_calendar static-site --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output-dir site
 python -m market_catalyst_calendar export-csv --input examples/demo_records.json --output examples/demo_records.csv
 python -m market_catalyst_calendar export-ics --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/upcoming.ics
 python -m market_catalyst_calendar import-csv --input examples/demo_records.csv --output examples/imported_demo_records.json
@@ -69,6 +77,7 @@ python -m market_catalyst_calendar verify-archive archive/demo
 python -m market_catalyst_calendar release-audit --root . --format markdown
 python -m market_catalyst_calendar changelog --since-tag v0.1.0 --format markdown
 python -m market_catalyst_calendar smoke-matrix --format markdown
+python -m market_catalyst_calendar finalize-release --root . --repo . --since-tag v0.1.0 --format markdown
 ```
 
 The installed script exposes the same interface:
@@ -107,6 +116,17 @@ Validation checks schema shape, URL quality, scenario completeness, status/histo
 
 `broker_views` are record-level analyst or broker snapshots. They are optional and offline: the CLI validates their source URLs and dates, but it does not fetch reports or infer missing target prices.
 
+## Preset Workflow
+
+`run-preset` executes a named workflow packet from a presets JSON file. Defaults can set `days`, `stale_after_days`, `profile`, and `output_dir`; each preset can override those values and list the workflows to write. The command writes deterministic artifacts plus `manifest.json` into the selected output directory and prints the same manifest to stdout.
+
+```bash
+python -m market_catalyst_calendar export-preset-example --output examples/presets.json
+python -m market_catalyst_calendar run-preset --presets examples/presets.json --name desk-packet
+```
+
+Supported preset workflow ids include `validate`, `quality-gate`, `upcoming`, `stale`, `brief`, `exposure`, `risk-budget`, `sector-map`, `review-plan`, `thesis-map`, `scenario-matrix`, `evidence-audit`, `broker-matrix`, `source-pack`, `watchlist`, `decision-log`, `agent-handoff`, and `html-dashboard`, with `*-markdown`, `source-pack-csv`, and `source-pack-markdown` variants where applicable. Report failures such as a failing public quality gate are captured in the manifest artifact `exit_code` and do not prevent the packet from being generated.
+
 `sector` and `theme` are optional taxonomy fields. Use `sector` for the broad business or macro bucket and `theme` for the cross-cutting catalyst exposure, such as AI infrastructure, pipeline reset, or rates duration.
 
 `actual_outcome` and `outcome_recorded_at` are optional post-event fields. Use them after the catalyst window closes to capture what actually happened and when that outcome was recorded. `outcome_recorded_at` cannot be after dataset `as_of`, cannot be before the event window starts, and requires `actual_outcome`.
@@ -142,6 +162,17 @@ expected event loss = max_loss * confidence * catalyst_score / 100
 ```
 
 Use `risk-budget` before high-urgency events to find catalysts whose stated downside exceeds the allowed risk budget.
+
+## Taxonomy Workflow
+
+`taxonomy` reports the supported offline vocabulary and command surface in JSON or Markdown. It includes event types, statuses, thesis impact values, required review actions, required scenarios, quality profiles, quality rules, validation and quality-gate diagnostic codes, every CLI command, and the subset of commands that can write artifacts with `--output`, `--output-dir`, or directory-producing behavior.
+
+Use it when building downstream agents, docs, or fixtures that need stable enum values and diagnostic-code mappings without importing internal modules:
+
+```bash
+python -m market_catalyst_calendar taxonomy
+python -m market_catalyst_calendar taxonomy --format markdown
+```
 
 ## Sector Map Workflow
 
@@ -212,6 +243,12 @@ The JSON and Markdown reports include only failing records and cover:
 
 Profile defaults are one evidence URL for `basic`; two evidence URLs, 14 days for review/evidence freshness, and 30 days for broker views for `public`; and three evidence URLs, 7 days for review/evidence freshness, 14 days for broker views, broker coverage, and release metadata for `strict`. The numeric thresholds can still be overridden with `--min-evidence-urls`, `--max-review-age-days`, `--max-evidence-age-days`, and `--max-broker-age-days`.
 
+## Doctor Workflow
+
+`doctor` is a read-only dataset repair planner. It runs structural validation plus the selected quality profile, then suggests deterministic repairs for issues such as missing evidence URLs, invalid or placeholder URLs, stale freshness metadata, missing scenario notes, stale reviews, thin broker caveats, missing strict metadata, and outcome-field mismatches.
+
+The command never modifies the input file. Use JSON for full diagnostics and Markdown for analyst review. Use `--format patch` when you only want the JSON Patch-style operation list to apply to a copy of the dataset after reviewing replacement URLs and shell values.
+
 ## Broker Matrix Workflow
 
 `broker-matrix` groups optional `broker_views` by `ticker` and `thesis_id` and reports target-price dispersion, rating counts, stale source flags, and linked catalyst records.
@@ -258,6 +295,12 @@ Use `--since-tag` to name the excluded starting tag, `--to-ref` to choose the in
 `smoke-matrix` runs an internal offline smoke check for every CLI command against deterministic demo data. It creates a temporary demo workspace, executes stdout and file-writing commands, accepts expected nonzero exits such as the public `quality-gate` failure, verifies expected output files, and includes a probe check for `smoke-matrix` itself without recursively running the full matrix.
 
 The JSON and Markdown reports include pass/fail status, actual and expected exit codes, expected files, and coarse duration buckets such as `lt_250ms`, `lt_1s`, `lt_5s`, and `gte_5s`. Only bucket labels are reported, so output remains stable enough for automated checks while still surfacing slow smoke cases.
+
+## Finalize Release Workflow
+
+`finalize-release` runs `release-audit`, `smoke-matrix`, `fixture-gallery`, and `changelog`, then normalizes their results into one deterministic release checklist. Use it as the final local handoff artifact before tagging or publishing.
+
+Provide `--since-tag` for the excluded starting tag. The command emits JSON by default, Markdown with `--format markdown`, and exits `1` if any release audit check, smoke command, fixture index, or changelog requirement blocks the release.
 
 ## Watchlist Workflow
 
@@ -318,6 +361,12 @@ The cookbook always includes validation, quality-gate, evidence audit, core brie
 - post-event closeout commands when a catalyst is completed, past its event window, or has outcome metadata
 
 Use `--dataset-path` and `--output-dir` to control the paths shown in the generated command blocks without changing the input file being read.
+
+## Tutorial Workflow
+
+`tutorial` renders a notebooks-free Markdown walkthrough from the built-in demo data. It shows a shell-first learning path with expected command output excerpts, expected exit codes, and learning checkpoints for export, validation, upcoming catalysts, quality gates, risk budget, source pack, drilldown, and snapshot compare.
+
+Use `--dataset-path` to control the path shown in commands, `--as-of` and `--days` to control report excerpts, and `--output` to write the tutorial to a Markdown file.
 
 ## Agent Handoff Workflow
 
@@ -384,6 +433,20 @@ The dashboard includes:
 - prioritized watchlist
 
 Use `--output` to write a portable `.html` artifact, or omit it to stream the HTML to stdout.
+
+## Static Site Workflow
+
+`static-site` writes a deterministic, no-JavaScript site directory from one dataset. It requires an empty `--output-dir` and prints a JSON summary with the site directory, index path, manifest path, and file count.
+
+The site includes:
+
+- `index.html` with summary cards, ticker links, and upcoming catalysts
+- `dashboard.html` with the full static dashboard report
+- `sources.html` with a deduplicated evidence and broker source inventory
+- one `tickers/<ticker>.html` page per ticker with record ledger, scenarios, broker views, and evidence links
+- `style.css` and `manifest.json` with relative paths, byte counts, and SHA-256 hashes
+
+Use it when an analyst or downstream agent needs a small browsable packet instead of one long HTML file.
 
 ## CSV Workflow
 
@@ -488,6 +551,7 @@ Checked-in examples live in `examples/`:
 - `drilldown.json`: generated complete single-ticker dossier
 - `drilldown.md`: generated Markdown single-ticker dossier
 - `command_cookbook.md`: generated field-aware analyst command cookbook
+- `tutorial.md`: generated notebooks-free tutorial with command output excerpts and learning checkpoints
 - `agent_handoff.json`: generated downstream research-agent context pack
 - `agent_handoff.md`: generated Markdown research-agent handoff
 - `fixture_gallery.json`: generated fixture index with hashes, provenance, output types, and use cases

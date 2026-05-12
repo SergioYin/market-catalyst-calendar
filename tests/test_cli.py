@@ -231,6 +231,27 @@ class CliTests(unittest.TestCase):
         self.assertIn("MCC-QG-RELEASE-004", {item["code"] for item in diagnostics})
         self.assertIn("MCC-QG-BROKER-001", {item["code"] for item in diagnostics})
 
+    def test_taxonomy_json_reports_domain_rules_diagnostics_and_commands(self):
+        result = self.run_cli("taxonomy")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "taxonomy/v1")
+        self.assertIn("regulatory_decision", payload["event_types"])
+        self.assertIn("scheduled", payload["statuses"])
+        self.assertIn("verify_source", payload["review_actions"])
+        self.assertIn("minimum_evidence", {rule["id"] for rule in payload["quality_rules"]})
+        self.assertIn("MCC-QG-EVIDENCE-001", {item["code"] for item in payload["diagnostic_codes"]})
+        self.assertIn("MCC-VAL-SCENARIO-001", {item["code"] for item in payload["diagnostic_codes"]})
+        self.assertIn("taxonomy", {command["id"] for command in payload["commands"]})
+        self.assertIn("demo-bundle", payload["output_commands"])
+
+    def test_taxonomy_markdown_renders_catalog_sections(self):
+        result = self.run_cli("taxonomy", "--format", "markdown")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Taxonomy", result.stdout)
+        self.assertIn("## Diagnostic Codes", result.stdout)
+        self.assertIn("| taxonomy | json, markdown |", result.stdout)
+
     def test_upcoming_json_is_deterministic(self):
         result = self.run_cli("upcoming", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -540,6 +561,46 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["records"], [])
         self.assertEqual(payload["summary"]["failed_record_count"], 0)
 
+    def test_doctor_json_suggests_read_only_repairs_for_public_failures(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "demo.json"
+            original = json.dumps(DEMO_DATA)
+            path.write_text(original, encoding="utf-8")
+
+            result = self.run_cli("doctor", "--input", str(path), "--as-of", "2026-05-13")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "doctor/v1")
+        self.assertFalse(payload["ok"])
+        self.assertFalse(payload["modifies_input"])
+        self.assertGreater(payload["summary"]["repair_count"], 0)
+        self.assertIn("patch", payload)
+        repairs = {(repair["record_id"], tuple(repair["diagnostic_codes"]), repair["path"]) for repair in payload["repairs"]}
+        self.assertIn(("demo-fomc-june-2026", ("MCC-QG-EVIDENCE-001",), "/records/3/evidence_urls/-"), repairs)
+        self.assertTrue(any(repair["path"] == "/records/2/last_reviewed" for repair in payload["repairs"]))
+        self.assertTrue(any(repair["path"] == "/records/0/evidence_urls/0" for repair in payload["repairs"]))
+
+    def test_doctor_patch_format_emits_json_patch_style_operations(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["scenario_notes"].pop("bear")
+
+        result = self.run_cli("doctor", "--format", "patch", "--as-of", "2026-05-13", input_data=json.dumps(raw))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        patch = json.loads(result.stdout)
+        self.assertIsInstance(patch, list)
+        self.assertIn({"op": "add", "path": "/records/0/scenario_notes/bear", "value": "NVDA downside case: verified evidence shows delay, weaker demand, or a more restrictive outcome."}, patch)
+
+    def test_doctor_markdown_renders_repair_checklist(self):
+        result = self.run_cli("doctor", "--format", "markdown", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Dataset Doctor", result.stdout)
+        self.assertIn("Read-only: yes", result.stdout)
+        self.assertIn("MCC-QG-SOURCE-001", result.stdout)
+
     def test_broker_matrix_json_groups_dispersion_staleness_and_catalysts(self):
         result = self.run_cli("broker-matrix", "--as-of", "2026-05-13", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -716,6 +777,30 @@ class CliTests(unittest.TestCase):
         self.assertNotIn("risk-budget --input research/catalysts.json", result.stdout)
         self.assertIn("python -m market_catalyst_calendar upcoming --input research/catalysts.json --as-of 2026-05-13 --days 45 > out/upcoming.json", result.stdout)
 
+    def test_tutorial_markdown_renders_demo_workflow_with_checkpoints(self):
+        result = self.run_cli("tutorial", "--as-of", "2026-05-13", "--days", "45", "--dataset-path", "examples/demo_records.json")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Calendar Tutorial", result.stdout)
+        self.assertIn("notebooks-free walkthrough", result.stdout)
+        self.assertIn("python -m market_catalyst_calendar export-demo > examples/demo_records.json", result.stdout)
+        self.assertIn("Expected exit code: `1`", result.stdout)
+        self.assertIn('"issue_codes": [', result.stdout)
+        self.assertIn("MCC-QG-SOURCE-001", result.stdout)
+        self.assertIn("Learning checkpoint: Two upcoming catalysts are over budget", result.stdout)
+        self.assertIn("- [ ] Single-ticker drilldown and snapshot compare", result.stdout)
+
+    def test_tutorial_can_write_markdown_output_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "tutorial.md"
+            result = self.run_cli("tutorial", "--output", str(output))
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, "")
+            text = output.read_text(encoding="utf-8")
+        self.assertIn("# Market Catalyst Calendar Tutorial", text)
+        self.assertIn("Expected output excerpt:", text)
+
     def test_agent_handoff_json_creates_machine_readable_research_context(self):
         result = self.run_cli("agent-handoff", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -749,6 +834,53 @@ class CliTests(unittest.TestCase):
         self.assertIn("Dataset path in commands: `research/catalysts.json`", result.stdout)
         self.assertIn("| 1 | PFE | 87 | 2026-05-20..2026-05-24 | stale_review, stale_evidence, over_budget", result.stdout)
         self.assertIn("python -m market_catalyst_calendar source-pack --input research/catalysts.json --as-of 2026-05-13 --fresh-after-days 14 > handoff/source_pack.json", result.stdout)
+
+    def test_run_preset_executes_named_workflows_with_defaults(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dataset_path = root / "demo.json"
+            output_dir = root / "packet"
+            presets_path = root / "presets.json"
+            dataset_path.write_text(json.dumps(DEMO_DATA), encoding="utf-8")
+            presets_path.write_text(
+                json.dumps(
+                    {
+                        "defaults": {
+                            "days": 10,
+                            "output_dir": str(output_dir),
+                            "profile": "public",
+                            "stale_after_days": 14,
+                        },
+                        "presets": {
+                            "desk-packet": {
+                                "as_of": "2026-05-13",
+                                "input": str(dataset_path),
+                                "workflows": ["validate", "quality-gate", "upcoming", "review-plan", "agent-handoff"],
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            first = self.run_cli("run-preset", "--presets", str(presets_path), "--name", "desk-packet")
+            second = self.run_cli("run-preset", "--presets", str(presets_path), "--name", "desk-packet")
+
+            self.assertEqual(first.returncode, 0, first.stderr)
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first.stdout, second.stdout)
+            payload = json.loads(first.stdout)
+            self.assertEqual(payload["schema_version"], "preset-run/v1")
+            self.assertEqual(payload["parameters"]["days"], 10)
+            self.assertEqual(payload["parameters"]["profile"], "public")
+            self.assertEqual(payload["summary"]["workflow_count"], 5)
+            self.assertEqual(payload["summary"]["report_failure_count"], 1)
+            self.assertEqual([artifact["workflow"] for artifact in payload["artifacts"]], ["validate", "quality-gate", "upcoming", "review-plan", "agent-handoff"])
+            self.assertEqual(next(artifact for artifact in payload["artifacts"] if artifact["workflow"] == "quality-gate")["exit_code"], 1)
+            self.assertTrue((output_dir / "manifest.json").is_file())
+            self.assertTrue((output_dir / "quality_gate.json").is_file())
+            upcoming = json.loads((output_dir / "upcoming.json").read_text(encoding="utf-8"))
+            self.assertEqual([record["id"] for record in upcoming["records"]], ["demo-pfe-fda-2026"])
 
     def test_post_event_json_lists_overdue_items_with_templates(self):
         raw = json.loads(json.dumps(DEMO_DATA))
@@ -939,6 +1071,54 @@ class CliTests(unittest.TestCase):
         self.assertNotIn("<script>alert", result.stdout)
         self.assertNotIn("<b>expands</b>", result.stdout)
 
+    def test_static_site_writes_multi_page_no_js_directory(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        raw["records"][0]["entity"] = 'NVIDIA <script>alert("x")</script>'
+        raw["records"][0]["scenario_notes"]["base"] = "Roadmap <b>expands</b> & supply holds."
+
+        with tempfile.TemporaryDirectory() as tmp:
+            site_dir = Path(tmp) / "site"
+            result = self.run_cli(
+                "static-site",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--output-dir",
+                str(site_dir),
+                input_data=json.dumps(raw),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["ok"], True)
+            self.assertEqual(payload["file_count"], 9)
+            expected = [
+                "index.html",
+                "dashboard.html",
+                "sources.html",
+                "style.css",
+                "manifest.json",
+                "tickers/msft.html",
+                "tickers/nvda.html",
+                "tickers/pfe.html",
+                "tickers/spy.html",
+            ]
+            for relative_path in expected:
+                self.assertTrue((site_dir / relative_path).is_file(), relative_path)
+            index = (site_dir / "index.html").read_text(encoding="utf-8")
+            nvda = (site_dir / "tickers" / "nvda.html").read_text(encoding="utf-8")
+            sources = (site_dir / "sources.html").read_text(encoding="utf-8")
+            manifest = json.loads((site_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertIn('href="tickers/nvda.html"', index)
+        self.assertIn('href="../index.html"', nvda)
+        self.assertIn("Roadmap &lt;b&gt;expands&lt;/b&gt; &amp; supply holds.", nvda)
+        self.assertNotIn("<script>alert", nvda)
+        self.assertIn("Source Inventory", sources)
+        self.assertEqual(manifest["site_version"], 1)
+        self.assertEqual(manifest["dataset"]["tickers"], ["MSFT", "NVDA", "PFE", "SPY"])
+        self.assertEqual([item["path"] for item in manifest["files"]][0], "dashboard.html")
+
     def test_invalid_record_fails_validation(self):
         bad = dict(DEMO_DATA)
         bad["records"] = [dict(DEMO_DATA["records"][0], evidence_urls=[])]
@@ -1097,27 +1277,37 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 48)
+            self.assertEqual(payload["file_count"], 58)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 48)
+            self.assertEqual(len(manifest["files"]), 58)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
             self.assertIn("quickstart-transcript.txt", paths)
             self.assertIn("examples/demo_records.json", paths)
+            self.assertIn("examples/presets.json", paths)
+            self.assertIn("examples/preset_run.json", paths)
             self.assertIn("examples/quality_gate.json", paths)
+            self.assertIn("examples/doctor.json", paths)
+            self.assertIn("examples/doctor.md", paths)
+            self.assertIn("examples/doctor_patch.json", paths)
             self.assertIn("examples/command_cookbook.md", paths)
             self.assertIn("examples/agent_handoff.json", paths)
             self.assertIn("examples/agent_handoff.md", paths)
+            self.assertIn("examples/taxonomy.json", paths)
+            self.assertIn("examples/taxonomy.md", paths)
             self.assertIn("examples/fixture_gallery.json", paths)
             self.assertIn("examples/fixture_gallery.md", paths)
+            self.assertIn("examples/finalize_release.json", paths)
+            self.assertIn("examples/finalize_release.md", paths)
             self.assertIn("examples/drilldown.json", paths)
             self.assertIn("examples/drilldown.md", paths)
+            self.assertIn("examples/tutorial.md", paths)
             self.assertIn("examples/dashboard.html", paths)
 
             selfcheck = load_selfcheck_module()
@@ -1144,8 +1334,8 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 44)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 22)
+        self.assertEqual(payload["summary"]["fixture_count"], 54)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 28)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1200,7 +1390,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 46)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 56)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1217,6 +1407,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["failed_count"], 0)
         by_command = {item["command"]: item for item in payload["commands"]}
         self.assertIn("smoke-matrix", by_command)
+        self.assertIn("finalize-release", by_command)
         self.assertEqual(by_command["quality-gate"]["expected_exit_code"], 1)
         self.assertEqual(by_command["html-dashboard"]["expected_files"], ["dashboard.html"])
         self.assertEqual(by_command["demo-bundle"]["expected_files"], ["demo-bundle/manifest.json"])
@@ -1229,6 +1420,31 @@ class CliTests(unittest.TestCase):
         self.assertIn("# Market Catalyst Smoke Matrix", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
         self.assertIn("| smoke-matrix | PASS | 0 | 0 | stdout |", result.stdout)
+        self.assertIn("| finalize-release | PASS | 0 | 0 | stdout |", result.stdout)
+
+    def test_finalize_release_json_combines_release_inputs(self):
+        tmp, repo = self.make_changelog_repo()
+        with tmp:
+            result = self.run_cli("finalize-release", "--root", str(ROOT), "--repo", str(repo), "--since-tag", "v0.1.0")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["schema_version"], "finalize-release/v1")
+        self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
+        self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
+        self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 28)
+        self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
+        self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
+
+    def test_finalize_release_markdown_renders_checklist(self):
+        result = self.run_cli("finalize-release", "--example", "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
+        self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 54 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1236,7 +1452,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 46 of 46 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 56 of 56 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):
@@ -1254,7 +1470,7 @@ class CliTests(unittest.TestCase):
             (audit_root / "docs" / "SCHEMA.md").write_text(schema_text, encoding="utf-8")
             skill = audit_root / "skills" / "agent" / "market-catalyst-calendar" / "SKILL.md"
             skill.parent.mkdir(parents=True, exist_ok=True)
-            skill.write_text("release-audit\n", encoding="utf-8")
+            skill.write_text("release-audit\nfinalize-release\n", encoding="utf-8")
             workflow = audit_root / ".github" / "workflows" / "release.yml"
             workflow.parent.mkdir(parents=True, exist_ok=True)
             workflow.write_text("name: release\n", encoding="utf-8")

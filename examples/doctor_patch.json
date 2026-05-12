@@ -1,0 +1,82 @@
+[
+  {
+    "op": "replace",
+    "path": "/records/0/broker_views/0/source_url",
+    "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-1"
+  },
+  {
+    "op": "replace",
+    "path": "/records/0/broker_views/1/as_of",
+    "value": "2026-05-13"
+  },
+  {
+    "op": "replace",
+    "path": "/records/0/broker_views/1/source_url",
+    "value": "https://research.exampledata.com/demo-nvda-computex-2026/broker-2"
+  },
+  {
+    "op": "replace",
+    "path": "/records/0/evidence_urls/0",
+    "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-1"
+  },
+  {
+    "op": "replace",
+    "path": "/records/0/evidence_urls/1",
+    "value": "https://research.exampledata.com/demo-nvda-computex-2026/evidence-2"
+  },
+  {
+    "op": "replace",
+    "path": "/records/1/evidence_urls/0",
+    "value": "https://research.exampledata.com/demo-msft-earnings-2026/evidence-1"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/broker_views/0/source_url",
+    "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-1"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/broker_views/1/as_of",
+    "value": "2026-05-13"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/broker_views/1/source_url",
+    "value": "https://research.exampledata.com/demo-pfe-fda-2026/broker-2"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/evidence_checked_at",
+    "value": "2026-05-13"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/evidence_urls/0",
+    "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-1"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/evidence_urls/1",
+    "value": "https://research.exampledata.com/demo-pfe-fda-2026/evidence-2"
+  },
+  {
+    "op": "replace",
+    "path": "/records/2/last_reviewed",
+    "value": "2026-05-13"
+  },
+  {
+    "op": "add",
+    "path": "/records/3/evidence_checked_at",
+    "value": "2026-05-13"
+  },
+  {
+    "op": "add",
+    "path": "/records/3/evidence_urls/-",
+    "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-2"
+  },
+  {
+    "op": "replace",
+    "path": "/records/3/evidence_urls/0",
+    "value": "https://research.exampledata.com/demo-fomc-june-2026/evidence-1"
+  }
+]

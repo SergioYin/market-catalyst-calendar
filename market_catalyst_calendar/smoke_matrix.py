@@ -34,13 +34,13 @@ class SmokeCase:
     setup_changelog_repo: bool = False
 
 
-def smoke_matrix_json(fmt: str = "json") -> Dict[str, object]:
+def smoke_matrix_json(fmt: str = "json", include_finalize: bool = True) -> Dict[str, object]:
     """Run smoke checks against built-in demo fixtures and return a report."""
 
     with tempfile.TemporaryDirectory(prefix="mcc-smoke-") as tmp:
         work = Path(tmp)
         context = _write_demo_workspace(work)
-        results = [_run_case(case, context) for case in _smoke_cases()]
+        results = [_run_case(case, context) for case in _smoke_cases(include_finalize)]
     failed = sum(1 for result in results if result["status"] != "pass")
     return {
         "schema_version": "smoke-matrix/v1",
@@ -88,18 +88,42 @@ def _write_demo_workspace(work: Path) -> Dict[str, Path]:
     base = work / "demo_records.json"
     updated = work / "demo_records_updated.json"
     csv_path = work / "demo_records.csv"
+    presets = work / "presets.json"
     base.write_text(dump_json(DEMO_DATA), encoding="utf-8")
     updated.write_text(dump_json(DEMO_UPDATED_DATA), encoding="utf-8")
     csv_path.write_text(dataset_to_csv(parse_dataset(DEMO_DATA)), encoding="utf-8")
+    presets.write_text(
+        dump_json(
+            {
+                "defaults": {
+                    "days": 45,
+                    "output_dir": str(work / "preset-packet"),
+                    "profile": "public",
+                    "stale_after_days": 14,
+                },
+                "presets": {
+                    "desk-packet": {
+                        "as_of": DEFAULT_AS_OF,
+                        "input": str(base),
+                        "workflows": ["validate", "quality-gate", "upcoming", "review-plan", "agent-handoff"],
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     return {
         "work": work,
         "base": base,
         "updated": updated,
         "csv": csv_path,
+        "presets": presets,
         "archive": work / "archive",
         "bundle": work / "demo-bundle",
         "changelog_repo": work / "changelog-repo",
         "root": ROOT,
+        "site": work / "site",
+        "preset_packet": work / "preset-packet",
     }
 
 
@@ -143,14 +167,15 @@ def _run_case(case: SmokeCase, context: Dict[str, Path]) -> Dict[str, object]:
     }
 
 
-def _smoke_cases() -> List[SmokeCase]:
+def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
     base = "{base}"
     updated = "{updated}"
     csv_path = "{csv}"
+    presets = "{presets}"
     archive = "{archive}"
     bundle = "{bundle}"
     changelog_repo = "{changelog_repo}"
-    return [
+    cases = [
         SmokeCase("validate", ["validate", "--input", base], required_stdout='"ok": true'),
         SmokeCase("upcoming", ["upcoming", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),
         SmokeCase("stale", ["stale", "--input", base, "--as-of", DEFAULT_AS_OF]),
@@ -171,6 +196,9 @@ def _smoke_cases() -> List[SmokeCase]:
         SmokeCase("evidence-audit markdown", ["evidence-audit", "--input", base, "--as-of", DEFAULT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Evidence Audit"),
         SmokeCase("quality-gate", ["quality-gate", "--profile", "public", "--input", base, "--as-of", DEFAULT_AS_OF], expected_exit_code=1, required_stdout='"ok": false'),
         SmokeCase("quality-gate markdown", ["quality-gate", "--profile", "public", "--input", base, "--as-of", DEFAULT_AS_OF, "--format", "markdown"], expected_exit_code=1, required_stdout="# Market Catalyst Quality Gate"),
+        SmokeCase("doctor", ["doctor", "--profile", "public", "--input", base, "--as-of", DEFAULT_AS_OF], required_stdout='"schema_version": "doctor/v1"'),
+        SmokeCase("doctor markdown", ["doctor", "--profile", "public", "--input", base, "--as-of", DEFAULT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Dataset Doctor"),
+        SmokeCase("doctor patch", ["doctor", "--profile", "public", "--input", base, "--as-of", DEFAULT_AS_OF, "--format", "patch"], required_stdout='"op":'),
         SmokeCase("broker-matrix", ["broker-matrix", "--input", base, "--as-of", DEFAULT_AS_OF]),
         SmokeCase("broker-matrix markdown", ["broker-matrix", "--input", base, "--as-of", DEFAULT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Broker Matrix"),
         SmokeCase("source-pack", ["source-pack", "--input", base, "--as-of", DEFAULT_AS_OF]),
@@ -183,16 +211,22 @@ def _smoke_cases() -> List[SmokeCase]:
         SmokeCase("drilldown", ["drilldown", "--input", base, "--as-of", DEFAULT_AS_OF, "--ticker", "NVDA", "--days", "45"]),
         SmokeCase("drilldown markdown", ["drilldown", "--input", base, "--as-of", DEFAULT_AS_OF, "--ticker", "NVDA", "--days", "45", "--format", "markdown"], required_stdout="# NVDA Catalyst Drilldown"),
         SmokeCase("command-cookbook", ["command-cookbook", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout="# Market Catalyst Command Cookbook"),
+        SmokeCase("tutorial", ["tutorial", "--as-of", DEFAULT_AS_OF, "--days", "45", "--dataset-path", "examples/demo_records.json"], required_stdout="# Market Catalyst Calendar Tutorial"),
         SmokeCase("agent-handoff", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),
         SmokeCase("agent-handoff markdown", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "markdown"], required_stdout="# Agent Handoff Pack"),
+        SmokeCase("run-preset", ["run-preset", "--presets", presets, "--name", "desk-packet"], expected_files=["preset-packet/manifest.json", "preset-packet/upcoming.json"], required_stdout='"schema_version": "preset-run/v1"'),
+        SmokeCase("taxonomy", ["taxonomy"], required_stdout='"schema_version": "taxonomy/v1"'),
+        SmokeCase("taxonomy markdown", ["taxonomy", "--format", "markdown"], required_stdout="# Market Catalyst Taxonomy"),
         SmokeCase("post-event", ["post-event", "--input", base, "--as-of", POST_EVENT_AS_OF]),
         SmokeCase("post-event markdown", ["post-event", "--input", base, "--as-of", POST_EVENT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Post-Event Review"),
         SmokeCase("compare", ["compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF]),
         SmokeCase("compare markdown", ["compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Snapshot Compare"),
         SmokeCase("merge", ["merge", base, updated, "--as-of", UPDATED_AS_OF, "--output", "{work}/merge.json"], expected_files=["merge.json"]),
         SmokeCase("html-dashboard", ["html-dashboard", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--output", "{work}/dashboard.html"], expected_files=["dashboard.html"]),
+        SmokeCase("static-site", ["static-site", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--output-dir", "{site}"], expected_files=["site/index.html", "site/sources.html", "site/dashboard.html", "site/manifest.json"]),
         SmokeCase("export-demo", ["export-demo", "--output", "{work}/exported_demo.json"], expected_files=["exported_demo.json"]),
         SmokeCase("export-demo updated", ["export-demo", "--snapshot", "updated", "--output", "{work}/exported_demo_updated.json"], expected_files=["exported_demo_updated.json"]),
+        SmokeCase("export-preset-example", ["export-preset-example", "--output", "{work}/exported_presets.json"], expected_files=["exported_presets.json"]),
         SmokeCase("demo-bundle", ["demo-bundle", "--output-dir", bundle], expected_files=["demo-bundle/manifest.json"]),
         SmokeCase("fixture-gallery", ["fixture-gallery"], required_stdout='"schema_version": "fixture-gallery/v1"'),
         SmokeCase("fixture-gallery markdown", ["fixture-gallery", "--format", "markdown"], required_stdout="# Market Catalyst Fixture Gallery"),
@@ -207,6 +241,16 @@ def _smoke_cases() -> List[SmokeCase]:
         SmokeCase("changelog markdown", ["changelog", "--repo", changelog_repo, "--since-tag", "v0.1.0", "--format", "markdown"], setup_changelog_repo=True, required_stdout="# Release Notes"),
         SmokeCase("smoke-matrix", ["smoke-matrix", "--probe"], required_stdout='"schema_version": "smoke-probe/v1"'),
     ]
+    if include_finalize:
+        cases.append(
+            SmokeCase(
+                "finalize-release",
+                ["finalize-release", "--root", "{root}", "--repo", changelog_repo, "--since-tag", "v0.1.0"],
+                setup_changelog_repo=True,
+                required_stdout='"schema_version": "finalize-release/v1"',
+            )
+        )
+    return cases
 
 
 def _resolve_arg(arg: str, context: Dict[str, Path]) -> str:

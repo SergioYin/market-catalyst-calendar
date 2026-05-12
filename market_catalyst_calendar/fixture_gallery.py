@@ -51,6 +51,10 @@ COMMAND_USE_CASES = {
         "Find stale, thin, or concentrated evidence metadata.",
         "Use before public handoff or source refresh work.",
     ],
+    "finalize-release": [
+        "Review one deterministic release checklist before handoff.",
+        "Combine audit, smoke, fixture, and changelog status for release notes.",
+    ],
     "export-csv": [
         "Validate spreadsheet-friendly export shape and encoded multi-value cells.",
         "Test CSV consumers against stable column order.",

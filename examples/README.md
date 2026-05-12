@@ -14,6 +14,8 @@ All examples use these stable dates:
 | Fixture | Command output | Purpose |
 | --- | --- | --- |
 | `demo_records.json` | `export-demo` | Canonical JSON input dataset with four records covering completed, stale, scheduled, and confirmed catalysts. |
+| `presets.json` | preset config | Named preset workflow defaults for `days`, stale thresholds, quality profile, output directory, and report sequence. |
+| `preset_run.json` | `run-preset` | Deterministic manifest from executing the `desk-packet` preset workflow packet. |
 | `demo_records.csv` | `export-csv` | Spreadsheet-friendly dataset export with stable columns and encoded multi-value cells. |
 | `imported_demo_records.json` | `import-csv` | JSON reconstructed from `demo_records.csv`; validates the CSV round trip. |
 | `upcoming.json` | `upcoming` | Upcoming open catalysts in the 45-day window. |
@@ -35,6 +37,9 @@ All examples use these stable dates:
 | `evidence_audit.md` | `evidence-audit --format markdown` | Markdown audit packet for human review. |
 | `quality_gate.json` | `quality-gate --profile public` | Public research dataset quality gate with fail/pass status, rule findings, and diagnostic codes. |
 | `quality_gate.md` | `quality-gate --profile public --format markdown` | Markdown rendering of the same public research quality gate. |
+| `doctor.json` | `doctor --profile public` | Read-only repair planner for validation and quality-gate failures, including diagnostics and suggested patch operations. |
+| `doctor.md` | `doctor --profile public --format markdown` | Markdown repair checklist for analyst review. |
+| `doctor_patch.json` | `doctor --profile public --format patch` | JSON Patch-style operation list only, for applying to a copy of the dataset. |
 | `broker_matrix.json` | `broker-matrix` | Broker view dispersion, stale broker source flags, and linked catalysts. |
 | `broker_matrix.md` | `broker-matrix --format markdown` | Markdown broker matrix and per-view details. |
 | `source_pack.json` | `source-pack` | Deduplicated evidence and broker source inventory. |
@@ -47,10 +52,15 @@ All examples use these stable dates:
 | `drilldown.json` | `drilldown --ticker NVDA` | Complete single-ticker dossier combining events, thesis, brokers, risk, watch items, source pack, post-event queue, and decision logs. |
 | `drilldown.md` | `drilldown --ticker NVDA --format markdown` | Markdown rendering of the single-ticker drilldown dossier. |
 | `command_cookbook.md` | `command-cookbook` | Field-aware Markdown command cookbook with selected report sequences and expected output files. |
+| `tutorial.md` | `tutorial` | Notebooks-free Markdown tutorial with expected command output excerpts and learning checkpoints. |
 | `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
 | `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
+| `taxonomy.json` | `taxonomy` | Machine-readable supported event types, statuses, review actions, quality rules, diagnostic codes, and command catalog. |
+| `taxonomy.md` | `taxonomy --format markdown` | Analyst-readable rendering of the taxonomy and command catalog. |
 | `fixture_gallery.json` | `fixture-gallery` | Machine-readable index of bundled fixtures with provenance, hashes, output types, and recommended use cases. |
 | `fixture_gallery.md` | `fixture-gallery --format markdown` | Analyst-readable fixture gallery for selecting examples and regression fixtures. |
+| `finalize_release.json` | `finalize-release --example` | Machine-readable release finalizer checklist combining audit, smoke, fixture, and changelog summaries. |
+| `finalize_release.md` | `finalize-release --example --format markdown` | Markdown release checklist for final handoff review. |
 | `post_event.json` | `post-event` | Outcome review queue after selected catalyst windows have passed. |
 | `post_event.md` | `post-event --format markdown` | Markdown post-event review templates. |
 | `demo_records_updated.json` | `export-demo --snapshot updated` | Second deterministic input dataset for snapshot comparison examples. |
@@ -67,6 +77,10 @@ All examples use these stable dates:
 ```bash
 # fixture: examples/demo_records.json
 python -m market_catalyst_calendar export-demo
+# fixture: examples/presets.json
+python -m market_catalyst_calendar export-preset-example
+# fixture: examples/preset_run.json
+python -m market_catalyst_calendar run-preset --presets examples/presets.json --name desk-packet
 # fixture: examples/upcoming.json
 python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/stale.json
@@ -107,6 +121,12 @@ python -m market_catalyst_calendar quality-gate --profile public --input example
 # fixture: examples/quality_gate.md
 # exit-code: 1
 python -m market_catalyst_calendar quality-gate --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+# fixture: examples/doctor.json
+python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13
+# fixture: examples/doctor.md
+python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown
+# fixture: examples/doctor_patch.json
+python -m market_catalyst_calendar doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format patch
 # fixture: examples/broker_matrix.json
 python -m market_catalyst_calendar broker-matrix --input examples/demo_records.json --as-of 2026-05-13
 # fixture: examples/broker_matrix.md
@@ -131,14 +151,24 @@ python -m market_catalyst_calendar drilldown --input examples/demo_records.json 
 python -m market_catalyst_calendar drilldown --input examples/demo_records.json --as-of 2026-05-13 --ticker NVDA --days 45 --format markdown
 # fixture: examples/command_cookbook.md
 python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45
+# fixture: examples/tutorial.md
+python -m market_catalyst_calendar tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json
 # fixture: examples/agent_handoff.json
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/agent_handoff.md
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+# fixture: examples/taxonomy.json
+python -m market_catalyst_calendar taxonomy
+# fixture: examples/taxonomy.md
+python -m market_catalyst_calendar taxonomy --format markdown
 # fixture: examples/fixture_gallery.json
 python -m market_catalyst_calendar fixture-gallery
 # fixture: examples/fixture_gallery.md
 python -m market_catalyst_calendar fixture-gallery --format markdown
+# fixture: examples/finalize_release.json
+python -m market_catalyst_calendar finalize-release --example
+# fixture: examples/finalize_release.md
+python -m market_catalyst_calendar finalize-release --example --format markdown
 # fixture: examples/post_event.json
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
 # fixture: examples/post_event.md
@@ -162,5 +192,7 @@ python -m market_catalyst_calendar import-csv --input examples/demo_records.csv
 ```
 
 Archive output is not checked in because it duplicates these generated files and includes a directory-specific manifest. Run `create-archive` when you need a portable handoff directory.
+
+Static-site output is not checked in because it is a generated directory with ticker pages and a site-specific manifest. Run `python -m market_catalyst_calendar static-site --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output-dir site` when you need a browsable no-JavaScript packet.
 
 Demo bundle output is also not checked in. Run `python -m market_catalyst_calendar demo-bundle --output-dir demo-bundle` when you need a deterministic tutorial directory containing every example output, a bundle README, a quickstart transcript, and a manifest with hashes and command provenance.

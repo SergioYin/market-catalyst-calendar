@@ -13,12 +13,15 @@ from .compare import compare_snapshots_json, compare_snapshots_markdown
 from .csv_io import csv_to_dataset_json, dataset_to_csv
 from .dashboard import html_dashboard
 from .demo import DEMO_DATA, DEMO_UPDATED_DATA
+from .doctor import doctor_json, doctor_markdown
 from .evidence import evidence_audit_json, evidence_audit_markdown
+from .finalize_release import example_finalize_release_json, finalize_release_markdown
 from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
 from .io import dump_json
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
+from .presets import run_preset_config
 from .quality_gate import quality_gate_json, quality_gate_markdown
 from .render import (
     brief_markdown,
@@ -50,6 +53,8 @@ from .render import (
     watchlist_markdown,
 )
 from .scoring import score_record
+from .taxonomy import taxonomy_json, taxonomy_markdown
+from .tutorial import tutorial_markdown
 
 
 BUNDLE_VERSION = 1
@@ -58,6 +63,29 @@ UPDATED_AS_OF = date(2026, 5, 27)
 POST_EVENT_AS_OF = date(2026, 6, 25)
 DEFAULT_DAYS = 45
 DEFAULT_STALE_AFTER_DAYS = 14
+EXAMPLE_PRESETS = {
+    "defaults": {
+        "days": DEFAULT_DAYS,
+        "output_dir": "/tmp/market-catalyst-calendar-preset-example",
+        "profile": "public",
+        "stale_after_days": DEFAULT_STALE_AFTER_DAYS,
+    },
+    "presets": {
+        "desk-packet": {
+            "as_of": DEFAULT_AS_OF.isoformat(),
+            "input": "examples/demo_records.json",
+            "workflows": [
+                "validate",
+                "quality-gate",
+                "upcoming",
+                "review-plan",
+                "source-pack",
+                "watchlist",
+                "agent-handoff",
+            ],
+        }
+    },
+}
 
 CommandSpec = Tuple[str, str, Callable[[], str], int]
 
@@ -111,7 +139,7 @@ def bundled_fixture_gallery_markdown() -> str:
     return fixture_gallery_markdown(bundled_fixture_gallery_json())
 
 
-def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
+def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = True) -> List[CommandSpec]:
     as_of = DEFAULT_AS_OF
     updated_as_of = UPDATED_AS_OF
     post_event_as_of = POST_EVENT_AS_OF
@@ -119,8 +147,9 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
     stale = _stale_records(base.records, as_of, DEFAULT_STALE_AFTER_DAYS)
     csv_text = dataset_to_csv(base)
 
-    return [
+    commands = [
         ("demo_records.json", "export-demo", lambda: dump_json(DEMO_DATA), 0),
+        ("presets.json", "export-preset-example", lambda: dump_json(EXAMPLE_PRESETS), 0),
         (
             "upcoming.json",
             "upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45",
@@ -236,6 +265,24 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
             1,
         ),
         (
+            "doctor.json",
+            "doctor --profile public --input examples/demo_records.json --as-of 2026-05-13",
+            lambda: dump_json(doctor_json(DEMO_DATA, base, as_of, "public")),
+            0,
+        ),
+        (
+            "doctor.md",
+            "doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format markdown",
+            lambda: doctor_markdown(doctor_json(DEMO_DATA, base, as_of, "public")),
+            0,
+        ),
+        (
+            "doctor_patch.json",
+            "doctor --profile public --input examples/demo_records.json --as-of 2026-05-13 --format patch",
+            lambda: dump_json(doctor_json(DEMO_DATA, base, as_of, "public")["patch"]),
+            0,
+        ),
+        (
             "broker_matrix.json",
             "broker-matrix --input examples/demo_records.json --as-of 2026-05-13",
             lambda: dump_json(broker_matrix_json(base.records, as_of, 30)),
@@ -328,6 +375,12 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
             0,
         ),
         (
+            "tutorial.md",
+            "tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json",
+            lambda: tutorial_markdown(as_of, DEFAULT_DAYS, "examples/demo_records.json"),
+            0,
+        ),
+        (
             "agent_handoff.json",
             "agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
             lambda: dump_json(
@@ -359,6 +412,14 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
             ),
             0,
         ),
+        (
+            "preset_run.json",
+            "run-preset --presets examples/presets.json --name desk-packet",
+            lambda: dump_json(run_preset_config(EXAMPLE_PRESETS, "desk-packet", write_files=False, dataset_override=base)),
+            0,
+        ),
+        ("taxonomy.json", "taxonomy", lambda: dump_json(taxonomy_json()), 0),
+        ("taxonomy.md", "taxonomy --format markdown", taxonomy_markdown, 0),
         (
             "post_event.json",
             "post-event --input examples/demo_records.json --as-of 2026-06-25",
@@ -410,6 +471,34 @@ def _example_commands(base: Dataset, updated: Dataset) -> List[CommandSpec]:
             0,
         ),
     ]
+    if include_finalize:
+        gallery = fixture_gallery_json(
+            {f"examples/{path}": output() for path, _, output, _ in commands},
+            [
+                (path, command, output(), exit_code)
+                for path, command, output, exit_code in _example_commands(base, updated, include_finalize=False)
+            ],
+        )
+        gallery["summary"]["fixture_count"] = int(gallery["summary"]["fixture_count"]) + 2
+        gallery["summary"]["output_type_counts"]["json"] = int(gallery["summary"]["output_type_counts"]["json"]) + 1
+        gallery["summary"]["output_type_counts"]["markdown"] = int(gallery["summary"]["output_type_counts"]["markdown"]) + 1
+        commands.extend(
+            [
+                (
+                    "finalize_release.json",
+                    "finalize-release --example",
+                    lambda: dump_json(example_finalize_release_json(gallery)),
+                    0,
+                ),
+                (
+                    "finalize_release.md",
+                    "finalize-release --example --format markdown",
+                    lambda: finalize_release_markdown(example_finalize_release_json(gallery)),
+                    0,
+                ),
+            ]
+        )
+    return commands
 
 
 def _bundle_readme(commands: Iterable[CommandSpec]) -> str:

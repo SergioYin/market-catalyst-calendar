@@ -1,0 +1,89 @@
+{
+  "blockers": [],
+  "checklist": [
+    {
+      "blockers": [],
+      "detail": "5 passed / 5 checks",
+      "id": "release-audit",
+      "ok": true,
+      "status": "pass"
+    },
+    {
+      "blockers": [],
+      "detail": "40 passed / 40 commands",
+      "id": "smoke-matrix",
+      "ok": true,
+      "status": "pass"
+    },
+    {
+      "blockers": [],
+      "detail": "54 fixtures indexed",
+      "id": "fixture-gallery",
+      "ok": true,
+      "status": "pass"
+    },
+    {
+      "blockers": [],
+      "detail": "1 commits since v2.9.0",
+      "id": "changelog",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "components": {
+    "changelog": {
+      "breaking_change_count": 0,
+      "commit_count": 1,
+      "detail": "1 commits since v2.9.0",
+      "ok": true,
+      "tags_in_range": []
+    },
+    "fixture_gallery": {
+      "detail": "54 fixtures indexed",
+      "ok": true,
+      "output_type_counts": {
+        "csv": 2,
+        "html": 1,
+        "ics": 1,
+        "json": 28,
+        "markdown": 22
+      }
+    },
+    "release_audit": {
+      "detail": "5 passed / 5 checks",
+      "failed_checks": [],
+      "ok": true
+    },
+    "smoke_matrix": {
+      "detail": "40 passed / 40 commands",
+      "failed_commands": [],
+      "ok": true
+    }
+  },
+  "ok": true,
+  "range": "v2.9.0..HEAD",
+  "release_notes": {
+    "breaking_change_count": 0,
+    "categories": [
+      {
+        "commit_count": 1,
+        "commits": [
+          {
+            "description": "add release finalizer",
+            "references": [],
+            "scope": null,
+            "short_hash": "example"
+          }
+        ],
+        "id": "feat",
+        "title": "Features"
+      }
+    ],
+    "commit_count": 1
+  },
+  "repo": ".",
+  "root": ".",
+  "schema_version": "finalize-release/v1",
+  "since_tag": "v2.9.0",
+  "to_ref": "HEAD"
+}

@@ -242,6 +242,24 @@ def main() -> int:
             sys.stderr.write(quality_gate.stdout)
             sys.stderr.write(quality_gate.stderr)
             return quality_gate.returncode or 1
+        doctor = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "doctor",
+                "--profile",
+                "public",
+                "--input",
+                str(demo_path),
+                "--as-of",
+                "2026-05-13",
+            ]
+        )
+        if doctor.returncode != 0 or '"schema_version": "doctor/v1"' not in doctor.stdout or '"modifies_input": false' not in doctor.stdout:
+            sys.stderr.write(doctor.stdout)
+            sys.stderr.write(doctor.stderr)
+            return doctor.returncode or 1
         sector_map = run(
             [
                 sys.executable,
@@ -274,6 +292,24 @@ def main() -> int:
             sys.stderr.write(cookbook.stdout)
             sys.stderr.write(cookbook.stderr)
             return cookbook.returncode or 1
+        tutorial = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "tutorial",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--dataset-path",
+                "examples/demo_records.json",
+            ]
+        )
+        if tutorial.returncode != 0 or "# Market Catalyst Calendar Tutorial" not in tutorial.stdout or "Learning checkpoint:" not in tutorial.stdout:
+            sys.stderr.write(tutorial.stdout)
+            sys.stderr.write(tutorial.stderr)
+            return tutorial.returncode or 1
         drilldown = run(
             [
                 sys.executable,
@@ -294,6 +330,90 @@ def main() -> int:
             sys.stderr.write(drilldown.stdout)
             sys.stderr.write(drilldown.stderr)
             return drilldown.returncode or 1
+        presets_path = Path(tmp) / "presets.json"
+        preset_dir = Path(tmp) / "preset-packet"
+        export_presets = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "export-preset-example",
+                "--output",
+                str(presets_path),
+            ]
+        )
+        if export_presets.returncode != 0:
+            sys.stderr.write(export_presets.stdout)
+            sys.stderr.write(export_presets.stderr)
+            return export_presets.returncode
+        preset_run = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "run-preset",
+                "--presets",
+                str(presets_path),
+                "--name",
+                "desk-packet",
+                "--input",
+                str(demo_path),
+                "--as-of",
+                "2026-05-13",
+                "--output-dir",
+                str(preset_dir),
+            ]
+        )
+        required_preset_files = [
+            preset_dir / "manifest.json",
+            preset_dir / "quality_gate.json",
+            preset_dir / "upcoming.json",
+            preset_dir / "agent_handoff.json",
+        ]
+        missing_preset_files = [path.relative_to(preset_dir).as_posix() for path in required_preset_files if not path.is_file()]
+        if preset_run.returncode != 0 or '"schema_version": "preset-run/v1"' not in preset_run.stdout or missing_preset_files:
+            sys.stderr.write(preset_run.stdout)
+            sys.stderr.write(preset_run.stderr)
+            if missing_preset_files:
+                sys.stderr.write("preset run missing files: " + ", ".join(missing_preset_files) + "\n")
+            return preset_run.returncode or 1
+        taxonomy = run([sys.executable, "-m", "market_catalyst_calendar", "taxonomy"])
+        if taxonomy.returncode != 0 or '"schema_version": "taxonomy/v1"' not in taxonomy.stdout or '"quality_rules"' not in taxonomy.stdout:
+            sys.stderr.write(taxonomy.stdout)
+            sys.stderr.write(taxonomy.stderr)
+            return taxonomy.returncode or 1
+        site_dir = Path(tmp) / "site"
+        static_site = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "static-site",
+                "--input",
+                str(demo_path),
+                "--output-dir",
+                str(site_dir),
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+            ]
+        )
+        required_site_files = [
+            site_dir / "index.html",
+            site_dir / "dashboard.html",
+            site_dir / "sources.html",
+            site_dir / "style.css",
+            site_dir / "manifest.json",
+            site_dir / "tickers" / "nvda.html",
+        ]
+        missing_site_files = [path.relative_to(site_dir).as_posix() for path in required_site_files if not path.is_file()]
+        if static_site.returncode != 0 or missing_site_files:
+            sys.stderr.write(static_site.stdout)
+            sys.stderr.write(static_site.stderr)
+            if missing_site_files:
+                sys.stderr.write("static site missing files: " + ", ".join(missing_site_files) + "\n")
+            return static_site.returncode or 1
         archive_dir = Path(tmp) / "archive"
         create_archive = run(
             [
@@ -341,13 +461,19 @@ def main() -> int:
             bundle_dir / "manifest.json",
             bundle_dir / "examples" / "demo_records.json",
             bundle_dir / "examples" / "quality_gate.json",
+            bundle_dir / "examples" / "doctor.json",
+            bundle_dir / "examples" / "doctor.md",
+            bundle_dir / "examples" / "doctor_patch.json",
             bundle_dir / "examples" / "command_cookbook.md",
             bundle_dir / "examples" / "agent_handoff.json",
             bundle_dir / "examples" / "agent_handoff.md",
             bundle_dir / "examples" / "fixture_gallery.json",
             bundle_dir / "examples" / "fixture_gallery.md",
+            bundle_dir / "examples" / "finalize_release.json",
+            bundle_dir / "examples" / "finalize_release.md",
             bundle_dir / "examples" / "drilldown.json",
             bundle_dir / "examples" / "drilldown.md",
+            bundle_dir / "examples" / "tutorial.md",
             bundle_dir / "examples" / "dashboard.html",
         ]
         missing_bundle_files = [path.relative_to(bundle_dir).as_posix() for path in required_bundle_files if not path.is_file()]
@@ -384,6 +510,24 @@ def main() -> int:
         changelog_result = check_changelog_command(tmp_path)
         if changelog_result != 0:
             return changelog_result
+        finalize_release = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "finalize-release",
+                "--root",
+                str(ROOT),
+                "--repo",
+                str(tmp_path / "changelog-repo"),
+                "--since-tag",
+                "v0.1.0",
+            ]
+        )
+        if finalize_release.returncode != 0 or '"schema_version": "finalize-release/v1"' not in finalize_release.stdout or '"ok": true' not in finalize_release.stdout:
+            sys.stderr.write(finalize_release.stdout)
+            sys.stderr.write(finalize_release.stderr)
+            return finalize_release.returncode or 1
     print("selfcheck ok")
     return 0
 

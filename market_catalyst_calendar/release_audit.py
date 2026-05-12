@@ -21,20 +21,26 @@ REQUIRED_COMMANDS = [
     "scenario-matrix",
     "evidence-audit",
     "quality-gate",
+    "doctor",
     "broker-matrix",
     "source-pack",
     "watchlist",
     "decision-log",
     "drilldown",
     "command-cookbook",
+    "tutorial",
     "agent-handoff",
+    "run-preset",
+    "taxonomy",
     "post-event",
     "export-demo",
+    "export-preset-example",
     "demo-bundle",
     "fixture-gallery",
     "compare",
     "merge",
     "html-dashboard",
+    "static-site",
     "export-csv",
     "export-ics",
     "import-csv",
@@ -43,6 +49,7 @@ REQUIRED_COMMANDS = [
     "release-audit",
     "changelog",
     "smoke-matrix",
+    "finalize-release",
 ]
 
 RELEASE_AUDIT_SCHEMA_FIELDS = [
@@ -64,6 +71,9 @@ RELEASE_AUDIT_SCHEMA_FIELDS = [
     "required_fields",
     "missing_fields",
     "workflow_files",
+    "blockers",
+    "components",
+    "release_notes",
 ]
 
 SKILL_PATH = Path("skills/agent/market-catalyst-calendar/SKILL.md")
@@ -194,12 +204,13 @@ def _skill_check(root: Path) -> Dict[str, object]:
     missing = []
     if not skill_path.is_file():
         missing.append(SKILL_PATH.as_posix())
-    if "release-audit" not in text:
-        missing.append("release-audit mention")
+    for command in ["release-audit", "finalize-release"]:
+        if command not in text:
+            missing.append(f"{command} mention")
     return {
         "id": "agent-skill",
         "status": "pass" if not missing else "fail",
-        "detail": f"{SKILL_PATH.as_posix()} exists and documents release-audit" if not missing else "skill file is missing or incomplete",
+        "detail": f"{SKILL_PATH.as_posix()} exists and documents release commands" if not missing else "skill file is missing or incomplete",
         "missing": missing,
     }
 

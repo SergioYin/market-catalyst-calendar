@@ -17,12 +17,15 @@ from .compare import compare_snapshots_json, compare_snapshots_markdown
 from .csv_io import csv_to_dataset_json, dataset_to_csv
 from .dashboard import html_dashboard
 from .demo import DEMO_DATA, DEMO_UPDATED_DATA
-from .demo_bundle import bundled_fixture_gallery_json, bundled_fixture_gallery_markdown, create_demo_bundle
+from .demo_bundle import EXAMPLE_PRESETS, bundled_fixture_gallery_json, bundled_fixture_gallery_markdown, create_demo_bundle
+from .doctor import doctor_json, doctor_markdown
 from .evidence import evidence_audit_json, evidence_audit_markdown
+from .finalize_release import example_finalize_release_json, finalize_release_json, finalize_release_markdown
 from .ics import records_to_ics
 from .io import dump_json, load_dataset, read_json, read_text
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
+from .presets import run_preset
 from .quality_gate import PROFILES, quality_gate_json, quality_gate_markdown
 from .release_audit import release_audit_json, release_audit_markdown
 from .render import (
@@ -56,6 +59,11 @@ from .render import (
 )
 from .scoring import score_record
 from .smoke_matrix import smoke_matrix_json, smoke_matrix_markdown, smoke_probe_json
+from .static_site import create_static_site
+from .taxonomy import taxonomy_json, taxonomy_markdown
+from .tutorial import DEFAULT_AS_OF as TUTORIAL_DEFAULT_AS_OF
+from .tutorial import DEFAULT_DAYS as TUTORIAL_DEFAULT_DAYS
+from .tutorial import tutorial_markdown
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -162,6 +170,17 @@ def build_parser() -> argparse.ArgumentParser:
     quality_gate.add_argument("--format", choices=["json", "markdown"], default="json")
     quality_gate.set_defaults(func=cmd_quality_gate)
 
+    doctor = subparsers.add_parser("doctor", help="suggest read-only repairs for validation and quality failures")
+    add_input(doctor)
+    add_as_of(doctor)
+    doctor.add_argument("--profile", choices=PROFILES, default="public", help="quality profile to diagnose; default: public")
+    doctor.add_argument("--min-evidence-urls", type=int)
+    doctor.add_argument("--max-review-age-days", type=int)
+    doctor.add_argument("--max-evidence-age-days", type=int)
+    doctor.add_argument("--max-broker-age-days", type=int)
+    doctor.add_argument("--format", choices=["json", "markdown", "patch"], default="json")
+    doctor.set_defaults(func=cmd_doctor)
+
     broker_matrix = subparsers.add_parser("broker-matrix", help="summarize broker views by ticker and thesis")
     add_input(broker_matrix)
     add_as_of(broker_matrix)
@@ -213,6 +232,13 @@ def build_parser() -> argparse.ArgumentParser:
     command_cookbook.add_argument("--output-dir", default="reports", help="output directory to show in generated commands")
     command_cookbook.set_defaults(func=cmd_command_cookbook)
 
+    tutorial = subparsers.add_parser("tutorial", help="render a notebooks-free Markdown tutorial from demo data")
+    tutorial.add_argument("--as-of", default=TUTORIAL_DEFAULT_AS_OF.isoformat(), help="ISO report date for tutorial excerpts")
+    tutorial.add_argument("--days", type=int, default=TUTORIAL_DEFAULT_DAYS, help="forward report window in days")
+    tutorial.add_argument("--dataset-path", default="examples/demo_records.json", help="dataset path to show in tutorial commands")
+    tutorial.add_argument("--output", "-o", help="output Markdown path; stdout when omitted")
+    tutorial.set_defaults(func=cmd_tutorial)
+
     agent_handoff = subparsers.add_parser("agent-handoff", help="create a machine-readable research-agent context pack")
     add_input(agent_handoff)
     add_as_of(agent_handoff)
@@ -224,6 +250,19 @@ def build_parser() -> argparse.ArgumentParser:
     agent_handoff.add_argument("--output-dir", default="reports", help="output directory to show in generated commands")
     agent_handoff.add_argument("--format", choices=["json", "markdown"], default="json")
     agent_handoff.set_defaults(func=cmd_agent_handoff)
+
+    run_preset_parser = subparsers.add_parser("run-preset", help="execute a named JSON preset workflow packet")
+    run_preset_parser.add_argument("--presets", required=True, help="preset JSON file")
+    run_preset_parser.add_argument("--name", required=True, help="preset name inside the presets object")
+    run_preset_parser.add_argument("--input", "-i", help="dataset JSON override; defaults to preset input")
+    run_preset_parser.add_argument("--as-of", help="ISO report date override; defaults to preset or preset defaults")
+    run_preset_parser.add_argument("--output-dir", "-o", help="output directory override; defaults to preset or preset defaults")
+    run_preset_parser.set_defaults(func=cmd_run_preset)
+
+    taxonomy = subparsers.add_parser("taxonomy", help="report supported taxonomy values, rules, diagnostics, and commands")
+    taxonomy.add_argument("--format", choices=["json", "markdown"], default="json")
+    taxonomy.add_argument("--output", "-o", help="output path; stdout when omitted")
+    taxonomy.set_defaults(func=cmd_taxonomy)
 
     post_event = subparsers.add_parser("post-event", help="render post-event outcome review templates")
     add_input(post_event)
@@ -260,10 +299,23 @@ def build_parser() -> argparse.ArgumentParser:
     html.add_argument("--output", "-o", help="output HTML path; stdout when omitted")
     html.set_defaults(func=cmd_html_dashboard)
 
+    static_site = subparsers.add_parser("static-site", help="write a deterministic no-JavaScript multi-page site directory")
+    add_input(static_site)
+    add_as_of(static_site)
+    static_site.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    static_site.add_argument("--stale-after-days", type=int, default=14)
+    static_site.add_argument("--fresh-after-days", type=int, default=14)
+    static_site.add_argument("--output-dir", "-o", required=True, help="empty output directory for site files")
+    static_site.set_defaults(func=cmd_static_site)
+
     demo = subparsers.add_parser("export-demo", help="write the built-in demo dataset")
     demo.add_argument("--snapshot", choices=["base", "updated"], default="base", help="demo snapshot to export")
     demo.add_argument("--output", "-o", help="output path; stdout when omitted")
     demo.set_defaults(func=cmd_export_demo)
+
+    preset_example = subparsers.add_parser("export-preset-example", help="write a deterministic example presets JSON file")
+    preset_example.add_argument("--output", "-o", help="output JSON path; stdout when omitted")
+    preset_example.set_defaults(func=cmd_export_preset_example)
 
     demo_bundle = subparsers.add_parser("demo-bundle", help="write a deterministic directory with every demo output")
     demo_bundle.add_argument("--output-dir", "-o", required=True, help="empty output directory for bundle files")
@@ -321,6 +373,17 @@ def build_parser() -> argparse.ArgumentParser:
     smoke_matrix.add_argument("--format", choices=["json", "markdown"], default="json")
     smoke_matrix.add_argument("--probe", action="store_true", help=argparse.SUPPRESS)
     smoke_matrix.set_defaults(func=cmd_smoke_matrix)
+
+    finalize_release = subparsers.add_parser("finalize-release", help="combine release audit, smoke matrix, fixtures, and changelog into a checklist")
+    finalize_release.add_argument("--root", default=".", help="repository root to audit; defaults to current directory")
+    finalize_release.add_argument("--repo", default=".", help="git repository root for changelog; defaults to current directory")
+    finalize_release.add_argument("--since-tag", help="starting tag for changelog, excluded from release notes")
+    finalize_release.add_argument("--to-ref", default="HEAD", help="ending ref for changelog; default: HEAD")
+    finalize_release.add_argument("--include-merges", action="store_true", help="include merge commits in changelog")
+    finalize_release.add_argument("--format", choices=["json", "markdown"], default="json")
+    finalize_release.add_argument("--example", action="store_true", help=argparse.SUPPRESS)
+    finalize_release.add_argument("--output", "-o", help="output path; stdout when omitted")
+    finalize_release.set_defaults(func=cmd_finalize_release)
     return parser
 
 
@@ -594,6 +657,37 @@ def cmd_quality_gate(args: argparse.Namespace) -> int:
     return 0 if payload["ok"] else 1
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    if args.min_evidence_urls is not None and args.min_evidence_urls < 1:
+        raise ValueError("--min-evidence-urls must be at least 1")
+    if args.max_review_age_days is not None and args.max_review_age_days < 0:
+        raise ValueError("--max-review-age-days must be non-negative")
+    if args.max_evidence_age_days is not None and args.max_evidence_age_days < 0:
+        raise ValueError("--max-evidence-age-days must be non-negative")
+    if args.max_broker_age_days is not None and args.max_broker_age_days < 0:
+        raise ValueError("--max-broker-age-days must be non-negative")
+    raw = read_json(args.input)
+    dataset = parse_dataset(raw)
+    as_of = resolve_as_of(dataset, args.as_of)
+    payload = doctor_json(
+        raw,
+        dataset,
+        as_of,
+        args.profile,
+        args.min_evidence_urls,
+        args.max_review_age_days,
+        args.max_evidence_age_days,
+        args.max_broker_age_days,
+    )
+    if args.format == "patch":
+        print(dump_json(payload["patch"]), end="")
+    elif args.format == "markdown":
+        print(doctor_markdown(payload), end="")
+    else:
+        print(dump_json(payload), end="")
+    return 0
+
+
 def cmd_broker_matrix(args: argparse.Namespace) -> int:
     if args.stale_after_days < 0:
         raise ValueError("--stale-after-days must be non-negative")
@@ -706,6 +800,17 @@ def cmd_command_cookbook(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_tutorial(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    text = tutorial_markdown(date.fromisoformat(args.as_of), args.days, args.dataset_path)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
 def cmd_agent_handoff(args: argparse.Namespace) -> int:
     if args.days < 0:
         raise ValueError("--days must be non-negative")
@@ -748,6 +853,21 @@ def cmd_agent_handoff(args: argparse.Namespace) -> int:
             ),
             end="",
         )
+    return 0
+
+
+def cmd_run_preset(args: argparse.Namespace) -> int:
+    manifest = run_preset(args.presets, args.name, args.input, args.as_of, args.output_dir)
+    print(dump_json(manifest), end="")
+    return 0
+
+
+def cmd_taxonomy(args: argparse.Namespace) -> int:
+    text = dump_json(taxonomy_json()) if args.format == "json" else taxonomy_markdown()
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
     return 0
 
 
@@ -810,9 +930,43 @@ def cmd_html_dashboard(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_static_site(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    if args.fresh_after_days < 0:
+        raise ValueError("--fresh-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    manifest = create_static_site(dataset, args.output_dir, as_of, args.days, args.stale_after_days, args.fresh_after_days)
+    print(
+        dump_json(
+            {
+                "file_count": len(manifest["files"]) + 1,
+                "index": "index.html",
+                "manifest": "manifest.json",
+                "ok": True,
+                "site_dir": args.output_dir,
+            }
+        ),
+        end="",
+    )
+    return 0
+
+
 def cmd_export_demo(args: argparse.Namespace) -> int:
     data = DEMO_DATA if args.snapshot == "base" else DEMO_UPDATED_DATA
     text = dump_json(data)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_export_preset_example(args: argparse.Namespace) -> int:
+    text = dump_json(EXAMPLE_PRESETS)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:
@@ -926,6 +1080,21 @@ def cmd_smoke_matrix(args: argparse.Namespace) -> int:
     else:
         print(smoke_matrix_markdown(report), end="")
     return 0 if report["ok"] else 1
+
+
+def cmd_finalize_release(args: argparse.Namespace) -> int:
+    if args.example:
+        payload = example_finalize_release_json(bundled_fixture_gallery_json())
+    else:
+        if not args.since_tag:
+            raise ValueError("--since-tag is required unless --example is used")
+        payload = finalize_release_json(Path(args.root), Path(args.repo), args.since_tag, args.to_ref, args.include_merges)
+    text = dump_json(payload) if args.format == "json" else finalize_release_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["ok"] else 1
 
 
 def write_records(records: Iterable[CatalystRecord], as_of: date, fmt: str) -> None:

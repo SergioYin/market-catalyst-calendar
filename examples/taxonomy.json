@@ -1,0 +1,841 @@
+{
+  "commands": [
+    {
+      "category": "agent",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "agent-handoff",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "create downstream research-agent context packs",
+      "writes_files": false
+    },
+    {
+      "category": "briefing",
+      "formats": [
+        "markdown"
+      ],
+      "id": "brief",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "render an analyst catalyst brief",
+      "writes_files": false
+    },
+    {
+      "category": "broker",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "broker-matrix",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "summarize broker views and target dispersion",
+      "writes_files": false
+    },
+    {
+      "category": "release",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "changelog",
+      "inputs": [
+        "git repo"
+      ],
+      "purpose": "render local release notes from commits",
+      "writes_files": true
+    },
+    {
+      "category": "operations",
+      "formats": [
+        "markdown"
+      ],
+      "id": "command-cookbook",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "render field-aware command playbooks",
+      "writes_files": false
+    },
+    {
+      "category": "dataset",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "compare",
+      "inputs": [
+        "base dataset",
+        "current dataset"
+      ],
+      "purpose": "compare two dataset snapshots",
+      "writes_files": true
+    },
+    {
+      "category": "archive",
+      "formats": [
+        "directory"
+      ],
+      "id": "create-archive",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "create portable report archive with hashes",
+      "writes_files": true
+    },
+    {
+      "category": "decision",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "decision-log",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "emit decision memo stubs",
+      "writes_files": false
+    },
+    {
+      "category": "fixture",
+      "formats": [
+        "directory"
+      ],
+      "id": "demo-bundle",
+      "inputs": [],
+      "purpose": "write all demo outputs plus manifest and transcript",
+      "writes_files": true
+    },
+    {
+      "category": "quality",
+      "formats": [
+        "json",
+        "markdown",
+        "patch"
+      ],
+      "id": "doctor",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "suggest read-only repairs for validation and quality failures",
+      "writes_files": false
+    },
+    {
+      "category": "dossier",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "drilldown",
+      "inputs": [
+        "dataset",
+        "ticker"
+      ],
+      "purpose": "compose a single-ticker catalyst dossier",
+      "writes_files": false
+    },
+    {
+      "category": "quality",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "evidence-audit",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "audit evidence freshness, source count, and concentration",
+      "writes_files": false
+    },
+    {
+      "category": "interchange",
+      "formats": [
+        "csv"
+      ],
+      "id": "export-csv",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "export dataset rows to CSV",
+      "writes_files": true
+    },
+    {
+      "category": "fixture",
+      "formats": [
+        "json"
+      ],
+      "id": "export-demo",
+      "inputs": [],
+      "purpose": "write the built-in demo dataset",
+      "writes_files": true
+    },
+    {
+      "category": "interchange",
+      "formats": [
+        "ics"
+      ],
+      "id": "export-ics",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "export upcoming catalysts to iCalendar",
+      "writes_files": true
+    },
+    {
+      "category": "fixture",
+      "formats": [
+        "json"
+      ],
+      "id": "export-preset-example",
+      "inputs": [],
+      "purpose": "write starter preset configuration",
+      "writes_files": true
+    },
+    {
+      "category": "portfolio",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "exposure",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "aggregate portfolio exposure by ticker/event/urgency",
+      "writes_files": false
+    },
+    {
+      "category": "release",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "finalize-release",
+      "inputs": [
+        "repo",
+        "git repo"
+      ],
+      "purpose": "combine release audit, smoke matrix, fixture gallery, and changelog into a checklist",
+      "writes_files": true
+    },
+    {
+      "category": "fixture",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "fixture-gallery",
+      "inputs": [],
+      "purpose": "list bundled fixture hashes and provenance",
+      "writes_files": true
+    },
+    {
+      "category": "site",
+      "formats": [
+        "html"
+      ],
+      "id": "html-dashboard",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "render a static HTML dashboard",
+      "writes_files": true
+    },
+    {
+      "category": "interchange",
+      "formats": [
+        "json"
+      ],
+      "id": "import-csv",
+      "inputs": [
+        "csv"
+      ],
+      "purpose": "import CSV rows as dataset JSON",
+      "writes_files": true
+    },
+    {
+      "category": "dataset",
+      "formats": [
+        "json"
+      ],
+      "id": "merge",
+      "inputs": [
+        "datasets"
+      ],
+      "purpose": "merge datasets with provenance and validation",
+      "writes_files": true
+    },
+    {
+      "category": "review",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "post-event",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "queue missing post-event outcome reviews",
+      "writes_files": false
+    },
+    {
+      "category": "quality",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "quality-gate",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "apply publication quality rules and diagnostic codes",
+      "writes_files": false
+    },
+    {
+      "category": "release",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "release-audit",
+      "inputs": [
+        "repo"
+      ],
+      "purpose": "audit release examples, docs, skill, and workflows",
+      "writes_files": false
+    },
+    {
+      "category": "review",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "review-plan",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "create review actions for stale and high-urgency catalysts",
+      "writes_files": false
+    },
+    {
+      "category": "portfolio",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "risk-budget",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "compare event max loss with risk budgets",
+      "writes_files": false
+    },
+    {
+      "category": "packet",
+      "formats": [
+        "json",
+        "directory"
+      ],
+      "id": "run-preset",
+      "inputs": [
+        "presets",
+        "dataset"
+      ],
+      "purpose": "execute named preset report packets",
+      "writes_files": true
+    },
+    {
+      "category": "scenario",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "scenario-matrix",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "render bull/base/bear event scenarios",
+      "writes_files": false
+    },
+    {
+      "category": "taxonomy",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "sector-map",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "group catalysts by sector and theme",
+      "writes_files": false
+    },
+    {
+      "category": "release",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "smoke-matrix",
+      "inputs": [
+        "demo data"
+      ],
+      "purpose": "run offline smoke checks for CLI commands",
+      "writes_files": false
+    },
+    {
+      "category": "sources",
+      "formats": [
+        "json",
+        "csv",
+        "markdown"
+      ],
+      "id": "source-pack",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "deduplicate source URLs for collection and review",
+      "writes_files": false
+    },
+    {
+      "category": "review",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "stale",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "list catalysts whose review state is stale",
+      "writes_files": false
+    },
+    {
+      "category": "site",
+      "formats": [
+        "directory"
+      ],
+      "id": "static-site",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "write a multi-page static site",
+      "writes_files": true
+    },
+    {
+      "category": "metadata",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "taxonomy",
+      "inputs": [],
+      "purpose": "report supported event types, statuses, actions, rules, diagnostics, and commands",
+      "writes_files": true
+    },
+    {
+      "category": "taxonomy",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "thesis-map",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "group catalysts by thesis id and evidence references",
+      "writes_files": false
+    },
+    {
+      "category": "learning",
+      "formats": [
+        "markdown"
+      ],
+      "id": "tutorial",
+      "inputs": [
+        "demo data"
+      ],
+      "purpose": "render a notebooks-free tutorial",
+      "writes_files": true
+    },
+    {
+      "category": "calendar",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "upcoming",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "list upcoming open catalysts",
+      "writes_files": false
+    },
+    {
+      "category": "quality",
+      "formats": [
+        "json"
+      ],
+      "id": "validate",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "validate schema and optional quality profile diagnostics",
+      "writes_files": false
+    },
+    {
+      "category": "archive",
+      "formats": [
+        "json"
+      ],
+      "id": "verify-archive",
+      "inputs": [
+        "archive directory"
+      ],
+      "purpose": "verify archive hashes and file inventory",
+      "writes_files": false
+    },
+    {
+      "category": "review",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "watchlist",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "convert open catalysts into watch items",
+      "writes_files": false
+    }
+  ],
+  "diagnostic_codes": [
+    {
+      "code": "MCC-VAL-BROKER-001",
+      "detail": "broker view date is after dataset as_of",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-CONFIDENCE-001",
+      "detail": "confidence range or confirmed/completed confidence mismatch",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-DATE-001",
+      "detail": "last_reviewed is after dataset as_of",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-DATE-002",
+      "detail": "evidence_checked_at is after dataset as_of",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-DATE-003",
+      "detail": "outcome_recorded_at is after dataset as_of",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-DATE-004",
+      "detail": "outcome_recorded_at is before the event window starts",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-EVIDENCE-001",
+      "detail": "record has no evidence URLs",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-EVIDENCE-002",
+      "detail": "evidence URL is not valid http(s)",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-GENERAL-001",
+      "detail": "validation error without a more specific diagnostic",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-HISTORY-001",
+      "detail": "history contains a future update",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-HISTORY-002",
+      "detail": "latest history status does not match current status",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-IDENTITY-001",
+      "detail": "duplicate record id",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-IDENTITY-002",
+      "detail": "ticker or entity is missing",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-IDENTITY-003",
+      "detail": "ticker format is unsupported",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-OUTCOME-001",
+      "detail": "outcome_recorded_at is set without actual_outcome",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-REVIEW-001",
+      "detail": "open record has no required review action",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-VAL-SCENARIO-001",
+      "detail": "required bull/base/bear scenario note is missing",
+      "source": "validate"
+    },
+    {
+      "code": "MCC-QG-BROKER-001",
+      "detail": "broker_caveats.missing_broker_views",
+      "rule": "broker_caveats",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-BROKER-002",
+      "detail": "broker_caveats.thin_caveat",
+      "rule": "broker_caveats",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-BROKER-003",
+      "detail": "broker_caveats.placeholder_caveat",
+      "rule": "broker_caveats",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-BROKER-004",
+      "detail": "broker_caveats.stale_broker_view",
+      "rule": "broker_caveats",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-001",
+      "detail": "minimum_evidence.missing_url_count",
+      "rule": "minimum_evidence",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-002",
+      "detail": "minimum_evidence.missing_checked_at",
+      "rule": "minimum_evidence",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-EVIDENCE-003",
+      "detail": "minimum_evidence.stale_checked_at",
+      "rule": "minimum_evidence",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-RELEASE-001",
+      "detail": "release_metadata.missing_sector",
+      "rule": "release_metadata",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-RELEASE-002",
+      "detail": "release_metadata.missing_theme",
+      "rule": "release_metadata",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-RELEASE-003",
+      "detail": "release_metadata.missing_thesis_id",
+      "rule": "release_metadata",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-RELEASE-004",
+      "detail": "release_metadata.missing_source_ref",
+      "rule": "release_metadata",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-REVIEW-001",
+      "detail": "review_freshness.missing_reviewed_at",
+      "rule": "review_freshness",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-REVIEW-002",
+      "detail": "review_freshness.stale_reviewed_at",
+      "rule": "review_freshness",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-SCENARIO-001",
+      "detail": "scenario_completeness.missing_note",
+      "rule": "scenario_completeness",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-SCENARIO-002",
+      "detail": "scenario_completeness.placeholder_note",
+      "rule": "scenario_completeness",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-SCENARIO-003",
+      "detail": "scenario_completeness.thin_note",
+      "rule": "scenario_completeness",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-SOURCE-001",
+      "detail": "no_placeholder_urls.placeholder_evidence_url",
+      "rule": "no_placeholder_urls",
+      "source": "quality-gate"
+    },
+    {
+      "code": "MCC-QG-SOURCE-002",
+      "detail": "no_placeholder_urls.placeholder_broker_url",
+      "rule": "no_placeholder_urls",
+      "source": "quality-gate"
+    }
+  ],
+  "event_types": [
+    "capital_return",
+    "clinical_trial",
+    "court_decision",
+    "earnings",
+    "guidance_update",
+    "investor_day",
+    "m_and_a",
+    "macro_release",
+    "product_launch",
+    "regulatory_decision"
+  ],
+  "impact_values": [
+    "mixed",
+    "negative",
+    "positive",
+    "unknown"
+  ],
+  "output_commands": [
+    "changelog",
+    "compare",
+    "create-archive",
+    "demo-bundle",
+    "export-csv",
+    "export-demo",
+    "export-ics",
+    "export-preset-example",
+    "finalize-release",
+    "fixture-gallery",
+    "html-dashboard",
+    "import-csv",
+    "merge",
+    "run-preset",
+    "static-site",
+    "taxonomy",
+    "tutorial"
+  ],
+  "quality_profiles": [
+    {
+      "max_broker_age_days": null,
+      "max_evidence_age_days": null,
+      "max_review_age_days": null,
+      "min_broker_caveat_chars": 24,
+      "min_evidence_urls": 1,
+      "min_scenario_note_chars": 24,
+      "name": "basic",
+      "require_broker_views": false,
+      "require_release_metadata": false
+    },
+    {
+      "max_broker_age_days": 30,
+      "max_evidence_age_days": 14,
+      "max_review_age_days": 14,
+      "min_broker_caveat_chars": 24,
+      "min_evidence_urls": 2,
+      "min_scenario_note_chars": 24,
+      "name": "public",
+      "require_broker_views": false,
+      "require_release_metadata": false
+    },
+    {
+      "max_broker_age_days": 14,
+      "max_evidence_age_days": 7,
+      "max_review_age_days": 7,
+      "min_broker_caveat_chars": 48,
+      "min_evidence_urls": 3,
+      "min_scenario_note_chars": 48,
+      "name": "strict",
+      "require_broker_views": true,
+      "require_release_metadata": true
+    }
+  ],
+  "quality_rules": [
+    {
+      "detail": "broker views must have substantive caveats and fresh source dates when required",
+      "id": "broker_caveats"
+    },
+    {
+      "detail": "records must meet evidence URL count and freshness metadata thresholds",
+      "id": "minimum_evidence"
+    },
+    {
+      "detail": "evidence and broker URLs cannot use placeholder or sample hosts/terms",
+      "id": "no_placeholder_urls"
+    },
+    {
+      "detail": "strict profile records must include sector, theme, thesis_id, and source_ref",
+      "id": "release_metadata"
+    },
+    {
+      "detail": "last_reviewed must exist and fall within the profile freshness window",
+      "id": "review_freshness"
+    },
+    {
+      "detail": "bull/base/bear notes must exist and be substantive",
+      "id": "scenario_completeness"
+    }
+  ],
+  "required_scenarios": [
+    "bull",
+    "base",
+    "bear"
+  ],
+  "review_actions": [
+    "archive",
+    "monitor_date",
+    "none",
+    "refresh_evidence",
+    "update_scenario",
+    "verify_source"
+  ],
+  "schema_version": "taxonomy/v1",
+  "statuses": [
+    "cancelled",
+    "completed",
+    "confirmed",
+    "delayed",
+    "rumored",
+    "scheduled",
+    "watching"
+  ],
+  "summary": {
+    "command_count": 41,
+    "diagnostic_code_count": 35,
+    "event_type_count": 10,
+    "output_command_count": 17,
+    "quality_rule_count": 6
+  }
+}

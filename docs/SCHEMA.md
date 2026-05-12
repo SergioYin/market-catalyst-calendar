@@ -212,6 +212,38 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `record_count`, `failed_record_count`, `rule_counts`, and `severity_counts`.
 - Markdown: status block plus a failing-record table with diagnostic codes and per-record next actions.
 
+`export-preset-example`
+
+- Input: built-in deterministic example config only; no dataset JSON is required.
+- Parameters: optional `--output`.
+- Output: presets JSON with top-level `defaults` and `presets` objects.
+
+`run-preset`
+
+- Input: presets JSON plus the dataset path named by the preset, unless `--input` overrides it.
+- Parameters: required `--presets` and `--name`; optional `--input`, `--as-of`, and `--output-dir` overrides.
+- Presets JSON: `{ "defaults": object, "presets": { name: preset } }`.
+- Default fields: `days`, `stale_after_days`, `profile`, `output_dir`, optional `input`, optional `as_of`, and optional `workflows`.
+- Preset fields: `input`, `as_of`, `days`, `stale_after_days`, `profile`, `output_dir`, and `workflows`; preset fields override defaults.
+- Supported workflows: `validate`, `quality-gate`, `upcoming`, `stale`, `brief`, `exposure`, `exposure-markdown`, `risk-budget`, `risk-budget-markdown`, `sector-map`, `sector-map-markdown`, `review-plan`, `review-plan-markdown`, `thesis-map`, `thesis-map-markdown`, `scenario-matrix`, `scenario-matrix-markdown`, `evidence-audit`, `evidence-audit-markdown`, `broker-matrix`, `broker-matrix-markdown`, `source-pack`, `source-pack-csv`, `source-pack-markdown`, `watchlist`, `watchlist-markdown`, `decision-log`, `decision-log-markdown`, `agent-handoff`, `agent-handoff-markdown`, and `html-dashboard`.
+- Output: writes each workflow artifact and `manifest.json` under `output_dir`, and prints the same manifest to stdout.
+- JSON manifest: `{ "schema_version": "preset-run/v1", "ok": true, "preset": string, "input": string, "as_of": date, "parameters": object, "summary": object, "artifacts": [artifact, ...], "manifest": "manifest.json" }`.
+- Parameters fields: `days`, `stale_after_days`, `profile`, and `output_dir`.
+- Summary fields: `workflow_count`, `artifact_count`, `record_count`, and `report_failure_count`.
+- Artifact fields: `workflow`, `path`, `command`, `exit_code`, `bytes`, and `sha256`.
+- Exit status: `0` when the packet is generated. Individual report failures, such as a failing quality gate, are recorded in artifact `exit_code` and counted in `report_failure_count`.
+
+`taxonomy`
+
+- Input: built-in package metadata only; no dataset JSON is required.
+- Parameters: optional `--format json|markdown` and `--output`.
+- JSON: `{ "schema_version": "taxonomy/v1", "event_types": [string, ...], "statuses": [string, ...], "review_actions": [string, ...], "quality_rules": [rule, ...], "diagnostic_codes": [code, ...], "output_commands": [string, ...], "commands": [command, ...], "summary": object }`.
+- Rule fields: `id` and `detail`.
+- Diagnostic code fields: `code`, `source`, `detail`, and optional `rule`.
+- Command fields: `id`, `category`, `formats`, `inputs`, `purpose`, and `writes_files`.
+- Summary fields: `command_count`, `diagnostic_code_count`, `event_type_count`, `output_command_count`, and `quality_rule_count`.
+- Markdown: sections for event types, statuses, review actions, quality rules, diagnostic codes, output commands, and the full command catalog.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.
@@ -235,6 +267,18 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Conventional commit types are grouped into `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`, `revert`, and `other`.
 - Markdown: release-note header with range, from/to SHAs, commit count, optional target tags, breaking changes, and non-empty category sections.
 
+`finalize-release`
+
+- Input: repository files, built-in fixture metadata, internal smoke checks, and local git history; no network access is used.
+- Parameters: required `--since-tag` unless using the hidden fixture-only `--example`, optional `--root`, `--repo`, `--to-ref`, `--include-merges`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when release audit, smoke matrix, fixture gallery, and changelog checks all pass; `1` when any checklist item fails.
+- JSON: `{ "schema_version": "finalize-release/v1", "ok": bool, "root": string, "repo": string, "range": string, "since_tag": string, "to_ref": string, "checklist": [item, ...], "blockers": [string, ...], "components": object, "release_notes": object }`.
+- Checklist item fields: `id`, `ok`, `status`, `detail`, and `blockers`.
+- Top-level finalizer fields include `blockers`, `components`, and `release_notes`.
+- Component fields: `release_audit`, `smoke_matrix`, `fixture_gallery`, and `changelog`; each includes `ok` and deterministic summary fields.
+- `release_notes` fields: `commit_count`, `breaking_change_count`, and non-empty changelog `categories` with compact commit references.
+- Markdown: status block, checklist, component table, optional blockers, and release-note counts.
+
 `broker-matrix`
 
 - JSON: `{ "as_of": date, "stale_after_days": int, "groups": [group, ...], "summary": object }`.
@@ -250,6 +294,13 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `source_count`, `evidence_source_count`, `broker_source_count`, `stale_source_count`, `missing_freshness_count`, `usage_count`.
 - CSV: same source inventory with stable columns `url,source_types,usage_count,tickers,thesis_ids,record_ids,evidence_checked_at,freshness_age_days,freshness_state,broker_institutions,broker_as_of_dates`.
 - Markdown: source inventory table.
+
+`tutorial`
+
+- Input: built-in demo data only; no dataset JSON is required.
+- Parameters: optional `--as-of`, `--days`, `--dataset-path`, and `--output`.
+- Output: deterministic Markdown tutorial.
+- Contract: the tutorial is notebooks-free and includes command blocks, expected exit codes, expected command output excerpts derived from demo data, and learning checkpoints. It covers demo export, validation, upcoming catalysts, public quality-gate diagnostics, risk budget, source pack, single-ticker drilldown, and snapshot compare.
 
 `agent-handoff`
 
@@ -318,6 +369,14 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Output: deterministic no-JavaScript HTML document.
 - Parameters: `--as-of`, `--days`, `--stale-after-days`, optional `--output`.
 - Contract: escapes dataset text before embedding it and includes score tables, exposure, thesis map, evidence audit, scenario matrix, and watchlist sections.
+
+`static-site`
+
+- Input: dataset JSON.
+- Parameters: required `--output-dir`, optional `--as-of`, `--days`, `--stale-after-days`, and `--fresh-after-days`.
+- Output: JSON summary to stdout plus a deterministic no-JavaScript site directory.
+- Files: `index.html`, `dashboard.html`, `sources.html`, `style.css`, `manifest.json`, and one `tickers/<ticker>.html` page for each ticker in the dataset.
+- Contract: `--output-dir` must be empty; dynamic dataset text is escaped; `manifest.json` includes `site_version`, `as_of`, dataset record ids and tickers, parameters, and per-file `path`, `bytes`, and `sha256`.
 
 `export-demo`
 
