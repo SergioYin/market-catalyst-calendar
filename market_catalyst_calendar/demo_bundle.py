@@ -55,6 +55,7 @@ from .render import (
 from .scoring import score_record
 from .taxonomy import taxonomy_json, taxonomy_markdown
 from .tutorial import tutorial_markdown
+from .version_report import version_report_json, version_report_markdown
 
 
 BUNDLE_VERSION = 1
@@ -420,6 +421,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
         ),
         ("taxonomy.json", "taxonomy", lambda: dump_json(taxonomy_json()), 0),
         ("taxonomy.md", "taxonomy --format markdown", taxonomy_markdown, 0),
+        (
+            "version_report.json",
+            "version-report --root . --repo .",
+            lambda: dump_json(version_report_json(Path("."), Path("."))),
+            0,
+        ),
+        (
+            "version_report.md",
+            "version-report --root . --repo . --format markdown",
+            lambda: version_report_markdown(version_report_json(Path("."), Path("."))),
+            0,
+        ),
         (
             "post_event.json",
             "post-event --input examples/demo_records.json --as-of 2026-06-25",

@@ -32,6 +32,7 @@ REQUIRED_COMMANDS = [
     "agent-handoff",
     "run-preset",
     "taxonomy",
+    "version-report",
     "post-event",
     "export-demo",
     "export-preset-example",
@@ -204,7 +205,7 @@ def _skill_check(root: Path) -> Dict[str, object]:
     missing = []
     if not skill_path.is_file():
         missing.append(SKILL_PATH.as_posix())
-    for command in ["release-audit", "finalize-release"]:
+    for command in ["release-audit", "finalize-release", "version-report"]:
         if command not in text:
             missing.append(f"{command} mention")
     return {

@@ -123,6 +123,10 @@ COMMAND_USE_CASES = {
         "List open catalysts in a forward window.",
         "Test date-window filtering and deterministic score ordering.",
     ],
+    "version-report": [
+        "Inspect package version, command and fixture counts, release status, and local git refs.",
+        "Use as a compact release handoff snapshot before tagging.",
+    ],
     "watchlist": [
         "Convert open catalysts into prioritized watch items.",
         "Use for trigger, due-date, and cadence workflows.",

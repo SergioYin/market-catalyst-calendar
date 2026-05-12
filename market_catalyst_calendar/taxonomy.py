@@ -68,6 +68,7 @@ COMMAND_CATALOG = [
     {"id": "agent-handoff", "category": "agent", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "create downstream research-agent context packs", "writes_files": False},
     {"id": "run-preset", "category": "packet", "formats": ["json", "directory"], "inputs": ["presets", "dataset"], "purpose": "execute named preset report packets", "writes_files": True},
     {"id": "taxonomy", "category": "metadata", "formats": ["json", "markdown"], "inputs": [], "purpose": "report supported event types, statuses, actions, rules, diagnostics, and commands", "writes_files": True},
+    {"id": "version-report", "category": "metadata", "formats": ["json", "markdown"], "inputs": ["repo"], "purpose": "report package version, command count, fixture count, release status, and latest git refs", "writes_files": True},
     {"id": "post-event", "category": "review", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "queue missing post-event outcome reviews", "writes_files": False},
     {"id": "export-demo", "category": "fixture", "formats": ["json"], "inputs": [], "purpose": "write the built-in demo dataset", "writes_files": True},
     {"id": "export-preset-example", "category": "fixture", "formats": ["json"], "inputs": [], "purpose": "write starter preset configuration", "writes_files": True},

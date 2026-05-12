@@ -158,7 +158,7 @@ def example_finalize_release_json(gallery: Dict[str, object]) -> Dict[str, objec
     smoke_matrix = {
         "schema_version": "smoke-matrix/v1",
         "ok": True,
-        "summary": {"command_count": 40, "failed_count": 0, "passed_count": 40},
+        "summary": {"command_count": 42, "failed_count": 0, "passed_count": 42},
         "commands": [
             {"command": "release-audit", "status": "pass", "detail": "ok"},
             {"command": "smoke-matrix", "status": "pass", "detail": "ok"},

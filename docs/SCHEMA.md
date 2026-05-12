@@ -244,6 +244,19 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Summary fields: `command_count`, `diagnostic_code_count`, `event_type_count`, `output_command_count`, and `quality_rule_count`.
 - Markdown: sections for event types, statuses, review actions, quality rules, diagnostic codes, output commands, and the full command catalog.
 
+`version-report`
+
+- Input: repository files and local git metadata only; no dataset JSON or network access is used.
+- Parameters: optional `--root`, `--repo`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when the non-recursive release status passes, `1` when README command coverage, schema field coverage, agent skill mentions, or workflow-file checks fail.
+- JSON: `{ "schema_version": "version-report/v1", "package": object, "summary": object, "command_count": int, "fixture_count": int, "release_audit": object, "git": object }`.
+- Package fields: `name` and `version`.
+- Summary fields: `command_count`, `fixture_count`, and `release_audit_status`.
+- Release-audit fields: `status`, `ok`, `checked_with`, `detail`, `blockers`, `missing_commands`, `missing_schema_fields`, `missing_skill_items`, and `workflow_files`.
+- Git fields: `available`, `repo`, `latest_tag`, `commit`, and `detail` when unavailable.
+- Commit fields: `hash`, `short_hash`, `date`, and `subject`.
+- Markdown: package/version summary, command and fixture counts, release audit status, git tag/commit details, and blockers when present.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.

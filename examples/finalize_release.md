@@ -8,8 +8,8 @@ Range: `v2.9.0..HEAD`
 ## Checklist
 
 - [x] `release-audit` - 5 passed / 5 checks
-- [x] `smoke-matrix` - 40 passed / 40 commands
-- [x] `fixture-gallery` - 54 fixtures indexed
+- [x] `smoke-matrix` - 42 passed / 42 commands
+- [x] `fixture-gallery` - 56 fixtures indexed
 - [x] `changelog` - 1 commits since v2.9.0
 
 ## Components
@@ -17,8 +17,8 @@ Range: `v2.9.0..HEAD`
 | Component | Status | Detail |
 | --- | --- | --- |
 | release-audit | PASS | 5 passed / 5 checks |
-| smoke-matrix | PASS | 40 passed / 40 commands |
-| fixture-gallery | PASS | 54 fixtures indexed |
+| smoke-matrix | PASS | 42 passed / 42 commands |
+| fixture-gallery | PASS | 56 fixtures indexed |
 | changelog | PASS | 1 commits since v2.9.0 |
 
 ## Release Notes

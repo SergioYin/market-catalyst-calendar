@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 41
+Commands: 42
 Diagnostic codes: 35
 
 ## Event Types
@@ -108,6 +108,7 @@ Diagnostic codes: 35
 | static-site | directory | write a multi-page static site |
 | taxonomy | json, markdown | report supported event types, statuses, actions, rules, diagnostics, and commands |
 | tutorial | markdown | render a notebooks-free tutorial |
+| version-report | json, markdown | report package version, command count, fixture count, release status, and latest git refs |
 
 ## All Commands
 
@@ -153,4 +154,5 @@ Diagnostic codes: 35
 | upcoming | calendar | json, markdown |
 | validate | quality | json |
 | verify-archive | archive | json |
+| version-report | metadata | json, markdown |
 | watchlist | review | json, markdown |

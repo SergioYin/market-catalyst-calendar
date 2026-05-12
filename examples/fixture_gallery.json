@@ -957,7 +957,7 @@
       "sha256": "dfa83b4934eecd9dd4aa1767e556797dcbec91a54b31ce3200f8d55028fef736"
     },
     {
-      "bytes": 19174,
+      "bytes": 19511,
       "command": "python -m market_catalyst_calendar taxonomy",
       "command_args": [
         "taxonomy"
@@ -970,10 +970,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "c98529398a930bde1abfaf49875e54156b25313380a18a1f920b2e89026b555b"
+      "sha256": "ce04a98cc9ff7ba6e4301a167f0743f0d73a8ede55dcf460243246cdfabd2e5d"
     },
     {
-      "bytes": 6573,
+      "bytes": 6748,
       "command": "python -m market_catalyst_calendar taxonomy --format markdown",
       "command_args": [
         "taxonomy",
@@ -988,7 +988,49 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "dd0ade209455e6aa2ee8e9fe04900fe5d871a3c19252d645a5cbf7343473371b"
+      "sha256": "9651ffcb9c7e121b9958a7f9234f11e7c7871a430120606baaac34f5b9746451"
+    },
+    {
+      "bytes": 944,
+      "command": "python -m market_catalyst_calendar version-report --root . --repo .",
+      "command_args": [
+        "version-report",
+        "--root",
+        ".",
+        "--repo",
+        "."
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/version_report.json",
+      "recommended_use_cases": [
+        "Inspect package version, command and fixture counts, release status, and local git refs.",
+        "Use as a compact release handoff snapshot before tagging."
+      ],
+      "sha256": "c33dfa07c6d0955925ac48407a54fcd7bcd002194407181282aab5be2f83dd8c"
+    },
+    {
+      "bytes": 277,
+      "command": "python -m market_catalyst_calendar version-report --root . --repo . --format markdown",
+      "command_args": [
+        "version-report",
+        "--root",
+        ".",
+        "--repo",
+        ".",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "markdown",
+      "path": "examples/version_report.md",
+      "recommended_use_cases": [
+        "Inspect package version, command and fixture counts, release status, and local git refs.",
+        "Use as a compact release handoff snapshot before tagging."
+      ],
+      "sha256": "40283fb7d0b292db27aa7b12db40ac38d13e84eb1d754e79622036aaf3479bb3"
     },
     {
       "bytes": 4548,
@@ -1232,7 +1274,7 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "a5c22b0759f9e4b12bd43f7406f462eed0ecf39d4e860a4d29dc7df94fcce38b"
+      "sha256": "598bfcb43919823d977490838af54b2bf72c5cf622a3a3555a354e14089eea58"
     },
     {
       "bytes": 615,
@@ -1251,18 +1293,18 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "b49829d734d1eebabf8cff8886c35062ce8fd93b5064b81ce9b774558cc33ffa"
+      "sha256": "3fe6d07b3171bc8a1911c099f37ebaebceb710e94639a0cf5220474911ff72e9"
     }
   ],
   "schema_version": "fixture-gallery/v1",
   "summary": {
-    "fixture_count": 54,
+    "fixture_count": 56,
     "output_type_counts": {
       "csv": 2,
       "html": 1,
       "ics": 1,
-      "json": 28,
-      "markdown": 22
+      "json": 29,
+      "markdown": 23
     }
   }
 }

@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
 
 ## Install
 
@@ -58,6 +58,8 @@ python -m market_catalyst_calendar export-preset-example --output examples/prese
 python -m market_catalyst_calendar run-preset --presets examples/presets.json --name desk-packet
 python -m market_catalyst_calendar taxonomy
 python -m market_catalyst_calendar taxonomy --format markdown
+python -m market_catalyst_calendar version-report --root . --repo .
+python -m market_catalyst_calendar version-report --root . --repo . --format markdown
 python -m market_catalyst_calendar fixture-gallery
 python -m market_catalyst_calendar fixture-gallery --format markdown
 python -m market_catalyst_calendar post-event --input examples/demo_records.json --as-of 2026-06-25
@@ -173,6 +175,19 @@ Use it when building downstream agents, docs, or fixtures that need stable enum 
 python -m market_catalyst_calendar taxonomy
 python -m market_catalyst_calendar taxonomy --format markdown
 ```
+
+## Version Report Workflow
+
+`version-report` emits a compact release handoff snapshot in JSON or Markdown. It reports the package name/version, command count from the taxonomy catalog, checked-in fixture count, a non-recursive release-audit readiness status, and the latest local git tag plus current commit when git metadata is available.
+
+Use it before release handoff when you need one small status artifact without running the full smoke matrix:
+
+```bash
+python -m market_catalyst_calendar version-report --root . --repo .
+python -m market_catalyst_calendar version-report --root . --repo . --format markdown
+```
+
+The release-audit status in this report checks README command coverage, schema field coverage, agent skill mentions, and workflow-file absence. Run `release-audit` for the full byte-for-byte regenerated fixture audit.
 
 ## Sector Map Workflow
 

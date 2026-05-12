@@ -252,6 +252,30 @@ class CliTests(unittest.TestCase):
         self.assertIn("## Diagnostic Codes", result.stdout)
         self.assertIn("| taxonomy | json, markdown |", result.stdout)
 
+    def test_version_report_json_includes_release_and_git_snapshot(self):
+        result = self.run_cli("version-report", "--root", str(ROOT), "--repo", str(ROOT))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "version-report/v1")
+        self.assertEqual(payload["package"]["version"], "0.1.0")
+        self.assertEqual(payload["command_count"], payload["summary"]["command_count"])
+        self.assertGreaterEqual(payload["command_count"], len(REQUIRED_COMMANDS))
+        self.assertEqual(payload["fixture_count"], payload["summary"]["fixture_count"])
+        self.assertEqual(payload["release_audit"]["status"], "pass")
+        self.assertEqual(payload["summary"]["release_audit_status"], "pass")
+        self.assertIn("available", payload["git"])
+        if payload["git"]["available"]:
+            self.assertIn("short_hash", payload["git"]["commit"])
+
+    def test_version_report_markdown_renders_summary(self):
+        result = self.run_cli("version-report", "--root", str(ROOT), "--repo", str(ROOT), "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Version Report", result.stdout)
+        self.assertIn("Version: `0.1.0`", result.stdout)
+        self.assertIn("Release audit: PASS", result.stdout)
+
     def test_upcoming_json_is_deterministic(self):
         result = self.run_cli("upcoming", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -1277,14 +1301,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 58)
+            self.assertEqual(payload["file_count"], 60)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 58)
+            self.assertEqual(len(manifest["files"]), 60)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1301,6 +1325,8 @@ class CliTests(unittest.TestCase):
             self.assertIn("examples/agent_handoff.md", paths)
             self.assertIn("examples/taxonomy.json", paths)
             self.assertIn("examples/taxonomy.md", paths)
+            self.assertIn("examples/version_report.json", paths)
+            self.assertIn("examples/version_report.md", paths)
             self.assertIn("examples/fixture_gallery.json", paths)
             self.assertIn("examples/fixture_gallery.md", paths)
             self.assertIn("examples/finalize_release.json", paths)
@@ -1334,8 +1360,8 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 54)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 28)
+        self.assertEqual(payload["summary"]["fixture_count"], 56)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 29)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1390,7 +1416,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 56)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 58)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1434,7 +1460,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 28)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 29)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1444,7 +1470,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 54 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 56 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1452,7 +1478,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 56 of 56 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 58 of 58 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):

@@ -1,0 +1,36 @@
+{
+  "command_count": 42,
+  "fixture_count": 58,
+  "git": {
+    "available": true,
+    "commit": {
+      "date": "2026-05-13T06:48:33+08:00",
+      "hash": "004f0bcff4afe9b2ca14f3c49bb55c18ca379336",
+      "short_hash": "004f0bc",
+      "subject": "feat: add release readiness workflows"
+    },
+    "latest_tag": "v3.5.0",
+    "repo": "20260513-market-catalyst-calendar"
+  },
+  "package": {
+    "name": "market-catalyst-calendar",
+    "version": "0.1.0"
+  },
+  "release_audit": {
+    "blockers": [],
+    "checked_with": "version-report/nonrecursive-release-snapshot/v1",
+    "detail": "release docs, skill, and workflow guardrails pass",
+    "missing_commands": [],
+    "missing_schema_fields": [],
+    "missing_skill_items": [],
+    "ok": true,
+    "status": "pass",
+    "workflow_files": []
+  },
+  "schema_version": "version-report/v1",
+  "summary": {
+    "command_count": 42,
+    "fixture_count": 58,
+    "release_audit_status": "pass"
+  }
+}

@@ -57,6 +57,8 @@ All examples use these stable dates:
 | `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
 | `taxonomy.json` | `taxonomy` | Machine-readable supported event types, statuses, review actions, quality rules, diagnostic codes, and command catalog. |
 | `taxonomy.md` | `taxonomy --format markdown` | Analyst-readable rendering of the taxonomy and command catalog. |
+| `version_report.json` | `version-report` | Package version, command count, checked-in fixture count, release readiness status, and local git refs. |
+| `version_report.md` | `version-report --format markdown` | Markdown rendering of the package and release status snapshot. |
 | `fixture_gallery.json` | `fixture-gallery` | Machine-readable index of bundled fixtures with provenance, hashes, output types, and recommended use cases. |
 | `fixture_gallery.md` | `fixture-gallery --format markdown` | Analyst-readable fixture gallery for selecting examples and regression fixtures. |
 | `finalize_release.json` | `finalize-release --example` | Machine-readable release finalizer checklist combining audit, smoke, fixture, and changelog summaries. |
@@ -161,6 +163,10 @@ python -m market_catalyst_calendar agent-handoff --input examples/demo_records.j
 python -m market_catalyst_calendar taxonomy
 # fixture: examples/taxonomy.md
 python -m market_catalyst_calendar taxonomy --format markdown
+# fixture: examples/version_report.json
+python -m market_catalyst_calendar version-report --root . --repo .
+# fixture: examples/version_report.md
+python -m market_catalyst_calendar version-report --root . --repo . --format markdown
 # fixture: examples/fixture_gallery.json
 python -m market_catalyst_calendar fixture-gallery
 # fixture: examples/fixture_gallery.md

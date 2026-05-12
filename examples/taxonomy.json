@@ -502,6 +502,19 @@
       "writes_files": false
     },
     {
+      "category": "metadata",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "version-report",
+      "inputs": [
+        "repo"
+      ],
+      "purpose": "report package version, command count, fixture count, release status, and latest git refs",
+      "writes_files": true
+    },
+    {
       "category": "review",
       "formats": [
         "json",
@@ -745,7 +758,8 @@
     "run-preset",
     "static-site",
     "taxonomy",
-    "tutorial"
+    "tutorial",
+    "version-report"
   ],
   "quality_profiles": [
     {
@@ -832,10 +846,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 41,
+    "command_count": 42,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 17,
+    "output_command_count": 18,
     "quality_rule_count": 6
   }
 }

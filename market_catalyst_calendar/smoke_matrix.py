@@ -217,6 +217,8 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         SmokeCase("run-preset", ["run-preset", "--presets", presets, "--name", "desk-packet"], expected_files=["preset-packet/manifest.json", "preset-packet/upcoming.json"], required_stdout='"schema_version": "preset-run/v1"'),
         SmokeCase("taxonomy", ["taxonomy"], required_stdout='"schema_version": "taxonomy/v1"'),
         SmokeCase("taxonomy markdown", ["taxonomy", "--format", "markdown"], required_stdout="# Market Catalyst Taxonomy"),
+        SmokeCase("version-report", ["version-report", "--root", "{root}", "--repo", "{root}"], required_stdout='"schema_version": "version-report/v1"'),
+        SmokeCase("version-report markdown", ["version-report", "--root", "{root}", "--repo", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Version Report"),
         SmokeCase("post-event", ["post-event", "--input", base, "--as-of", POST_EVENT_AS_OF]),
         SmokeCase("post-event markdown", ["post-event", "--input", base, "--as-of", POST_EVENT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Post-Event Review"),
         SmokeCase("compare", ["compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF]),

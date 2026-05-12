@@ -64,6 +64,7 @@ from .taxonomy import taxonomy_json, taxonomy_markdown
 from .tutorial import DEFAULT_AS_OF as TUTORIAL_DEFAULT_AS_OF
 from .tutorial import DEFAULT_DAYS as TUTORIAL_DEFAULT_DAYS
 from .tutorial import tutorial_markdown
+from .version_report import version_report_json, version_report_markdown
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -263,6 +264,13 @@ def build_parser() -> argparse.ArgumentParser:
     taxonomy.add_argument("--format", choices=["json", "markdown"], default="json")
     taxonomy.add_argument("--output", "-o", help="output path; stdout when omitted")
     taxonomy.set_defaults(func=cmd_taxonomy)
+
+    version_report = subparsers.add_parser("version-report", help="report package version, command/fixture counts, release status, and git refs")
+    version_report.add_argument("--root", default=".", help="repository root for fixture and release status checks; defaults to current directory")
+    version_report.add_argument("--repo", default=".", help="git repository root; defaults to current directory")
+    version_report.add_argument("--format", choices=["json", "markdown"], default="json")
+    version_report.add_argument("--output", "-o", help="output path; stdout when omitted")
+    version_report.set_defaults(func=cmd_version_report)
 
     post_event = subparsers.add_parser("post-event", help="render post-event outcome review templates")
     add_input(post_event)
@@ -869,6 +877,16 @@ def cmd_taxonomy(args: argparse.Namespace) -> int:
     else:
         print(text, end="")
     return 0
+
+
+def cmd_version_report(args: argparse.Namespace) -> int:
+    payload = version_report_json(Path(args.root), Path(args.repo))
+    text = dump_json(payload) if args.format == "json" else version_report_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["release_audit"]["ok"] else 1
 
 
 def cmd_post_event(args: argparse.Namespace) -> int:

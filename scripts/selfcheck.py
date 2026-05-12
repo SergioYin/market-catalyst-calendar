@@ -382,6 +382,22 @@ def main() -> int:
             sys.stderr.write(taxonomy.stdout)
             sys.stderr.write(taxonomy.stderr)
             return taxonomy.returncode or 1
+        version_report = run(
+            [
+                sys.executable,
+                "-m",
+                "market_catalyst_calendar",
+                "version-report",
+                "--root",
+                str(ROOT),
+                "--repo",
+                str(ROOT),
+            ]
+        )
+        if version_report.returncode != 0 or '"schema_version": "version-report/v1"' not in version_report.stdout or '"release_audit_status": "pass"' not in version_report.stdout:
+            sys.stderr.write(version_report.stdout)
+            sys.stderr.write(version_report.stderr)
+            return version_report.returncode or 1
         site_dir = Path(tmp) / "site"
         static_site = run(
             [
@@ -469,6 +485,8 @@ def main() -> int:
             bundle_dir / "examples" / "agent_handoff.md",
             bundle_dir / "examples" / "fixture_gallery.json",
             bundle_dir / "examples" / "fixture_gallery.md",
+            bundle_dir / "examples" / "version_report.json",
+            bundle_dir / "examples" / "version_report.md",
             bundle_dir / "examples" / "finalize_release.json",
             bundle_dir / "examples" / "finalize_release.md",
             bundle_dir / "examples" / "drilldown.json",
