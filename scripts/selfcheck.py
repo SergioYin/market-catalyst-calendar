@@ -13,6 +13,10 @@ from typing import List, Optional, Tuple
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from market_catalyst_calendar.fixture_compare import fixtures_match
+
 EXAMPLES_README = ROOT / "examples" / "README.md"
 
 
@@ -177,7 +181,8 @@ def validate_documented_examples() -> int:
             )
             return result.returncode or 1
         expected = expected_path.read_text(encoding="utf-8")
-        if result.stdout != expected:
+        relative_path = expected_path.relative_to(ROOT).as_posix().removeprefix("examples/")
+        if not fixtures_match(relative_path, result.stdout, expected):
             sys.stderr.write(f"output mismatch for {' '.join(command)}\n")
             return 1
     return 0

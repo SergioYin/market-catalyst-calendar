@@ -10,6 +10,7 @@ from pathlib import Path
 from market_catalyst_calendar.csv_io import CSV_COLUMNS, csv_to_dataset_json, dataset_to_csv
 from market_catalyst_calendar.demo import DEMO_DATA, DEMO_UPDATED_DATA
 from market_catalyst_calendar.demo_bundle import _bundle_files
+from market_catalyst_calendar.fixture_compare import fixtures_match
 from market_catalyst_calendar.models import parse_dataset, validation_errors
 from market_catalyst_calendar.release_audit import RELEASE_AUDIT_SCHEMA_FIELDS, REQUIRED_COMMANDS
 from market_catalyst_calendar.scoring import score_record
@@ -128,6 +129,37 @@ class ModelTests(unittest.TestCase):
         dataset = parse_dataset(DEMO_UPDATED_DATA)
         self.assertEqual(validation_errors(dataset), [])
         self.assertEqual(len(dataset.records), 4)
+
+
+class FixtureCompareTests(unittest.TestCase):
+    def test_version_report_ignores_volatile_git_metadata_only(self):
+        expected = json.loads((ROOT / "examples" / "version_report.json").read_text(encoding="utf-8"))
+        actual = json.loads(json.dumps(expected))
+        actual["git"]["latest_tag"] = "v999.0.0"
+        actual["git"]["commit"] = {
+            "date": "2030-01-01T00:00:00+00:00",
+            "hash": "f" * 40,
+            "short_hash": "fffffff",
+            "subject": "docs: regenerate public examples",
+        }
+
+        self.assertTrue(fixtures_match("version_report.json", json.dumps(actual), json.dumps(expected)))
+
+        actual["summary"]["fixture_count"] += 1
+        self.assertFalse(fixtures_match("version_report.json", json.dumps(actual), json.dumps(expected)))
+
+    def test_fixture_gallery_ignores_hashes_derived_from_volatile_fixtures(self):
+        expected = json.loads((ROOT / "examples" / "fixture_gallery.json").read_text(encoding="utf-8"))
+        actual = json.loads(json.dumps(expected))
+        for fixture in actual["fixtures"]:
+            if fixture["path"] == "examples/version_report.json":
+                fixture["bytes"] = 123456
+                fixture["sha256"] = "f" * 64
+
+        self.assertTrue(fixtures_match("fixture_gallery.json", json.dumps(actual), json.dumps(expected)))
+
+        actual["fixtures"][0]["sha256"] = "0" * 64
+        self.assertFalse(fixtures_match("fixture_gallery.json", json.dumps(actual), json.dumps(expected)))
 
 
 class CliTests(unittest.TestCase):

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from .demo_bundle import _bundle_files
+from .fixture_compare import fixtures_match
 
 
 REQUIRED_COMMANDS = [
@@ -154,8 +155,8 @@ def _examples_check(root: Path) -> Dict[str, object]:
     extra = sorted(actual_paths - expected_paths)
     mismatches = []
     for relative_path in sorted(expected_paths & actual_paths):
-        actual = (examples_dir / relative_path).read_bytes()
-        if actual != expected[relative_path].encode("utf-8"):
+        actual = (examples_dir / relative_path).read_bytes().decode("utf-8")
+        if not fixtures_match(relative_path, actual, expected[relative_path]):
             mismatches.append(relative_path)
     ok = not missing and not extra and not mismatches
     return {
