@@ -1,0 +1,103 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3861,
+      "command": "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+      "name": "upcoming.json",
+      "sha256": "bfefef8050a1e37694d68339903282a1e1902bcd6c74473dec827e10b3e9dc1d"
+    },
+    {
+      "bytes": 1371,
+      "command": "python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "name": "brief.md",
+      "sha256": "dbf0252cacd2df04047953477b93fbc1fff0dd468eea831a044e08d778465579"
+    },
+    {
+      "bytes": 3572,
+      "command": "python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+      "name": "risk_budget.json",
+      "sha256": "85e34e4316e593de2f863ccb2d680bbdcad7606846256ff3645f26c35a985f5d"
+    },
+    {
+      "bytes": 6402,
+      "command": "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --fresh-after-days 14 --format json",
+      "name": "source_pack.json",
+      "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94"
+    }
+  ],
+  "boundaries": [
+    "No live data: the receipt reads only the local input file and does not fetch market, news, or broker data.",
+    "No broker integration: commands do not place, route, recommend, or simulate trades with a broker.",
+    "No investment advice: outputs are deterministic research fixtures and operational checks, not personalized recommendations."
+  ],
+  "fixtures": [
+    {
+      "bytes": 6771,
+      "path": "examples/demo_records.json",
+      "present": true,
+      "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+    },
+    {
+      "bytes": 3861,
+      "path": "examples/upcoming.json",
+      "present": true,
+      "sha256": "bfefef8050a1e37694d68339903282a1e1902bcd6c74473dec827e10b3e9dc1d"
+    },
+    {
+      "bytes": 1371,
+      "path": "examples/brief.md",
+      "present": true,
+      "sha256": "dbf0252cacd2df04047953477b93fbc1fff0dd468eea831a044e08d778465579"
+    },
+    {
+      "bytes": 3572,
+      "path": "examples/risk_budget.json",
+      "present": true,
+      "sha256": "85e34e4316e593de2f863ccb2d680bbdcad7606846256ff3645f26c35a985f5d"
+    },
+    {
+      "bytes": 6402,
+      "path": "examples/source_pack.json",
+      "present": true,
+      "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94"
+    },
+    {
+      "bytes": 944,
+      "path": "examples/version_report.json",
+      "present": true,
+      "sha256": "0fd35b40fba1f5a01934ae6da9b9c55a7cc17e141c0d0cd1858e8841726052b3"
+    }
+  ],
+  "inputs": {
+    "dataset_path": "examples/demo_records.json",
+    "dataset_sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4",
+    "record_count": 4
+  },
+  "package": {
+    "name": "market-catalyst-calendar",
+    "version": "0.1.0"
+  },
+  "parameters": {
+    "as_of": "2026-05-13",
+    "days": 45
+  },
+  "release_context": {
+    "available": true,
+    "commit": {
+      "date": "2026-06-17T16:47:22+08:00",
+      "hash": "1414150b10f193753194a6a3cadada706cd5a210",
+      "short_hash": "1414150",
+      "subject": "feat: add quickstart receipt workflow"
+    },
+    "latest_tag": "v3.6.0"
+  },
+  "rerun_commands": [
+    "python -m market_catalyst_calendar validate --input examples/demo_records.json",
+    "python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+    "python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+    "python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+    "python -m market_catalyst_calendar source-pack --input examples/demo_records.json --as-of 2026-05-13 --fresh-after-days 14 --format json",
+    "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json"
+  ],
+  "schema_version": "quickstart-receipt/v1"
+}

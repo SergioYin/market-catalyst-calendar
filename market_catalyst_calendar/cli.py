@@ -27,6 +27,10 @@ from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
 from .presets import run_preset
 from .quality_gate import PROFILES, quality_gate_json, quality_gate_markdown
+from .quickstart_receipt import DEFAULT_AS_OF as RECEIPT_DEFAULT_AS_OF
+from .quickstart_receipt import DEFAULT_DAYS as RECEIPT_DEFAULT_DAYS
+from .quickstart_receipt import DEFAULT_INPUT as RECEIPT_DEFAULT_INPUT
+from .quickstart_receipt import quickstart_receipt_json, quickstart_receipt_markdown
 from .release_audit import release_audit_json, release_audit_markdown
 from .render import (
     brief_markdown,
@@ -239,6 +243,16 @@ def build_parser() -> argparse.ArgumentParser:
     tutorial.add_argument("--dataset-path", default="examples/demo_records.json", help="dataset path to show in tutorial commands")
     tutorial.add_argument("--output", "-o", help="output Markdown path; stdout when omitted")
     tutorial.set_defaults(func=cmd_tutorial)
+
+    quickstart_receipt = subparsers.add_parser("quickstart-receipt", help="emit a deterministic local-demo finance boundary receipt")
+    quickstart_receipt.add_argument("--input", "-i", default=RECEIPT_DEFAULT_INPUT, help=f"input JSON path; default: {RECEIPT_DEFAULT_INPUT}")
+    quickstart_receipt.add_argument("--as-of", default=RECEIPT_DEFAULT_AS_OF.isoformat(), help="ISO report date for deterministic commands")
+    quickstart_receipt.add_argument("--days", type=int, default=RECEIPT_DEFAULT_DAYS, help="look-ahead window in days")
+    quickstart_receipt.add_argument("--root", default=".", help="repository root for fixture hashes; defaults to current directory")
+    quickstart_receipt.add_argument("--repo", default=".", help="git repository root for release context; defaults to current directory")
+    quickstart_receipt.add_argument("--format", choices=["json", "markdown"], default="json")
+    quickstart_receipt.add_argument("--output", "-o", help="output path; stdout when omitted")
+    quickstart_receipt.set_defaults(func=cmd_quickstart_receipt)
 
     agent_handoff = subparsers.add_parser("agent-handoff", help="create a machine-readable research-agent context pack")
     add_input(agent_handoff)
@@ -812,6 +826,19 @@ def cmd_tutorial(args: argparse.Namespace) -> int:
     if args.days < 0:
         raise ValueError("--days must be non-negative")
     text = tutorial_markdown(date.fromisoformat(args.as_of), args.days, args.dataset_path)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_quickstart_receipt(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    dataset = load_dataset(args.input)
+    payload = quickstart_receipt_json(dataset, args.input, date.fromisoformat(args.as_of), args.days, Path(args.root), Path(args.repo))
+    text = dump_json(payload) if args.format == "json" else quickstart_receipt_markdown(payload)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:

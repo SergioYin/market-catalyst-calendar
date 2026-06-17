@@ -23,6 +23,7 @@ from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
 from .presets import run_preset_config
 from .quality_gate import quality_gate_json, quality_gate_markdown
+from .quickstart_receipt import quickstart_receipt_json, quickstart_receipt_markdown
 from .render import (
     brief_markdown,
     broker_matrix_json,
@@ -379,6 +380,20 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             "tutorial.md",
             "tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json",
             lambda: tutorial_markdown(as_of, DEFAULT_DAYS, "examples/demo_records.json"),
+            0,
+        ),
+        (
+            "quickstart_receipt.json",
+            "quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+            lambda: dump_json(quickstart_receipt_json(base, "examples/demo_records.json", as_of, DEFAULT_DAYS, Path("."), Path("."))),
+            0,
+        ),
+        (
+            "quickstart_receipt.md",
+            "quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+            lambda: quickstart_receipt_markdown(
+                quickstart_receipt_json(base, "examples/demo_records.json", as_of, DEFAULT_DAYS, Path("."), Path("."))
+            ),
             0,
         ),
         (

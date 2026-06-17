@@ -885,6 +885,56 @@
       "sha256": "ce1dfe39eb836ffcdb8a27615ea8abf77e7cb19717dc581bec4b8b75cd062d6e"
     },
     {
+      "bytes": 4100,
+      "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "quickstart-receipt",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/quickstart_receipt.json",
+      "recommended_use_cases": [
+        "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
+        "Use as a quickstart receipt before handing off deterministic examples."
+      ],
+      "sha256": "1c27084acc1db39efaed70d406d6312f5e586d0389e7609da41e0e7a54c83ef8"
+    },
+    {
+      "bytes": 3254,
+      "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
+      "command_args": [
+        "quickstart-receipt",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/quickstart_receipt.md",
+      "recommended_use_cases": [
+        "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
+        "Use as a quickstart receipt before handing off deterministic examples."
+      ],
+      "sha256": "0081ffa0e04bae12c984ef77290ca11979ba9cf27bd88ed01224f7337e63db21"
+    },
+    {
       "bytes": 13009,
       "command": "python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
@@ -957,7 +1007,7 @@
       "sha256": "dfa83b4934eecd9dd4aa1767e556797dcbec91a54b31ce3200f8d55028fef736"
     },
     {
-      "bytes": 19511,
+      "bytes": 19858,
       "command": "python -m market_catalyst_calendar taxonomy",
       "command_args": [
         "taxonomy"
@@ -970,10 +1020,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "ce04a98cc9ff7ba6e4301a167f0743f0d73a8ede55dcf460243246cdfabd2e5d"
+      "sha256": "79917daf9f2fbe33539aa525fb5b001a2f1b934ec06d71a7d1705153cf32f707"
     },
     {
-      "bytes": 6748,
+      "bytes": 6930,
       "command": "python -m market_catalyst_calendar taxonomy --format markdown",
       "command_args": [
         "taxonomy",
@@ -988,7 +1038,7 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "9651ffcb9c7e121b9958a7f9234f11e7c7871a430120606baaac34f5b9746451"
+      "sha256": "bb594edc45ecd6189c4f5d9daa4821056d275b34dcedab1cbcd07c1fa408bc36"
     },
     {
       "bytes": 944,
@@ -1008,7 +1058,7 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "c33dfa07c6d0955925ac48407a54fcd7bcd002194407181282aab5be2f83dd8c"
+      "sha256": "0fd35b40fba1f5a01934ae6da9b9c55a7cc17e141c0d0cd1858e8841726052b3"
     },
     {
       "bytes": 277,
@@ -1030,7 +1080,7 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "40283fb7d0b292db27aa7b12db40ac38d13e84eb1d754e79622036aaf3479bb3"
+      "sha256": "28ca360a1ff1263e057234c8978bd080ae78c5f4526947c430b2b885cf74921a"
     },
     {
       "bytes": 4548,
@@ -1274,7 +1324,7 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "598bfcb43919823d977490838af54b2bf72c5cf622a3a3555a354e14089eea58"
+      "sha256": "2279b3d4b52eebd6a57ffa92a97e2718d21ced8f913b413e9ce778bf8c6a516c"
     },
     {
       "bytes": 615,
@@ -1293,18 +1343,18 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "3fe6d07b3171bc8a1911c099f37ebaebceb710e94639a0cf5220474911ff72e9"
+      "sha256": "ed15a1aeedd80026173567911b7cfbc695dc94124d6865768681504f66a85501"
     }
   ],
   "schema_version": "fixture-gallery/v1",
   "summary": {
-    "fixture_count": 56,
+    "fixture_count": 58,
     "output_type_counts": {
       "csv": 2,
       "html": 1,
       "ics": 1,
-      "json": 29,
-      "markdown": 23
+      "json": 30,
+      "markdown": 24
     }
   }
 }

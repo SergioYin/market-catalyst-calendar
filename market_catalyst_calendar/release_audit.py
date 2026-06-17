@@ -29,6 +29,7 @@ REQUIRED_COMMANDS = [
     "drilldown",
     "command-cookbook",
     "tutorial",
+    "quickstart-receipt",
     "agent-handoff",
     "run-preset",
     "taxonomy",

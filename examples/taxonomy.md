@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 42
+Commands: 43
 Diagnostic codes: 35
 
 ## Event Types
@@ -104,6 +104,7 @@ Diagnostic codes: 35
 | html-dashboard | html | render a static HTML dashboard |
 | import-csv | json | import CSV rows as dataset JSON |
 | merge | json | merge datasets with provenance and validation |
+| quickstart-receipt | json, markdown | emit reproducible local-demo commands, hashes, release context, and finance boundaries |
 | run-preset | json, directory | execute named preset report packets |
 | static-site | directory | write a multi-page static site |
 | taxonomy | json, markdown | report supported event types, statuses, actions, rules, diagnostics, and commands |
@@ -138,6 +139,7 @@ Diagnostic codes: 35
 | merge | dataset | json |
 | post-event | review | json, markdown |
 | quality-gate | quality | json, markdown |
+| quickstart-receipt | operations | json, markdown |
 | release-audit | release | json, markdown |
 | review-plan | review | json, markdown |
 | risk-budget | portfolio | json, markdown |

@@ -212,6 +212,12 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         SmokeCase("drilldown markdown", ["drilldown", "--input", base, "--as-of", DEFAULT_AS_OF, "--ticker", "NVDA", "--days", "45", "--format", "markdown"], required_stdout="# NVDA Catalyst Drilldown"),
         SmokeCase("command-cookbook", ["command-cookbook", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout="# Market Catalyst Command Cookbook"),
         SmokeCase("tutorial", ["tutorial", "--as-of", DEFAULT_AS_OF, "--days", "45", "--dataset-path", "examples/demo_records.json"], required_stdout="# Market Catalyst Calendar Tutorial"),
+        SmokeCase("quickstart-receipt", ["quickstart-receipt", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout='"schema_version": "quickstart-receipt/v1"'),
+        SmokeCase(
+            "quickstart-receipt markdown",
+            ["quickstart-receipt", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "markdown"],
+            required_stdout="# Market Catalyst Quickstart Receipt",
+        ),
         SmokeCase("agent-handoff", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),
         SmokeCase("agent-handoff markdown", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "markdown"], required_stdout="# Agent Handoff Pack"),
         SmokeCase("run-preset", ["run-preset", "--presets", presets, "--name", "desk-packet"], expected_files=["preset-packet/manifest.json", "preset-packet/upcoming.json"], required_stdout='"schema_version": "preset-run/v1"'),

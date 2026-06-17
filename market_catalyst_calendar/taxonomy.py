@@ -65,6 +65,7 @@ COMMAND_CATALOG = [
     {"id": "drilldown", "category": "dossier", "formats": ["json", "markdown"], "inputs": ["dataset", "ticker"], "purpose": "compose a single-ticker catalyst dossier", "writes_files": False},
     {"id": "command-cookbook", "category": "operations", "formats": ["markdown"], "inputs": ["dataset"], "purpose": "render field-aware command playbooks", "writes_files": False},
     {"id": "tutorial", "category": "learning", "formats": ["markdown"], "inputs": ["demo data"], "purpose": "render a notebooks-free tutorial", "writes_files": True},
+    {"id": "quickstart-receipt", "category": "operations", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "emit reproducible local-demo commands, hashes, release context, and finance boundaries", "writes_files": True},
     {"id": "agent-handoff", "category": "agent", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "create downstream research-agent context packs", "writes_files": False},
     {"id": "run-preset", "category": "packet", "formats": ["json", "directory"], "inputs": ["presets", "dataset"], "purpose": "execute named preset report packets", "writes_files": True},
     {"id": "taxonomy", "category": "metadata", "formats": ["json", "markdown"], "inputs": [], "purpose": "report supported event types, statuses, actions, rules, diagnostics, and commands", "writes_files": True},

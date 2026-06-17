@@ -1301,14 +1301,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 60)
+            self.assertEqual(payload["file_count"], 62)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 60)
+            self.assertEqual(len(manifest["files"]), 62)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1360,8 +1360,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 56)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 29)
+        self.assertEqual(payload["summary"]["fixture_count"], 58)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 30)
+        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 24)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1404,8 +1405,102 @@ class CliTests(unittest.TestCase):
 
             result = self.run_cli("demo-bundle", "--output-dir", str(bundle_dir))
 
-            self.assertEqual(result.returncode, 2)
-            self.assertIn("demo bundle output directory must be empty", result.stderr)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("demo bundle output directory must be empty", result.stderr)
+
+    def test_quickstart_receipt_json_captures_hashes_commands_and_boundaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self.run_cli(
+                "quickstart-receipt",
+                "--input",
+                "examples/demo_records.json",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--root",
+                str(ROOT),
+                "--repo",
+                tmp,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "quickstart-receipt/v1")
+        self.assertEqual(payload["inputs"]["dataset_path"], "examples/demo_records.json")
+        self.assertEqual(len(payload["inputs"]["dataset_sha256"]), 64)
+        self.assertEqual(payload["inputs"]["record_count"], 4)
+        self.assertEqual(payload["parameters"], {"as_of": "2026-05-13", "days": 45})
+        self.assertFalse(payload["release_context"]["available"])
+        self.assertIn("No live data", payload["boundaries"][0])
+        self.assertTrue(all("broker" not in command or "source-pack" in command for command in payload["rerun_commands"]))
+        self.assertTrue(all("curl" not in command and "http" not in command for command in payload["rerun_commands"]))
+        artifacts = {artifact["name"]: artifact for artifact in payload["artifacts"]}
+        self.assertEqual(set(artifacts), {"upcoming.json", "brief.md", "risk_budget.json", "source_pack.json"})
+        for artifact in artifacts.values():
+            self.assertEqual(len(artifact["sha256"]), 64)
+            self.assertGreater(artifact["bytes"], 0)
+            self.assertTrue(artifact["command"].startswith("python -m market_catalyst_calendar "))
+        fixtures = {fixture["path"]: fixture for fixture in payload["fixtures"]}
+        self.assertTrue(fixtures["examples/demo_records.json"]["present"])
+        self.assertEqual(len(fixtures["examples/demo_records.json"]["sha256"]), 64)
+        self.assertTrue(fixtures["examples/version_report.json"]["present"])
+
+    def test_quickstart_receipt_markdown_renders_boundaries_and_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self.run_cli(
+                "quickstart-receipt",
+                "--input",
+                "examples/demo_records.json",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--root",
+                str(ROOT),
+                "--repo",
+                tmp,
+                "--format",
+                "markdown",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Quickstart Receipt", result.stdout)
+        self.assertIn("## Boundaries", result.stdout)
+        self.assertIn("No investment advice", result.stdout)
+        self.assertIn("## Exact Rerun Commands", result.stdout)
+        self.assertIn("| Artifact | Bytes | SHA-256 | Command |", result.stdout)
+        self.assertIn("| `source_pack.json` |", result.stdout)
+        self.assertIn("| `examples/demo_records.json` | true |", result.stdout)
+
+    def test_quickstart_receipt_output_writes_file_without_stdout(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "receipt.json"
+            result = self.run_cli(
+                "quickstart-receipt",
+                "--input",
+                "examples/demo_records.json",
+                "--as-of",
+                "2026-05-13",
+                "--days",
+                "45",
+                "--repo",
+                tmp,
+                "--output",
+                str(output),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, "")
+            payload = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(payload["schema_version"], "quickstart-receipt/v1")
+
+    def test_quickstart_receipt_rejects_negative_days(self):
+        result = self.run_cli("quickstart-receipt", "--days", "-1")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--days must be non-negative", result.stderr)
 
     def test_release_audit_json_passes_for_checked_in_release_artifacts(self):
         result = self.run_cli("release-audit", "--root", str(ROOT))
@@ -1416,7 +1511,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 58)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 60)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1460,7 +1555,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 29)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 30)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1470,7 +1565,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 56 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 58 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1478,7 +1573,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 58 of 58 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 60 of 60 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):

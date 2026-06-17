@@ -91,6 +91,10 @@ COMMAND_USE_CASES = {
         "Exercise public research quality diagnostics and nonzero exits.",
         "Use before publishing or handing off research fixtures.",
     ],
+    "quickstart-receipt": [
+        "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
+        "Use as a quickstart receipt before handing off deterministic examples.",
+    ],
     "review-plan": [
         "List stale and high-urgency records needing analyst action.",
         "Use as a deterministic review checklist.",

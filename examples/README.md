@@ -53,6 +53,8 @@ All examples use these stable dates:
 | `drilldown.md` | `drilldown --ticker NVDA --format markdown` | Markdown rendering of the single-ticker drilldown dossier. |
 | `command_cookbook.md` | `command-cookbook` | Field-aware Markdown command cookbook with selected report sequences and expected output files. |
 | `tutorial.md` | `tutorial` | Notebooks-free Markdown tutorial with expected command output excerpts and learning checkpoints. |
+| `quickstart_receipt.json` | `quickstart-receipt` | Machine-readable receipt with local-demo commands, hashes, release context, and finance boundaries. |
+| `quickstart_receipt.md` | `quickstart-receipt --format markdown` | Markdown quickstart receipt for handoff review. |
 | `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
 | `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
 | `taxonomy.json` | `taxonomy` | Machine-readable supported event types, statuses, review actions, quality rules, diagnostic codes, and command catalog. |
@@ -155,6 +157,10 @@ python -m market_catalyst_calendar drilldown --input examples/demo_records.json 
 python -m market_catalyst_calendar command-cookbook --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/tutorial.md
 python -m market_catalyst_calendar tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json
+# fixture: examples/quickstart_receipt.json
+python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45
+# fixture: examples/quickstart_receipt.md
+python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 # fixture: examples/agent_handoff.json
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/agent_handoff.md

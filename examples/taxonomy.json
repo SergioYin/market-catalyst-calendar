@@ -298,6 +298,19 @@
       "writes_files": false
     },
     {
+      "category": "operations",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "quickstart-receipt",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "emit reproducible local-demo commands, hashes, release context, and finance boundaries",
+      "writes_files": true
+    },
+    {
       "category": "release",
       "formats": [
         "json",
@@ -755,6 +768,7 @@
     "html-dashboard",
     "import-csv",
     "merge",
+    "quickstart-receipt",
     "run-preset",
     "static-site",
     "taxonomy",
@@ -846,10 +860,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 42,
+    "command_count": 43,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 18,
+    "output_command_count": 19,
     "quality_rule_count": 6
   }
 }

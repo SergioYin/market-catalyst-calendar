@@ -257,6 +257,19 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Commit fields: `hash`, `short_hash`, `date`, and `subject`.
 - Markdown: package/version summary, command and fixture counts, release audit status, git tag/commit details, and blockers when present.
 
+`quickstart-receipt`
+
+- Input: a local dataset JSON file, repository example files, and optional local git metadata only; no network, broker, market-data, or order-routing access is used.
+- Parameters: optional `--input`, `--as-of`, `--days`, `--root`, `--repo`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when the receipt is emitted, `2` when arguments are invalid.
+- JSON: `{ "schema_version": "quickstart-receipt/v1", "package": object, "release_context": object, "inputs": object, "parameters": object, "boundaries": [string, ...], "rerun_commands": [string, ...], "artifacts": [artifact, ...], "fixtures": [fixture, ...] }`.
+- Input fields: `dataset_path`, `dataset_sha256`, and `record_count`.
+- Parameter fields: `as_of` and `days`.
+- Release-context fields: `available`, `latest_tag`, `commit`, and `detail` when unavailable.
+- Artifact fields: `name`, `command`, `sha256`, and `bytes`.
+- Fixture fields: `path`, `present`, `bytes`, and `sha256`.
+- Markdown: boundary list, release context, exact rerun commands, artifact hashes, and fixture hashes.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.
