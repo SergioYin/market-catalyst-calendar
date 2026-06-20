@@ -274,6 +274,19 @@
       "writes_files": false
     },
     {
+      "category": "operations",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-capture-checklist",
+      "inputs": [
+        "repo examples"
+      ],
+      "purpose": "emit public-safe screenshot/GIF capture checklist for impact release artifacts",
+      "writes_files": true
+    },
+    {
       "category": "dataset",
       "formats": [
         "json",
@@ -821,6 +834,7 @@
     "fixture-gallery",
     "html-dashboard",
     "impact-artifact-receipt",
+    "impact-capture-checklist",
     "impact-compare",
     "import-csv",
     "merge",
@@ -916,10 +930,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 47,
+    "command_count": 48,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 21,
+    "output_command_count": 22,
     "quality_rule_count": 6
   }
 }

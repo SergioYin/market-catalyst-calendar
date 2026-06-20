@@ -24,6 +24,7 @@ from .finalize_release import example_finalize_release_json, finalize_release_js
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
 from .impact_artifact_receipt import impact_artifact_receipt_json, impact_artifact_receipt_markdown
+from .impact_capture_checklist import impact_capture_checklist_json, impact_capture_checklist_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
 from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
 from .io import dump_json, load_dataset, read_json, read_text
@@ -280,6 +281,20 @@ def build_parser() -> argparse.ArgumentParser:
     impact_artifact_receipt.add_argument("--format", choices=["json", "markdown"], default="json")
     impact_artifact_receipt.add_argument("--output", "-o", help="output path; stdout when omitted")
     impact_artifact_receipt.set_defaults(func=cmd_impact_artifact_receipt)
+
+    impact_capture_checklist = subparsers.add_parser(
+        "impact-capture-checklist",
+        help="emit public-safe screenshot/GIF capture checklist for impact release artifacts",
+    )
+    impact_capture_checklist.add_argument("--root", default=".", help="repository root containing examples; defaults to current directory")
+    impact_capture_checklist.add_argument(
+        "--format",
+        choices=["json", "markdown"],
+        default="json",
+        help="output format; default: json",
+    )
+    impact_capture_checklist.add_argument("--output", "-o", help="output path; stdout when omitted")
+    impact_capture_checklist.set_defaults(func=cmd_impact_capture_checklist)
 
     agent_handoff = subparsers.add_parser("agent-handoff", help="create a machine-readable research-agent context pack")
     add_input(agent_handoff)
@@ -916,6 +931,16 @@ def cmd_quickstart_receipt(args: argparse.Namespace) -> int:
 def cmd_impact_artifact_receipt(args: argparse.Namespace) -> int:
     payload = impact_artifact_receipt_json(Path(args.root))
     text = dump_json(payload) if args.format == "json" else impact_artifact_receipt_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["ok"] else 1
+
+
+def cmd_impact_capture_checklist(args: argparse.Namespace) -> int:
+    payload = impact_capture_checklist_json(Path(args.root))
+    text = dump_json(payload) if args.format == "json" else impact_capture_checklist_markdown(payload)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:

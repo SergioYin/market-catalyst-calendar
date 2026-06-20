@@ -69,6 +69,7 @@ COMMAND_CATALOG = [
     {"id": "tutorial", "category": "learning", "formats": ["markdown"], "inputs": ["demo data"], "purpose": "render a notebooks-free tutorial", "writes_files": True},
     {"id": "quickstart-receipt", "category": "operations", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "emit reproducible local-demo commands, hashes, release context, and finance boundaries", "writes_files": True},
     {"id": "impact-artifact-receipt", "category": "operations", "formats": ["json", "markdown"], "inputs": ["repo examples"], "purpose": "emit hashes, rerun commands, paths, schema labels, and finance boundaries for impact examples", "writes_files": True},
+    {"id": "impact-capture-checklist", "category": "operations", "formats": ["json", "markdown"], "inputs": ["repo examples"], "purpose": "emit public-safe screenshot/GIF capture checklist for impact release artifacts", "writes_files": True},
     {"id": "agent-handoff", "category": "agent", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "create downstream research-agent context packs", "writes_files": False},
     {"id": "run-preset", "category": "packet", "formats": ["json", "directory"], "inputs": ["presets", "dataset"], "purpose": "execute named preset report packets", "writes_files": True},
     {"id": "taxonomy", "category": "metadata", "formats": ["json", "markdown"], "inputs": [], "purpose": "report supported event types, statuses, actions, rules, diagnostics, and commands", "writes_files": True},

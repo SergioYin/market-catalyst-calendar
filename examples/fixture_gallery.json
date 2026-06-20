@@ -985,7 +985,7 @@
       "sha256": "ce1dfe39eb836ffcdb8a27615ea8abf77e7cb19717dc581bec4b8b75cd062d6e"
     },
     {
-      "bytes": 4104,
+      "bytes": 4096,
       "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
         "quickstart-receipt",
@@ -1006,10 +1006,10 @@
         "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
         "Use as a quickstart receipt before handing off deterministic examples."
       ],
-      "sha256": "7b73f92cf6ede6aacc04068c830f12188685c494aba12e70c3984df057b3eb07"
+      "sha256": "64f057d6428b67e860a64fc2e08870b8319481506de7d162902c604fb7b05e41"
     },
     {
-      "bytes": 3258,
+      "bytes": 3250,
       "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
       "command_args": [
         "quickstart-receipt",
@@ -1032,7 +1032,7 @@
         "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
         "Use as a quickstart receipt before handing off deterministic examples."
       ],
-      "sha256": "63b36a703c56712ebde3931ab3de1afeffcd734839da2ac1b32b71452e6b2480"
+      "sha256": "b12d96f52e0bc53ea28a6b31bd645c7c3267ed3a007a853104ef6fa4d5bb9791"
     },
     {
       "bytes": 5479,
@@ -1071,6 +1071,44 @@
         "Use as a stable regression fixture for downstream tooling."
       ],
       "sha256": "03725b56be7b183a861970c86692905d5bcc53b8e0002205a248e37d955eed76"
+    },
+    {
+      "bytes": 6358,
+      "command": "python -m market_catalyst_calendar impact-capture-checklist --root .",
+      "command_args": [
+        "impact-capture-checklist",
+        "--root",
+        "."
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "json",
+      "path": "examples/impact_capture_checklist.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "48b2ec8a1071e440a96eff1eef07bef4130ab223b5e4ba40df072e25e8afbbcd"
+    },
+    {
+      "bytes": 2717,
+      "command": "python -m market_catalyst_calendar impact-capture-checklist --root . --format markdown",
+      "command_args": [
+        "impact-capture-checklist",
+        "--root",
+        ".",
+        "--format",
+        "markdown"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [],
+      "output_type": "markdown",
+      "path": "examples/impact_capture_checklist.md",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "af0246459ea613dc1eb600a911cd2c62310476a20f18783abcf8316afbfaed51"
     },
     {
       "bytes": 13009,
@@ -1145,7 +1183,7 @@
       "sha256": "dfa83b4934eecd9dd4aa1767e556797dcbec91a54b31ce3200f8d55028fef736"
     },
     {
-      "bytes": 21170,
+      "bytes": 21527,
       "command": "python -m market_catalyst_calendar taxonomy",
       "command_args": [
         "taxonomy"
@@ -1158,10 +1196,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "c5184d11af9c4d8dab60179f76ffc805a5a35c420ddd1b61e1ecbf16e8a81f48"
+      "sha256": "6fcb5347feb8ae11550602107b4bd88490398dde7da94ac49aba02da2aed5e54"
     },
     {
-      "bytes": 7349,
+      "bytes": 7535,
       "command": "python -m market_catalyst_calendar taxonomy --format markdown",
       "command_args": [
         "taxonomy",
@@ -1176,10 +1214,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "a35403f6c8b5e2c1523b07102ad73f2d077b373cc4790b0bd97284caf8ad27d6"
+      "sha256": "c793cf9be92110f6ab4f3e4a66ae136b87614a6e6943e7b198f04c8770888be9"
     },
     {
-      "bytes": 948,
+      "bytes": 940,
       "command": "python -m market_catalyst_calendar version-report --root . --repo .",
       "command_args": [
         "version-report",
@@ -1196,10 +1234,10 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "6cec16b600085c39e6d86266c8130a3df01c6373ab800c916ecafdde91ce2093"
+      "sha256": "91792a1ccb3592fe3913792019ebd314bb19f4b3a0a2845712a0e1a0f7b10cce"
     },
     {
-      "bytes": 281,
+      "bytes": 273,
       "command": "python -m market_catalyst_calendar version-report --root . --repo . --format markdown",
       "command_args": [
         "version-report",
@@ -1218,7 +1256,7 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "9d7f0bd8248ccdb4465f5fc3b2d50ca703c5b842144f078521895d902a47fb02"
+      "sha256": "82f7096475b187f781b4ee79628a4d3ab4e8a70bf9d0eb3bc1d3141dd1e85cb2"
     },
     {
       "bytes": 4548,
@@ -1514,7 +1552,7 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "ad9cb61d55f1b7f36104147f3aba58403ef6977d3034929686099a2fa6507f76"
+      "sha256": "fd0f2a597496e81db98ad5ea25a0dfaa1572e4ff15a0960545a810393094ae74"
     },
     {
       "bytes": 615,
@@ -1533,18 +1571,18 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "60738576dd144ca402c3a55428f3de40b4f6bd576529bc3fe0b4e3742c11df70"
+      "sha256": "603ee7c3f71770dd87256ee97e18065cffe0d3ab870226b12570bea12f71a3c2"
     }
   ],
   "schema_version": "fixture-gallery/v1",
   "summary": {
-    "fixture_count": 66,
+    "fixture_count": 68,
     "output_type_counts": {
       "csv": 2,
       "html": 1,
       "ics": 1,
-      "json": 34,
-      "markdown": 28
+      "json": 35,
+      "markdown": 29
     }
   }
 }

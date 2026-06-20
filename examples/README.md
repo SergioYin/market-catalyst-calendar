@@ -61,6 +61,8 @@ All examples use these stable dates:
 | `quickstart_receipt.md` | `quickstart-receipt --format markdown` | Markdown quickstart receipt for handoff review. |
 | `impact_artifact_receipt.json` | `impact-artifact-receipt` | Machine-readable receipt with impact example rerun commands, paths, hashes, schema labels, and finance boundaries. |
 | `impact_artifact_receipt.md` | `impact-artifact-receipt --format markdown` | Markdown receipt for impact example artifact release review. |
+| `impact_capture_checklist.json` | `impact-capture-checklist` | Machine-readable public-safe screenshot/GIF capture checklist for impact release artifacts. |
+| `impact_capture_checklist.md` | `impact-capture-checklist --format markdown` | Markdown capture checklist with render commands, source fixtures, output paths, hashes, capture targets, and boundaries. |
 | `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
 | `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
 | `taxonomy.json` | `taxonomy` | Machine-readable supported event types, statuses, review actions, quality rules, diagnostic codes, and command catalog. |
@@ -181,6 +183,10 @@ python -m market_catalyst_calendar quickstart-receipt --input examples/demo_reco
 python -m market_catalyst_calendar impact-artifact-receipt --root .
 # fixture: examples/impact_artifact_receipt.md
 python -m market_catalyst_calendar impact-artifact-receipt --root . --format markdown
+# fixture: examples/impact_capture_checklist.json
+python -m market_catalyst_calendar impact-capture-checklist --root .
+# fixture: examples/impact_capture_checklist.md
+python -m market_catalyst_calendar impact-capture-checklist --root . --format markdown
 # fixture: examples/agent_handoff.json
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/agent_handoff.md

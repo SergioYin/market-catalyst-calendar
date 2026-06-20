@@ -224,6 +224,8 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         ),
         SmokeCase("impact-artifact-receipt", ["impact-artifact-receipt", "--root", "{root}"], required_stdout='"schema_version": "impact-artifact-receipt/v1"'),
         SmokeCase("impact-artifact-receipt markdown", ["impact-artifact-receipt", "--root", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Impact Artifact Receipt"),
+        SmokeCase("impact-capture-checklist", ["impact-capture-checklist", "--root", "{root}"], required_stdout='"schema_version": "impact-capture-checklist/v1"'),
+        SmokeCase("impact-capture-checklist markdown", ["impact-capture-checklist", "--root", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Impact Capture Checklist"),
         SmokeCase("agent-handoff", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),
         SmokeCase("agent-handoff markdown", ["agent-handoff", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "markdown"], required_stdout="# Agent Handoff Pack"),
         SmokeCase("run-preset", ["run-preset", "--presets", presets, "--name", "desk-packet"], expected_files=["preset-packet/manifest.json", "preset-packet/upcoming.json"], required_stdout='"schema_version": "preset-run/v1"'),

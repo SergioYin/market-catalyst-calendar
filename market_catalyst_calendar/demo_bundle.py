@@ -20,6 +20,7 @@ from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
 from .impact_artifact_receipt import impact_artifact_receipt_json, impact_artifact_receipt_markdown
+from .impact_capture_checklist import impact_capture_checklist_json, impact_capture_checklist_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
 from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
 from .io import dump_json
@@ -437,6 +438,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             0,
         ),
         (
+            "impact_capture_checklist.json",
+            "impact-capture-checklist --root .",
+            lambda: dump_json(impact_capture_checklist_json(Path("."), _impact_capture_files(commands))),
+            0,
+        ),
+        (
+            "impact_capture_checklist.md",
+            "impact-capture-checklist --root . --format markdown",
+            lambda: impact_capture_checklist_markdown(impact_capture_checklist_json(Path("."), _impact_capture_files(commands))),
+            0,
+        ),
+        (
             "agent_handoff.json",
             "agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45",
             lambda: dump_json(
@@ -591,6 +604,18 @@ def _impact_receipt_files(commands: Iterable[CommandSpec]) -> Dict[str, str]:
         "impact_dashboard.md",
         "impact_compare.json",
         "impact_compare.md",
+    }
+    return {f"examples/{path}": output() for path, _, output, _ in commands if path in needed}
+
+
+def _impact_capture_files(commands: Iterable[CommandSpec]) -> Dict[str, str]:
+    needed = {
+        "demo_records.json",
+        "demo_records_updated.json",
+        "impact_brief.md",
+        "impact_dashboard.md",
+        "impact_compare.md",
+        "impact_artifact_receipt.md",
     }
     return {f"examples/{path}": output() for path, _, output, _ in commands if path in needed}
 

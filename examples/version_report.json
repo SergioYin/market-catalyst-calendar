@@ -1,15 +1,15 @@
 {
-  "command_count": 47,
-  "fixture_count": 68,
+  "command_count": 48,
+  "fixture_count": 70,
   "git": {
     "available": true,
     "commit": {
-      "date": "2026-06-21T02:19:08+08:00",
-      "hash": "dc09a7ae0bd103ba4348342ffdaba19904a8249f",
-      "short_hash": "dc09a7a",
-      "subject": "feat: add catalyst impact dashboard panel"
+      "date": "2026-06-21T02:31:09+08:00",
+      "hash": "cd7eb0678b56369717181d36d2f0090268c3db64",
+      "short_hash": "cd7eb06",
+      "subject": "feat: add impact artifact receipt"
     },
-    "latest_tag": "v4.0.0",
+    "latest_tag": "v4.1.0",
     "repo": "20260513-market-catalyst-calendar"
   },
   "package": {
@@ -29,8 +29,8 @@
   },
   "schema_version": "version-report/v1",
   "summary": {
-    "command_count": 47,
-    "fixture_count": 68,
+    "command_count": 48,
+    "fixture_count": 70,
     "release_audit_status": "pass"
   }
 }

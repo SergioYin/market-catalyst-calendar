@@ -321,6 +321,20 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Boundary labels: fixed no-live-data, no-broker-integration, no-prediction, and no-investment-advice statements.
 - Markdown: boundary list plus artifact table with exact rerun commands, input fixture paths, output paths, byte sizes, SHA-256 hashes, and schema labels.
 
+`impact-capture-checklist`
+
+- Input: checked-in repository examples only; no dataset parsing, network access, broker access, market data, or order-routing access is used.
+- Parameters: optional `--root`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when every referenced capture artifact is present, `1` when any referenced file is missing.
+- JSON: `{ "schema_version": "impact-capture-checklist/v1", "root": string, "ok": bool, "boundary": object, "boundaries": [string, ...], "summary": object, "checklist": [item, ...], "missing": [path, ...] }`.
+- Top-level fields: `schema_version`, `root`, `ok`, `boundary`, `boundaries`, `summary`, `checklist`, and `missing`.
+- Summary fields: `item_count`, `missing_count`, and `total_bytes`.
+- Checklist item fields: `artifact`, `status`, `render_command`, `source_fixture`, `output_artifact_path`, `existing`, `capture_target`, and `boundaries`.
+- Existing artifact fields: `present`, `bytes`, and `sha256`.
+- Boundary flags: `live_data`, `broker_connectivity`, `prediction`, `investment_advice`, `private_data`, and `trade_recommendation` are always false.
+- Boundary labels: fixed no-live-data, no-broker-integration, no-prediction, no-investment-advice, and no-private-data statements.
+- Markdown: boundary list plus checkbox table with exact render commands, source fixtures, output artifact paths, byte sizes, SHA-256 hashes, and capture targets.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.
