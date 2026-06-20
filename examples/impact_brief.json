@@ -1,0 +1,148 @@
+{
+  "as_of": "2026-05-13",
+  "boundary": {
+    "broker_connectivity": false,
+    "investment_advice": false,
+    "live_data": false,
+    "prediction": false,
+    "source_basis": "supplied_dataset_only",
+    "trade_recommendation": false
+  },
+  "boundary_note": "Offline deterministic research brief from supplied dataset only. No live data, broker connectivity, predictions, investment advice, or trade recommendations.",
+  "days": 45,
+  "records": [
+    {
+      "attention_score": 100,
+      "broker_view_count": 2,
+      "catalyst_score": 87,
+      "confidence": 0.68,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_checked_at": "2026-04-28",
+      "evidence_state": "stale",
+      "evidence_urls": [
+        "https://example.com/fda-calendar",
+        "https://example.com/pfe-pipeline-update"
+      ],
+      "id": "demo-pfe-fda-2026",
+      "impact_flags": [
+        "stale_review",
+        "over_budget",
+        "broker_context"
+      ],
+      "impact_label": "mixed thesis context",
+      "max_loss": 32000.0,
+      "portfolio_weight": 0.031,
+      "required_review_action": "verify_source",
+      "review_state": "stale",
+      "risk_budget": 25000.0,
+      "scenarios": {
+        "base": "Decision is mostly expected but clarifies launch timing.",
+        "bear": "Delay or restrictive label pressures near-term sentiment.",
+        "bull": "Approval expands pipeline credibility and supports forward revenue mix."
+      },
+      "sector": "Health Care",
+      "source_ref": "FDA calendar and PFE pipeline note",
+      "status": "watching",
+      "theme": "Pipeline reset",
+      "thesis_id": "pharma-pipeline-reset",
+      "thesis_impact": "mixed",
+      "ticker": "PFE",
+      "urgency": "high",
+      "weighted_attention": 0.01834,
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "attention_score": 89,
+      "broker_view_count": 0,
+      "catalyst_score": 83,
+      "confidence": 0.9,
+      "days_until": 35,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_checked_at": "missing",
+      "evidence_state": "missing",
+      "evidence_urls": [
+        "https://example.com/fomc-calendar"
+      ],
+      "id": "demo-fomc-june-2026",
+      "impact_flags": [
+        "missing_evidence_freshness",
+        "over_budget"
+      ],
+      "impact_label": "mixed thesis context",
+      "max_loss": 90000.0,
+      "portfolio_weight": 0.22,
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "risk_budget": 75000.0,
+      "scenarios": {
+        "base": "Statement broadly matches market-implied policy path.",
+        "bear": "Inflation language reprices yields higher and weighs on multiples.",
+        "bull": "Policy language indicates lower real-rate pressure for duration assets."
+      },
+      "sector": "Macro",
+      "source_ref": "FOMC public calendar",
+      "status": "confirmed",
+      "theme": "Rates duration",
+      "thesis_id": "rates-duration-risk",
+      "thesis_impact": "mixed",
+      "ticker": "SPY",
+      "urgency": "medium",
+      "weighted_attention": 0.16434,
+      "window": "2026-06-17"
+    },
+    {
+      "attention_score": 84,
+      "broker_view_count": 2,
+      "catalyst_score": 84,
+      "confidence": 0.74,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_checked_at": "2026-05-09",
+      "evidence_state": "fresh",
+      "evidence_urls": [
+        "https://example.com/nvidia-computex-keynote",
+        "https://example.com/channel-check-gpu-supply"
+      ],
+      "id": "demo-nvda-computex-2026",
+      "impact_flags": [
+        "broker_context"
+      ],
+      "impact_label": "positive thesis context",
+      "max_loss": 52000.0,
+      "portfolio_weight": 0.0825,
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "risk_budget": 60000.0,
+      "scenarios": {
+        "base": "Product roadmap details support existing accelerator growth expectations.",
+        "bear": "Launch focuses on refresh timing without incremental demand signals.",
+        "bull": "Management confirms accelerated platform demand and shorter supply constraints."
+      },
+      "sector": "Information Technology",
+      "source_ref": "NVDA Computex keynote tracker",
+      "status": "scheduled",
+      "theme": "AI infrastructure",
+      "thesis_id": "ai-infrastructure-capex",
+      "thesis_impact": "positive",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "weighted_attention": 0.051282,
+      "window": "2026-06-02"
+    }
+  ],
+  "schema_version": "impact-brief/v1",
+  "stale_after_days": 14,
+  "summary": {
+    "aggregate_portfolio_weight": 0.3335,
+    "aggregate_weighted_attention": 0.233962,
+    "high_urgency_count": 1,
+    "missing_risk_context_count": 0,
+    "over_budget_count": 2,
+    "record_count": 3,
+    "stale_review_count": 1
+  }
+}

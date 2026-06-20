@@ -1,15 +1,15 @@
 {
-  "command_count": 43,
-  "fixture_count": 60,
+  "command_count": 44,
+  "fixture_count": 62,
   "git": {
     "available": true,
     "commit": {
-      "date": "2026-06-17T16:47:22+08:00",
-      "hash": "1414150b10f193753194a6a3cadada706cd5a210",
-      "short_hash": "1414150",
-      "subject": "feat: add quickstart receipt workflow"
+      "date": "2026-06-17T17:07:28+08:00",
+      "hash": "6b2f94f470ec5a0be0b5941b658846e15922ce48",
+      "short_hash": "6b2f94f",
+      "subject": "fix: stabilize release audit fixture comparison"
     },
-    "latest_tag": "v3.6.0",
+    "latest_tag": "v3.7.0",
     "repo": "20260513-market-catalyst-calendar"
   },
   "package": {
@@ -29,8 +29,8 @@
   },
   "schema_version": "version-report/v1",
   "summary": {
-    "command_count": 43,
-    "fixture_count": 60,
+    "command_count": 44,
+    "fixture_count": 62,
     "release_audit_status": "pass"
   }
 }

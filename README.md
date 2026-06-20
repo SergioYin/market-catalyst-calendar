@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits deterministic non-advisory impact briefs and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
 
 ## Install
 
@@ -20,6 +20,8 @@ python -m market_catalyst_calendar validate --profile basic --input examples/dem
 python -m market_catalyst_calendar upcoming --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar stale --input examples/demo_records.json --as-of 2026-05-13
 python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45
@@ -89,6 +91,20 @@ The installed script exposes the same interface:
 ```bash
 market-catalyst-calendar brief --input examples/demo_records.json --as-of 2026-05-13
 ```
+
+## Impact Brief Workflow
+
+`impact-brief` renders a deterministic public finance brief from only the supplied dataset. It does not fetch live data, connect to brokers, predict outcomes, give investment advice, or recommend trades.
+
+JSON and Markdown outputs include:
+
+- a boundary note that states the offline, non-advisory scope
+- a JSON `boundary` object with machine-readable false flags for live data, broker connectivity, predictions, investment advice, and trade recommendations
+- upcoming open catalysts ranked by deterministic attention score
+- catalyst score, urgency, review state, confidence, thesis impact, and scenario notes
+- portfolio weight, score/confidence-weighted attention, risk budget, max loss, source refs, evidence freshness, broker-context count, and flags such as `stale_review`, `over_budget`, or `missing_risk_context`
+
+Use Markdown for a human-readable research packet and JSON for downstream automation.
 
 ## Record Shape
 
@@ -544,6 +560,8 @@ Checked-in examples live in `examples/`:
 - `upcoming.json`: generated upcoming output
 - `stale.json`: generated stale-review output
 - `brief.md`: generated Markdown brief
+- `impact_brief.json`: generated deterministic non-advisory impact brief
+- `impact_brief.md`: generated Markdown impact brief
 - `exposure.json`: generated exposure aggregation
 - `exposure.md`: generated Markdown exposure table
 - `risk_budget.json`: generated event risk-budget aggregation

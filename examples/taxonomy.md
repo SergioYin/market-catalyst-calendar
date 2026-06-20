@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 43
+Commands: 44
 Diagnostic codes: 35
 
 ## Event Types
@@ -135,6 +135,7 @@ Diagnostic codes: 35
 | finalize-release | release | json, markdown |
 | fixture-gallery | fixture | json, markdown |
 | html-dashboard | site | html |
+| impact-brief | briefing | json, markdown |
 | import-csv | interchange | json |
 | merge | dataset | json |
 | post-event | review | json, markdown |

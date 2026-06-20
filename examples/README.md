@@ -21,6 +21,8 @@ All examples use these stable dates:
 | `upcoming.json` | `upcoming` | Upcoming open catalysts in the 45-day window. |
 | `stale.json` | `stale` | Records whose review state is stale as of the fixture date. |
 | `brief.md` | `brief` | Human-readable Markdown brief for upcoming catalysts. |
+| `impact_brief.json` | `impact-brief --format json` | Deterministic non-advisory catalyst impact context for downstream tooling. |
+| `impact_brief.md` | `impact-brief` | Markdown impact brief with boundary text, scenario context, and impact flags. |
 | `exposure.json` | `exposure` | Portfolio-weight and notional exposure grouped by ticker, event type, and urgency. |
 | `exposure.md` | `exposure --format markdown` | Markdown rendering of the exposure report. |
 | `risk_budget.json` | `risk-budget` | Event risk grouped by ticker, thesis, and urgency with over-budget catalyst flags. |
@@ -91,6 +93,10 @@ python -m market_catalyst_calendar upcoming --input examples/demo_records.json -
 python -m market_catalyst_calendar stale --input examples/demo_records.json --as-of 2026-05-13
 # fixture: examples/brief.md
 python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
+# fixture: examples/impact_brief.json
+python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json
+# fixture: examples/impact_brief.md
+python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/exposure.json
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/exposure.md

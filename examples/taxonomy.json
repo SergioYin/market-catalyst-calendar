@@ -248,6 +248,19 @@
       "writes_files": true
     },
     {
+      "category": "briefing",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-brief",
+      "inputs": [
+        "dataset"
+      ],
+      "purpose": "render deterministic non-advisory catalyst impact context",
+      "writes_files": false
+    },
+    {
       "category": "interchange",
       "formats": [
         "json"
@@ -860,7 +873,7 @@
     "watching"
   ],
   "summary": {
-    "command_count": 43,
+    "command_count": 44,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
     "output_command_count": 19,

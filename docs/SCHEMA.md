@@ -120,6 +120,19 @@ JSON output is pretty-printed with two-space indentation, sorted object keys, UT
 - Selection: upcoming open records.
 - Output: Markdown brief with summary table and per-record details.
 
+`impact-brief`
+
+- Input: dataset JSON.
+- Parameters: `--as-of`, `--days`, `--stale-after-days`, `--format json|markdown`.
+- Selection: open records whose window start is from `0` through `days` after `as_of`.
+- Boundary: output is deterministic context from supplied static data only; it does not fetch live data, connect to brokers, predict outcomes, provide investment advice, or recommend trades.
+- JSON: `{ "schema_version": "impact-brief/v1", "as_of": date, "days": int, "stale_after_days": int, "boundary_note": string, "boundary": object, "summary": object, "records": [item, ...] }`.
+- Boundary fields: `source_basis`, `live_data`, `broker_connectivity`, `prediction`, `investment_advice`, and `trade_recommendation`.
+- Summary fields: `record_count`, `high_urgency_count`, `stale_review_count`, `over_budget_count`, `missing_risk_context_count`, `aggregate_portfolio_weight`, and `aggregate_weighted_attention`.
+- Record fields: `id`, `ticker`, `entity`, `event_type`, `window`, `status`, `confidence`, `thesis_impact`, `impact_label`, `catalyst_score`, `attention_score`, `days_until`, `urgency`, `review_state`, `required_review_action`, `portfolio_weight`, `weighted_attention`, `risk_budget`, `max_loss`, `sector`, `theme`, `thesis_id`, `source_ref`, `evidence_state`, `evidence_checked_at`, `evidence_urls`, `broker_view_count`, `impact_flags`, and `scenarios`.
+- Flags: `stale_review`, `missing_evidence_freshness`, `missing_risk_context`, `over_budget`, and `broker_context`.
+- Markdown: same record set rendered as a summary table plus per-catalyst scenario and evidence details.
+
 Record summary objects emitted by `upcoming` and `stale` contain:
 
 | Field | Type | Notes |

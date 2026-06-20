@@ -49,6 +49,7 @@ COMMAND_CATALOG = [
     {"id": "upcoming", "category": "calendar", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "list upcoming open catalysts", "writes_files": False},
     {"id": "stale", "category": "review", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "list catalysts whose review state is stale", "writes_files": False},
     {"id": "brief", "category": "briefing", "formats": ["markdown"], "inputs": ["dataset"], "purpose": "render an analyst catalyst brief", "writes_files": False},
+    {"id": "impact-brief", "category": "briefing", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "render deterministic non-advisory catalyst impact context", "writes_files": False},
     {"id": "exposure", "category": "portfolio", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "aggregate portfolio exposure by ticker/event/urgency", "writes_files": False},
     {"id": "risk-budget", "category": "portfolio", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "compare event max loss with risk budgets", "writes_files": False},
     {"id": "sector-map", "category": "taxonomy", "formats": ["json", "markdown"], "inputs": ["dataset"], "purpose": "group catalysts by sector and theme", "writes_files": False},

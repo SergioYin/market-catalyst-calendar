@@ -14,6 +14,7 @@ REQUIRED_COMMANDS = [
     "upcoming",
     "stale",
     "brief",
+    "impact-brief",
     "exposure",
     "risk-budget",
     "sector-map",

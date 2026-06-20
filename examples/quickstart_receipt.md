@@ -16,10 +16,10 @@ Days: 45
 
 ## Release Context
 
-- Commit: `1414150`
-- Commit date: `2026-06-17T16:47:22+08:00`
-- Latest tag: `v3.6.0`
-- Subject: feat: add quickstart receipt workflow
+- Commit: `6b2f94f`
+- Commit date: `2026-06-17T17:07:28+08:00`
+- Latest tag: `v3.7.0`
+- Subject: fix: stabilize release audit fixture comparison
 
 ## Exact Rerun Commands
 
@@ -48,4 +48,4 @@ Days: 45
 | `examples/brief.md` | true | 1371 | `dbf0252cacd2df04047953477b93fbc1fff0dd468eea831a044e08d778465579` |
 | `examples/risk_budget.json` | true | 3572 | `85e34e4316e593de2f863ccb2d680bbdcad7606846256ff3645f26c35a985f5d` |
 | `examples/source_pack.json` | true | 6402 | `d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94` |
-| `examples/version_report.json` | true | 944 | `0fd35b40fba1f5a01934ae6da9b9c55a7cc17e141c0d0cd1858e8841726052b3` |
+| `examples/version_report.json` | true | 954 | `21170d8b58796a83986edaef287682c0524f6be4d72631a083bdaedaaa35ff22` |

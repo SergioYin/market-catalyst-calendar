@@ -18,6 +18,7 @@ from .evidence import evidence_audit_json, evidence_audit_markdown
 from .finalize_release import example_finalize_release_json, finalize_release_markdown
 from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
+from .impact_brief import impact_brief_json, impact_brief_markdown
 from .io import dump_json
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
@@ -168,6 +169,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             "brief.md",
             "brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
             lambda: brief_markdown(upcoming, as_of),
+            0,
+        ),
+        (
+            "impact_brief.json",
+            "impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+            lambda: dump_json(impact_brief_json(base.records, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS)),
+            0,
+        ),
+        (
+            "impact_brief.md",
+            "impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+            lambda: impact_brief_markdown(base.records, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS),
             0,
         ),
         (

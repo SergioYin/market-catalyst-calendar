@@ -315,6 +315,57 @@ class CliTests(unittest.TestCase):
         self.assertEqual([record["id"] for record in payload["records"]], ["demo-pfe-fda-2026"])
         self.assertEqual(payload["records"][0]["portfolio_weight"], 0.031)
 
+    def test_impact_brief_json_is_deterministic_non_advisory_context(self):
+        result = self.run_cli("impact-brief", "--as-of", "2026-05-13", "--days", "45", "--format", "json", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "impact-brief/v1")
+        self.assertIn("No live data", payload["boundary_note"])
+        self.assertIn("investment advice", payload["boundary_note"])
+        self.assertEqual(
+            payload["boundary"],
+            {
+                "broker_connectivity": False,
+                "investment_advice": False,
+                "live_data": False,
+                "prediction": False,
+                "source_basis": "supplied_dataset_only",
+                "trade_recommendation": False,
+            },
+        )
+        self.assertEqual(payload["summary"]["record_count"], 3)
+        self.assertEqual(payload["summary"]["over_budget_count"], 2)
+        self.assertEqual(payload["summary"]["aggregate_portfolio_weight"], 0.3335)
+        self.assertEqual([record["id"] for record in payload["records"]], ["demo-pfe-fda-2026", "demo-fomc-june-2026", "demo-nvda-computex-2026"])
+        self.assertEqual(payload["records"][0]["attention_score"], 100)
+        self.assertEqual(payload["records"][0]["impact_flags"], ["stale_review", "over_budget", "broker_context"])
+        self.assertEqual(payload["records"][0]["impact_label"], "mixed thesis context")
+
+    def test_impact_brief_markdown_renders_boundary_and_scenarios(self):
+        result = self.run_cli("impact-brief", "--as-of", "2026-05-13", "--days", "10", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Impact Brief", result.stdout)
+        self.assertIn("Boundary: Offline deterministic research brief", result.stdout)
+        self.assertIn("No live data, broker connectivity, predictions, investment advice, or trade recommendations", result.stdout)
+        self.assertIn("| 100 | PFE | 2026-05-20..2026-05-24 | regulatory decision | mixed thesis context | stale_review, over_budget, broker_context |", result.stdout)
+        self.assertIn("- Bear: Delay or restrictive label pressures near-term sentiment.", result.stdout)
+
+    def test_impact_brief_handles_missing_optional_context_explicitly(self):
+        raw = json.loads(json.dumps(DEMO_DATA))
+        record = next(record for record in raw["records"] if record["id"] == "demo-pfe-fda-2026")
+        record["scenario_notes"].pop("base")
+        record["evidence_urls"] = []
+        record.pop("evidence_checked_at", None)
+        record["risk_budget"] = None
+        record["max_loss"] = None
+        result = self.run_cli("impact-brief", "--as-of", "2026-05-13", "--days", "10", "--format", "json", input_data=json.dumps(raw))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        records = json.loads(result.stdout)["records"]
+        item = next(item for item in records if item["id"] == "demo-pfe-fda-2026")
+        self.assertEqual(item["evidence_state"], "missing")
+        self.assertEqual(item["scenarios"]["base"], "Not supplied in the static dataset.")
+        self.assertIn("missing_risk_context", item["impact_flags"])
+
     def test_exposure_json_groups_upcoming_weighted_exposure(self):
         result = self.run_cli("exposure", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -1333,14 +1384,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 62)
+            self.assertEqual(payload["file_count"], 64)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 62)
+            self.assertEqual(len(manifest["files"]), 64)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1392,9 +1443,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 58)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 30)
-        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 24)
+        self.assertEqual(payload["summary"]["fixture_count"], 60)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 31)
+        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 25)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1543,7 +1594,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 60)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 62)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1587,7 +1638,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 30)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 31)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1597,7 +1648,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 58 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 60 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1605,7 +1656,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 60 of 60 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 62 of 62 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):

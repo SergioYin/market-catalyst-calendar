@@ -106,7 +106,14 @@ def _normalize_quickstart_receipt_markdown(text: str) -> str:
         r"^- Commit date: `.*`$": "- Commit date: `<git-commit-date>`",
         r"^- Subject: .*$": "- Subject: <git-commit-subject>",
     }
-    return _replace_lines(text, replacements)
+    lines = []
+    for line in _replace_lines(text, replacements).splitlines():
+        row = re.fullmatch(r"(\| `)(examples/[^`]+)(` \| true \| )\d+( \| `)[0-9a-f]{64}(` \|)", line)
+        if row and row.group(2) in VOLATILE_GALLERY_PATHS:
+            lines.append(f"{row.group(1)}{row.group(2)}{row.group(3)}0{row.group(4)}<volatile-fixture-sha256>{row.group(5)}")
+            continue
+        lines.append(line)
+    return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
 
 def _normalize_fixture_gallery_markdown(text: str) -> str:

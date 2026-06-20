@@ -22,6 +22,7 @@ from .doctor import doctor_json, doctor_markdown
 from .evidence import evidence_audit_json, evidence_audit_markdown
 from .finalize_release import example_finalize_release_json, finalize_release_json, finalize_release_markdown
 from .ics import records_to_ics
+from .impact_brief import impact_brief_json, impact_brief_markdown
 from .io import dump_json, load_dataset, read_json, read_text
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
@@ -110,6 +111,14 @@ def build_parser() -> argparse.ArgumentParser:
     add_as_of(brief)
     brief.add_argument("--days", type=int, default=45, help="look-ahead window in days")
     brief.set_defaults(func=cmd_brief)
+
+    impact_brief = subparsers.add_parser("impact-brief", help="render a deterministic non-advisory catalyst impact brief")
+    add_input(impact_brief)
+    add_as_of(impact_brief)
+    impact_brief.add_argument("--days", type=int, default=45, help="look-ahead window in days")
+    impact_brief.add_argument("--stale-after-days", type=int, default=14)
+    impact_brief.add_argument("--format", choices=["json", "markdown"], default="markdown")
+    impact_brief.set_defaults(func=cmd_impact_brief)
 
     exposure = subparsers.add_parser("exposure", help="aggregate upcoming catalyst exposure")
     add_input(exposure)
@@ -546,6 +555,20 @@ def cmd_brief(args: argparse.Namespace) -> int:
     as_of = resolve_as_of(dataset, args.as_of)
     records = upcoming_records(dataset.records, as_of, args.days)
     print(brief_markdown(records, as_of), end="")
+    return 0
+
+
+def cmd_impact_brief(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    dataset = load_dataset(args.input)
+    as_of = resolve_as_of(dataset, args.as_of)
+    if args.format == "json":
+        print(dump_json(impact_brief_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
+    else:
+        print(impact_brief_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
     return 0
 
 

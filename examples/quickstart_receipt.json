@@ -62,10 +62,10 @@
       "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94"
     },
     {
-      "bytes": 944,
+      "bytes": 954,
       "path": "examples/version_report.json",
       "present": true,
-      "sha256": "0fd35b40fba1f5a01934ae6da9b9c55a7cc17e141c0d0cd1858e8841726052b3"
+      "sha256": "21170d8b58796a83986edaef287682c0524f6be4d72631a083bdaedaaa35ff22"
     }
   ],
   "inputs": {
@@ -84,12 +84,12 @@
   "release_context": {
     "available": true,
     "commit": {
-      "date": "2026-06-17T16:47:22+08:00",
-      "hash": "1414150b10f193753194a6a3cadada706cd5a210",
-      "short_hash": "1414150",
-      "subject": "feat: add quickstart receipt workflow"
+      "date": "2026-06-17T17:07:28+08:00",
+      "hash": "6b2f94f470ec5a0be0b5941b658846e15922ce48",
+      "short_hash": "6b2f94f",
+      "subject": "fix: stabilize release audit fixture comparison"
     },
-    "latest_tag": "v3.6.0"
+    "latest_tag": "v3.7.0"
   },
   "rerun_commands": [
     "python -m market_catalyst_calendar validate --input examples/demo_records.json",
