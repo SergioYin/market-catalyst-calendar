@@ -367,6 +367,101 @@ class CliTests(unittest.TestCase):
         self.assertEqual(item["scenarios"]["base"], "Not supplied in the static dataset.")
         self.assertIn("missing_risk_context", item["impact_flags"])
 
+    def test_impact_dashboard_json_summarizes_dataset_without_advice(self):
+        result = self.run_cli("impact-dashboard", "--as-of", "2026-05-13", "--days", "45", "--format", "json", input_data=json.dumps(DEMO_DATA))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "impact-dashboard/v1")
+        self.assertEqual(payload["input_type"], "dataset")
+        self.assertEqual(payload["horizon"], {"as_of": "2026-05-13", "days": 45, "stale_after_days": 14})
+        self.assertIn("No live data", payload["boundary_note"])
+        self.assertFalse(payload["boundary"]["investment_advice"])
+        self.assertEqual(payload["summary"]["total_upcoming_items"], 3)
+        self.assertEqual(payload["summary"]["evidence_state_counts"], {"fresh": 1, "missing": 1, "stale": 1})
+        self.assertEqual(payload["summary"]["impact_flag_counts"]["over_budget"], 2)
+        self.assertEqual([item["id"] for item in payload["top_attention_catalysts"]], ["demo-pfe-fda-2026", "demo-fomc-june-2026", "demo-nvda-computex-2026"])
+        self.assertEqual(payload["review_queue"][0]["id"], "demo-pfe-fda-2026")
+        self.assertIn("verify_source", payload["review_queue"][0]["reasons"])
+
+    def test_impact_dashboard_accepts_impact_brief_snapshot(self):
+        brief = impact_brief_json(parse_dataset(DEMO_DATA).records, parse_dataset(DEMO_DATA).as_of, 45, 14)
+        result = self.run_cli("impact-dashboard", "--format", "markdown", "--top-limit", "1", input_data=json.dumps(brief))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Impact Dashboard", result.stdout)
+        self.assertIn("Input: impact-brief", result.stdout)
+        self.assertIn("| Total upcoming items | 3 |", result.stdout)
+        self.assertIn("| 100 | PFE | 2026-05-20..2026-05-24 | regulatory decision | stale |", result.stdout)
+
+    def test_impact_dashboard_does_not_trust_snapshot_boundary_fields(self):
+        brief = impact_brief_json(parse_dataset(DEMO_DATA).records, parse_dataset(DEMO_DATA).as_of, 45, 14)
+        brief["boundary_note"] = "advice enabled"
+        brief["boundary"] = {"investment_advice": True, "trade_recommendation": True, "live_data": True}
+        result = self.run_cli("impact-dashboard", "--format", "json", input_data=json.dumps(brief))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertIn("No live data", payload["boundary_note"])
+        self.assertFalse(payload["boundary"]["investment_advice"])
+        self.assertFalse(payload["boundary"]["trade_recommendation"])
+        self.assertFalse(payload["boundary"]["live_data"])
+
+    def test_impact_dashboard_snapshot_ordering_and_markdown_escaping_are_stable(self):
+        brief = {
+            "schema_version": "impact-brief/v1",
+            "as_of": "2026-05-13",
+            "days": 45,
+            "stale_after_days": 14,
+            "records": [
+                {
+                    "id": "b",
+                    "ticker": "BBB|PIPE",
+                    "entity": "Beta",
+                    "event_type": "macro_release",
+                    "window": "2026-05-20|2026-05-21",
+                    "attention_score": "50",
+                    "catalyst_score": "40",
+                    "days_until": "7",
+                    "urgency": "medium",
+                    "review_state": "fresh",
+                    "required_review_action": "none",
+                    "evidence_state": "fresh|checked",
+                    "impact_flags": ["z_flag", "a_flag"],
+                },
+                {
+                    "id": "a",
+                    "ticker": "AAA",
+                    "entity": "Alpha",
+                    "event_type": "macro_release",
+                    "window": "2026-05-20",
+                    "attention_score": "50",
+                    "catalyst_score": "40",
+                    "days_until": "7",
+                    "urgency": "medium",
+                    "review_state": "fresh",
+                    "required_review_action": "none",
+                    "evidence_state": "fresh",
+                    "impact_flags": ["z_flag", "a_flag"],
+                },
+            ],
+        }
+        json_result = self.run_cli("impact-dashboard", "--format", "json", input_data=json.dumps(brief))
+        self.assertEqual(json_result.returncode, 0, json_result.stderr)
+        payload = json.loads(json_result.stdout)
+        self.assertEqual([item["id"] for item in payload["top_attention_catalysts"]], ["a", "b"])
+        self.assertEqual(payload["top_attention_catalysts"][0]["impact_flags"], ["a_flag", "z_flag"])
+
+        markdown_result = self.run_cli("impact-dashboard", "--format", "markdown", input_data=json.dumps(brief))
+        self.assertEqual(markdown_result.returncode, 0, markdown_result.stderr)
+        self.assertIn("BBB\\|PIPE", markdown_result.stdout)
+        self.assertIn("2026-05-20\\|2026-05-21", markdown_result.stdout)
+        self.assertIn("fresh\\|checked", markdown_result.stdout)
+
+    def test_impact_dashboard_help_documents_snapshot_input_behavior(self):
+        result = self.run_cli("impact-dashboard", "--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        help_text = " ".join(result.stdout.split())
+        self.assertIn("impact-brief input uses the snapshot as_of", help_text)
+        self.assertIn("freshness threshold in days when input is a dataset", help_text)
+
     def test_exposure_json_groups_upcoming_weighted_exposure(self):
         result = self.run_cli("exposure", "--as-of", "2026-05-13", "--days", "45", input_data=json.dumps(DEMO_DATA))
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -1431,14 +1526,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 66)
+            self.assertEqual(payload["file_count"], 68)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 66)
+            self.assertEqual(len(manifest["files"]), 68)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1492,9 +1587,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 62)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 32)
-        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 26)
+        self.assertEqual(payload["summary"]["fixture_count"], 64)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 33)
+        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 27)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1643,7 +1738,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 64)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 66)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1687,7 +1782,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 32)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 33)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1697,7 +1792,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 62 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 64 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1705,7 +1800,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 64 of 64 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 66 of 66 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):

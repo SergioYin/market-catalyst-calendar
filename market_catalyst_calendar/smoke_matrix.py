@@ -182,6 +182,8 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         SmokeCase("brief", ["brief", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout="# Market Catalyst Brief"),
         SmokeCase("impact-brief", ["impact-brief", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout="# Market Catalyst Impact Brief"),
         SmokeCase("impact-brief json", ["impact-brief", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "json"], required_stdout='"schema_version": "impact-brief/v1"'),
+        SmokeCase("impact-dashboard", ["impact-dashboard", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"], required_stdout="# Market Catalyst Impact Dashboard"),
+        SmokeCase("impact-dashboard json", ["impact-dashboard", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "json"], required_stdout='"schema_version": "impact-dashboard/v1"'),
         SmokeCase("exposure", ["exposure", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),
         SmokeCase("exposure markdown", ["exposure", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--format", "markdown"], required_stdout="# Market Catalyst Exposure"),
         SmokeCase("risk-budget", ["risk-budget", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45"]),

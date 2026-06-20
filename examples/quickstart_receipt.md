@@ -16,10 +16,10 @@ Days: 45
 
 ## Release Context
 
-- Commit: `13bb680`
-- Commit date: `2026-06-21T01:50:56+08:00`
-- Latest tag: `v3.8.0`
-- Subject: feat: add catalyst impact brief workflow
+- Commit: `60370a7`
+- Commit date: `2026-06-21T02:02:56+08:00`
+- Latest tag: `v3.9.0`
+- Subject: feat: add catalyst impact comparison
 
 ## Exact Rerun Commands
 
@@ -48,4 +48,4 @@ Days: 45
 | `examples/brief.md` | true | 1371 | `dbf0252cacd2df04047953477b93fbc1fff0dd468eea831a044e08d778465579` |
 | `examples/risk_budget.json` | true | 3572 | `85e34e4316e593de2f863ccb2d680bbdcad7606846256ff3645f26c35a985f5d` |
 | `examples/source_pack.json` | true | 6402 | `d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94` |
-| `examples/version_report.json` | true | 954 | `21170d8b58796a83986edaef287682c0524f6be4d72631a083bdaedaaa35ff22` |
+| `examples/version_report.json` | true | 943 | `10e922ac38d35686f272d93f586f022b7db0d9ea00c1805eebb268f6df0a18a0` |

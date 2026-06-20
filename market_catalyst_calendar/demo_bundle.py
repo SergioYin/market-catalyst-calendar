@@ -20,6 +20,7 @@ from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
+from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
 from .io import dump_json
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
@@ -182,6 +183,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             "impact_brief.md",
             "impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45",
             lambda: impact_brief_markdown(base.records, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS),
+            0,
+        ),
+        (
+            "impact_dashboard.json",
+            "impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+            lambda: dump_json(impact_dashboard_json(DEMO_DATA, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS, 5)),
+            0,
+        ),
+        (
+            "impact_dashboard.md",
+            "impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+            lambda: impact_dashboard_markdown(DEMO_DATA, as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS, 5),
             0,
         ),
         (

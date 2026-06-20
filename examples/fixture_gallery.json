@@ -153,6 +153,56 @@
       "sha256": "90188731ad7ded160244fb18a7dca8dded8c119df87a8455532ad8f1bf3618f6"
     },
     {
+      "bytes": 3625,
+      "command": "python -m market_catalyst_calendar impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json",
+      "command_args": [
+        "impact-dashboard",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "json",
+      "path": "examples/impact_dashboard.json",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "15b20ffab5185a0a581467630fdca920fc81ee4bef28a5444442caa4c38d25b0"
+    },
+    {
+      "bytes": 1354,
+      "command": "python -m market_catalyst_calendar impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45",
+      "command_args": [
+        "impact-dashboard",
+        "--input",
+        "examples/demo_records.json",
+        "--as-of",
+        "2026-05-13",
+        "--days",
+        "45"
+      ],
+      "exit_code": 0,
+      "input_fixtures": [
+        "examples/demo_records.json"
+      ],
+      "output_type": "markdown",
+      "path": "examples/impact_dashboard.md",
+      "recommended_use_cases": [
+        "Inspect deterministic fixture output.",
+        "Use as a stable regression fixture for downstream tooling."
+      ],
+      "sha256": "2408f81c9d53b684313c49215357132b0e506abc9c0295df5ed48454b6b5ad58"
+    },
+    {
       "bytes": 1238,
       "command": "python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
@@ -935,7 +985,7 @@
       "sha256": "ce1dfe39eb836ffcdb8a27615ea8abf77e7cb19717dc581bec4b8b75cd062d6e"
     },
     {
-      "bytes": 4103,
+      "bytes": 4099,
       "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45",
       "command_args": [
         "quickstart-receipt",
@@ -956,10 +1006,10 @@
         "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
         "Use as a quickstart receipt before handing off deterministic examples."
       ],
-      "sha256": "48a191517852545f53a7ebd6a11d2b5372c98dca4eccc32317497604a7aef998"
+      "sha256": "cfa314f57096d645c48c216936c975c10417d03c45e4617854f1eb81f1687841"
     },
     {
-      "bytes": 3257,
+      "bytes": 3253,
       "command": "python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown",
       "command_args": [
         "quickstart-receipt",
@@ -982,7 +1032,7 @@
         "Capture reproducible local-demo commands, hashes, and finance safety boundaries.",
         "Use as a quickstart receipt before handing off deterministic examples."
       ],
-      "sha256": "3ae1fe24ea8d41b9d917fba841249988405b3027802491d879b61c06477e252b"
+      "sha256": "a8354e9bffc64601b9216bfe8eec245b48eed0c7e43fa5a14ece1ef86f5950ac"
     },
     {
       "bytes": 13009,
@@ -1057,7 +1107,7 @@
       "sha256": "dfa83b4934eecd9dd4aa1767e556797dcbec91a54b31ce3200f8d55028fef736"
     },
     {
-      "bytes": 20498,
+      "bytes": 20800,
       "command": "python -m market_catalyst_calendar taxonomy",
       "command_args": [
         "taxonomy"
@@ -1070,10 +1120,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "d57d6c5460bf11cf12a1901b4b81f5518b936571e3725d421efb208b6e203474"
+      "sha256": "056b98a68675675258ef954ffe5ce22bdbfdf2193b9bcde0c411371809aa6a76"
     },
     {
-      "bytes": 7101,
+      "bytes": 7150,
       "command": "python -m market_catalyst_calendar taxonomy --format markdown",
       "command_args": [
         "taxonomy",
@@ -1088,10 +1138,10 @@
         "Inspect deterministic fixture output.",
         "Use as a stable regression fixture for downstream tooling."
       ],
-      "sha256": "4dd4e2f0e5e40f0127778deb9357f4a65b71337edc330e656b2a0ba3338658dc"
+      "sha256": "469302fcd1097d2c58dc3e6b3c593d1272820080619115bb34b7181773e4789d"
     },
     {
-      "bytes": 947,
+      "bytes": 943,
       "command": "python -m market_catalyst_calendar version-report --root . --repo .",
       "command_args": [
         "version-report",
@@ -1108,10 +1158,10 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "e13dc56b19beabd0bc0dda8cf2b13e428ad8c7774376de7e2afb68b1ab067d71"
+      "sha256": "c840be9cd53fcd5e0e20da600bd721589e7385222c93a0696b8723d296df845d"
     },
     {
-      "bytes": 280,
+      "bytes": 276,
       "command": "python -m market_catalyst_calendar version-report --root . --repo . --format markdown",
       "command_args": [
         "version-report",
@@ -1130,7 +1180,7 @@
         "Inspect package version, command and fixture counts, release status, and local git refs.",
         "Use as a compact release handoff snapshot before tagging."
       ],
-      "sha256": "d587a98be14ef6dc4a80f236d32585067dc66869d42ca8237b32598fe733b83f"
+      "sha256": "1615dec73cfd9bdbe318ef9537409f08209e9d6a468a6fcd187c26643a40a18b"
     },
     {
       "bytes": 4548,
@@ -1426,7 +1476,7 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "1505713b643621d50210abbc6af47a9e1a35491290b5c57bfb6f06223d5f55ed"
+      "sha256": "0c86fc50ff356b2b59656ea692b199a567a2818e7e50978d748f363697a58ecb"
     },
     {
       "bytes": 615,
@@ -1445,18 +1495,18 @@
         "Review one deterministic release checklist before handoff.",
         "Combine audit, smoke, fixture, and changelog status for release notes."
       ],
-      "sha256": "4450dd2adb480229c72901cb7a2a44c871d13ac1b711e13dbce3ef12c621942b"
+      "sha256": "af1ae3b2c10f27bed5b56b15da6882f9fb3a4b1f3a126c6264c93844c566dc5e"
     }
   ],
   "schema_version": "fixture-gallery/v1",
   "summary": {
-    "fixture_count": 62,
+    "fixture_count": 64,
     "output_type_counts": {
       "csv": 2,
       "html": 1,
       "ics": 1,
-      "json": 32,
-      "markdown": 26
+      "json": 33,
+      "markdown": 27
     }
   }
 }

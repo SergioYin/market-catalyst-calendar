@@ -1,0 +1,143 @@
+{
+  "as_of": "2026-05-13",
+  "boundary": {
+    "broker_connectivity": false,
+    "investment_advice": false,
+    "live_data": false,
+    "prediction": false,
+    "source_basis": "supplied_dataset_only",
+    "trade_recommendation": false
+  },
+  "boundary_note": "Offline deterministic research brief from supplied dataset only. No live data, broker connectivity, predictions, investment advice, or trade recommendations.",
+  "horizon": {
+    "as_of": "2026-05-13",
+    "days": 45,
+    "stale_after_days": 14
+  },
+  "input_type": "dataset",
+  "review_queue": [
+    {
+      "attention_score": 100,
+      "days_until": 7,
+      "entity": "Pfizer Inc.",
+      "evidence_state": "stale",
+      "id": "demo-pfe-fda-2026",
+      "impact_flags": [
+        "broker_context",
+        "over_budget",
+        "stale_review"
+      ],
+      "reasons": [
+        "stale",
+        "verify_source"
+      ],
+      "required_review_action": "verify_source",
+      "review_state": "stale",
+      "ticker": "PFE",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "attention_score": 89,
+      "days_until": 35,
+      "entity": "S&P 500 ETF Trust",
+      "evidence_state": "missing",
+      "id": "demo-fomc-june-2026",
+      "impact_flags": [
+        "missing_evidence_freshness",
+        "over_budget"
+      ],
+      "reasons": [
+        "missing_evidence_freshness",
+        "monitor_date"
+      ],
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    },
+    {
+      "attention_score": 84,
+      "days_until": 20,
+      "entity": "NVIDIA Corporation",
+      "evidence_state": "fresh",
+      "id": "demo-nvda-computex-2026",
+      "impact_flags": [
+        "broker_context"
+      ],
+      "reasons": [
+        "monitor_date"
+      ],
+      "required_review_action": "monitor_date",
+      "review_state": "current",
+      "ticker": "NVDA",
+      "window": "2026-06-02"
+    }
+  ],
+  "schema_version": "impact-dashboard/v1",
+  "summary": {
+    "evidence_state_counts": {
+      "fresh": 1,
+      "missing": 1,
+      "stale": 1
+    },
+    "impact_flag_counts": {
+      "broker_context": 2,
+      "missing_evidence_freshness": 1,
+      "over_budget": 2,
+      "stale_review": 1
+    },
+    "review_queue_count": 3,
+    "top_attention_count": 3,
+    "total_upcoming_items": 3
+  },
+  "top_attention_catalysts": [
+    {
+      "attention_score": 100,
+      "catalyst_score": 87,
+      "entity": "Pfizer Inc.",
+      "event_type": "regulatory_decision",
+      "evidence_state": "stale",
+      "id": "demo-pfe-fda-2026",
+      "impact_flags": [
+        "broker_context",
+        "over_budget",
+        "stale_review"
+      ],
+      "review_state": "stale",
+      "ticker": "PFE",
+      "urgency": "high",
+      "window": "2026-05-20..2026-05-24"
+    },
+    {
+      "attention_score": 89,
+      "catalyst_score": 83,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_state": "missing",
+      "id": "demo-fomc-june-2026",
+      "impact_flags": [
+        "missing_evidence_freshness",
+        "over_budget"
+      ],
+      "review_state": "current",
+      "ticker": "SPY",
+      "urgency": "medium",
+      "window": "2026-06-17"
+    },
+    {
+      "attention_score": 84,
+      "catalyst_score": 84,
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_state": "fresh",
+      "id": "demo-nvda-computex-2026",
+      "impact_flags": [
+        "broker_context"
+      ],
+      "review_state": "current",
+      "ticker": "NVDA",
+      "urgency": "medium",
+      "window": "2026-06-02"
+    }
+  ]
+}

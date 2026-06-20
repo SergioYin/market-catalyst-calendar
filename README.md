@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits and compares deterministic non-advisory impact briefs and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits deterministic non-advisory impact briefs, static impact dashboard panels, impact comparisons, and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
 
 ## Install
 
@@ -22,6 +22,8 @@ python -m market_catalyst_calendar stale --input examples/demo_records.json --as
 python -m market_catalyst_calendar brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json
+python -m market_catalyst_calendar impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45
+python -m market_catalyst_calendar impact-dashboard --input examples/impact_brief.json --format json
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar exposure --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar risk-budget --input examples/demo_records.json --as-of 2026-05-13 --days 45
@@ -107,6 +109,12 @@ JSON and Markdown outputs include:
 - portfolio weight, score/confidence-weighted attention, risk budget, max loss, source refs, evidence freshness, broker-context count, and flags such as `stale_review`, `over_budget`, or `missing_risk_context`
 
 Use Markdown for a human-readable research packet and JSON for downstream automation.
+
+## Impact Dashboard Workflow
+
+`impact-dashboard` renders a compact static panel from either a catalyst dataset or an `impact-brief --format json` snapshot. It emits the same offline, non-advisory boundary note and never fetches live data, connects to brokers, predicts outcomes, gives investment advice, or recommends trades.
+
+The panel includes horizon, total upcoming item count, evidence-state counts, impact-flag counts, top attention catalysts, and a review queue. Use Markdown for a public-facing static panel and JSON when another tool needs stable summary fields.
 
 ## Record Shape
 

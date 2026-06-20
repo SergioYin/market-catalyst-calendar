@@ -275,6 +275,20 @@
       "writes_files": true
     },
     {
+      "category": "briefing",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-dashboard",
+      "inputs": [
+        "dataset",
+        "impact brief"
+      ],
+      "purpose": "summarize static impact brief dashboard panels",
+      "writes_files": false
+    },
+    {
       "category": "interchange",
       "formats": [
         "json"
@@ -888,7 +902,7 @@
     "watching"
   ],
   "summary": {
-    "command_count": 45,
+    "command_count": 46,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
     "output_command_count": 20,

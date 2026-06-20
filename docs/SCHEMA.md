@@ -133,6 +133,19 @@ JSON output is pretty-printed with two-space indentation, sorted object keys, UT
 - Flags: `stale_review`, `missing_evidence_freshness`, `missing_risk_context`, `over_budget`, and `broker_context`.
 - Markdown: same record set rendered as a summary table plus per-catalyst scenario and evidence details.
 
+`impact-dashboard`
+
+- Input: dataset JSON or an `impact-brief/v1` JSON snapshot.
+- Parameters: `--as-of`, `--days`, `--stale-after-days`, `--top-limit`, and `--format json|markdown`.
+- Selection: dataset inputs are first normalized through the deterministic `impact-brief` workflow; impact-brief input records are summarized as supplied.
+- Boundary: output always uses the dashboard's fixed non-advisory boundary fields; it is deterministic context from supplied static JSON only and does not fetch live data, connect to brokers, predict outcomes, provide investment advice, or recommend trades.
+- JSON: `{ "schema_version": "impact-dashboard/v1", "input_type": string, "as_of": date, "horizon": object, "boundary_note": string, "boundary": object, "summary": object, "top_attention_catalysts": [item, ...], "review_queue": [item, ...] }`.
+- Horizon fields: `as_of`, `days`, and `stale_after_days`.
+- Summary fields: `total_upcoming_items`, `evidence_state_counts`, `impact_flag_counts`, `review_queue_count`, and `top_attention_count`.
+- Top attention fields: `id`, `ticker`, `entity`, `event_type`, `window`, `attention_score`, `catalyst_score`, `urgency`, `review_state`, `evidence_state`, and `impact_flags`.
+- Review queue fields: `id`, `ticker`, `entity`, `window`, `attention_score`, `days_until`, `review_state`, `required_review_action`, `evidence_state`, `impact_flags`, and `reasons`.
+- Markdown: summary metrics, evidence-state count table, impact-flag count table, top attention table, review queue table, and boundary note.
+
 `impact-compare`
 
 - Inputs: `--base` older JSON path and `--current` newer JSON path; each path may be a catalyst dataset or an `impact-brief/v1` JSON snapshot.

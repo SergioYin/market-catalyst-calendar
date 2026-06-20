@@ -24,6 +24,7 @@ from .finalize_release import example_finalize_release_json, finalize_release_js
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
+from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
 from .io import dump_json, load_dataset, read_json, read_text
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
@@ -120,6 +121,15 @@ def build_parser() -> argparse.ArgumentParser:
     impact_brief.add_argument("--stale-after-days", type=int, default=14)
     impact_brief.add_argument("--format", choices=["json", "markdown"], default="markdown")
     impact_brief.set_defaults(func=cmd_impact_brief)
+
+    impact_dashboard = subparsers.add_parser("impact-dashboard", help="render a static non-advisory impact dashboard panel")
+    add_input(impact_dashboard)
+    impact_dashboard.add_argument("--as-of", help="ISO date override for dataset input; impact-brief input uses the snapshot as_of")
+    impact_dashboard.add_argument("--days", type=int, default=45, help="look-ahead window when input is a dataset")
+    impact_dashboard.add_argument("--stale-after-days", type=int, default=14, help="freshness threshold in days when input is a dataset")
+    impact_dashboard.add_argument("--top-limit", type=int, default=5, help="maximum top attention catalysts to include")
+    impact_dashboard.add_argument("--format", choices=["json", "markdown"], default="markdown")
+    impact_dashboard.set_defaults(func=cmd_impact_dashboard)
 
     exposure = subparsers.add_parser("exposure", help="aggregate upcoming catalyst exposure")
     add_input(exposure)
@@ -580,6 +590,22 @@ def cmd_impact_brief(args: argparse.Namespace) -> int:
         print(dump_json(impact_brief_json(dataset.records, as_of, args.days, args.stale_after_days)), end="")
     else:
         print(impact_brief_markdown(dataset.records, as_of, args.days, args.stale_after_days), end="")
+    return 0
+
+
+def cmd_impact_dashboard(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    if args.top_limit < 1:
+        raise ValueError("--top-limit must be at least 1")
+    raw = read_json(args.input)
+    as_of = date.fromisoformat(args.as_of) if args.as_of else None
+    if args.format == "json":
+        print(dump_json(impact_dashboard_json(raw, as_of, args.days, args.stale_after_days, args.top_limit)), end="")
+    else:
+        print(impact_dashboard_markdown(raw, as_of, args.days, args.stale_after_days, args.top_limit), end="")
     return 0
 
 
