@@ -33,6 +33,7 @@ REQUIRED_COMMANDS = [
     "command-cookbook",
     "tutorial",
     "quickstart-receipt",
+    "impact-artifact-receipt",
     "agent-handoff",
     "run-preset",
     "taxonomy",

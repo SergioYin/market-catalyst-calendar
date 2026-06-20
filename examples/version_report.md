@@ -2,13 +2,13 @@
 
 Package: `market-catalyst-calendar`
 Version: `0.1.0`
-Commands: 46
-Fixtures: 66
+Commands: 47
+Fixtures: 68
 Release audit: PASS
 
 ## Git
 
-- Latest tag: `v3.9.0`
-- Commit: `60370a7`
-- Commit date: `2026-06-21T02:02:56+08:00`
-- Subject: feat: add catalyst impact comparison
+- Latest tag: `v4.0.0`
+- Commit: `dc09a7a`
+- Commit date: `2026-06-21T02:19:08+08:00`
+- Subject: feat: add catalyst impact dashboard panel

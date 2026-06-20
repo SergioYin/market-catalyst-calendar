@@ -35,6 +35,7 @@ Use this skill when a user wants to create, validate, rank, review, brief, or ex
 - Use `post-event` when the user wants overdue or completed catalysts that still need actual outcome capture and an outcome review template.
 - Use `compare` when the user wants to diff two catalyst dataset snapshots and see added, removed, changed, score, status, evidence, or thesis-impact changes.
 - Use `impact-compare` when the user wants to diff two static datasets or generated impact-brief JSON snapshots for attention score movement, evidence-state movement, and impact-flag changes.
+- Use `impact-artifact-receipt` when the user needs release evidence for checked-in impact examples, including rerun commands, fixture paths, output paths, hashes, schema labels, and no-live-data/no-broker/no-prediction/no-advice boundaries.
 - Use `merge` when the user wants to combine multiple catalyst datasets into one validated JSON dataset with conflict diagnostics, duplicate-ID diagnostics, and source provenance.
 - Use `html-dashboard` when the user wants a deterministic static no-JavaScript dashboard that combines score tables, exposure, thesis map, evidence audit, scenarios, and watchlist.
 - Use `static-site` when the user wants a deterministic no-JavaScript site directory with an index, dashboard, source inventory, per-ticker pages, shared CSS, and a manifest.
@@ -107,6 +108,8 @@ python -m market_catalyst_calendar compare --base examples/demo_records.json --c
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
 python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
 python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
+python -m market_catalyst_calendar impact-artifact-receipt --root .
+python -m market_catalyst_calendar impact-artifact-receipt --root . --format markdown
 python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27 --output examples/merge.json
 python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
 python -m market_catalyst_calendar static-site --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output-dir site

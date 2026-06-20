@@ -309,6 +309,18 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Fixture fields: `path`, `present`, `bytes`, and `sha256`.
 - Markdown: boundary list, release context, exact rerun commands, artifact hashes, and fixture hashes.
 
+`impact-artifact-receipt`
+
+- Input: checked-in repository examples only; no dataset parsing, network access, broker access, market data, or order-routing access is used.
+- Parameters: optional `--root`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when every referenced impact example artifact and input fixture is present, `1` when any referenced file is missing.
+- JSON: `{ "schema_version": "impact-artifact-receipt/v1", "root": string, "ok": bool, "boundaries": [string, ...], "summary": object, "artifacts": [artifact, ...], "missing": [path, ...] }`.
+- Summary fields: `artifact_count`, `missing_count`, and `total_bytes`.
+- Artifact fields: `name`, `format`, `schema_label`, `inputs`, `output_path`, `present`, `bytes`, `sha256`, and `rerun_command`.
+- Input fields: `path`, `present`, `bytes`, and `sha256`.
+- Boundary labels: fixed no-live-data, no-broker-integration, no-prediction, and no-investment-advice statements.
+- Markdown: boundary list plus artifact table with exact rerun commands, input fixture paths, output paths, byte sizes, SHA-256 hashes, and schema labels.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.

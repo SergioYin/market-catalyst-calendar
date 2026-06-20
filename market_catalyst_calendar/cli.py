@@ -23,6 +23,7 @@ from .evidence import evidence_audit_json, evidence_audit_markdown
 from .finalize_release import example_finalize_release_json, finalize_release_json, finalize_release_markdown
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
+from .impact_artifact_receipt import impact_artifact_receipt_json, impact_artifact_receipt_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
 from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
 from .io import dump_json, load_dataset, read_json, read_text
@@ -273,6 +274,12 @@ def build_parser() -> argparse.ArgumentParser:
     quickstart_receipt.add_argument("--format", choices=["json", "markdown"], default="json")
     quickstart_receipt.add_argument("--output", "-o", help="output path; stdout when omitted")
     quickstart_receipt.set_defaults(func=cmd_quickstart_receipt)
+
+    impact_artifact_receipt = subparsers.add_parser("impact-artifact-receipt", help="emit receipts for checked-in impact example artifacts")
+    impact_artifact_receipt.add_argument("--root", default=".", help="repository root containing examples; defaults to current directory")
+    impact_artifact_receipt.add_argument("--format", choices=["json", "markdown"], default="json")
+    impact_artifact_receipt.add_argument("--output", "-o", help="output path; stdout when omitted")
+    impact_artifact_receipt.set_defaults(func=cmd_impact_artifact_receipt)
 
     agent_handoff = subparsers.add_parser("agent-handoff", help="create a machine-readable research-agent context pack")
     add_input(agent_handoff)
@@ -904,6 +911,16 @@ def cmd_quickstart_receipt(args: argparse.Namespace) -> int:
     else:
         print(text, end="")
     return 0
+
+
+def cmd_impact_artifact_receipt(args: argparse.Namespace) -> int:
+    payload = impact_artifact_receipt_json(Path(args.root))
+    text = dump_json(payload) if args.format == "json" else impact_artifact_receipt_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["ok"] else 1
 
 
 def cmd_agent_handoff(args: argparse.Namespace) -> int:

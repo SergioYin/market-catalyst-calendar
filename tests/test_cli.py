@@ -276,6 +276,7 @@ class CliTests(unittest.TestCase):
         self.assertIn("MCC-QG-EVIDENCE-001", {item["code"] for item in payload["diagnostic_codes"]})
         self.assertIn("MCC-VAL-SCENARIO-001", {item["code"] for item in payload["diagnostic_codes"]})
         self.assertIn("taxonomy", {command["id"] for command in payload["commands"]})
+        self.assertIn("impact-artifact-receipt", {command["id"] for command in payload["commands"]})
         self.assertIn("demo-bundle", payload["output_commands"])
 
     def test_taxonomy_markdown_renders_catalog_sections(self):
@@ -1526,14 +1527,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 68)
+            self.assertEqual(payload["file_count"], 70)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 68)
+            self.assertEqual(len(manifest["files"]), 70)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1560,6 +1561,8 @@ class CliTests(unittest.TestCase):
             self.assertIn("examples/drilldown.md", paths)
             self.assertIn("examples/impact_compare.json", paths)
             self.assertIn("examples/impact_compare.md", paths)
+            self.assertIn("examples/impact_artifact_receipt.json", paths)
+            self.assertIn("examples/impact_artifact_receipt.md", paths)
             self.assertIn("examples/tutorial.md", paths)
             self.assertIn("examples/dashboard.html", paths)
 
@@ -1587,9 +1590,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 64)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 33)
-        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 27)
+        self.assertEqual(payload["summary"]["fixture_count"], 66)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 34)
+        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 28)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1729,6 +1732,43 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("--days must be non-negative", result.stderr)
 
+    def test_impact_artifact_receipt_json_captures_paths_hashes_schema_and_boundaries(self):
+        result = self.run_cli("impact-artifact-receipt", "--root", str(ROOT))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "impact-artifact-receipt/v1")
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["summary"]["artifact_count"], 6)
+        self.assertEqual(payload["missing"], [])
+        self.assertIn("No live data", payload["boundaries"][0])
+        self.assertIn("No broker integration", payload["boundaries"][1])
+        self.assertIn("No prediction", payload["boundaries"][2])
+        self.assertIn("No investment advice", payload["boundaries"][3])
+
+        artifacts = {item["name"]: item for item in payload["artifacts"]}
+        brief = artifacts["impact_brief.json"]
+        expected_text = (ROOT / "examples" / "impact_brief.json").read_text(encoding="utf-8")
+        self.assertEqual(brief["schema_label"], "impact-brief/v1")
+        self.assertEqual(brief["output_path"], "examples/impact_brief.json")
+        self.assertEqual(brief["bytes"], len(expected_text.encode("utf-8")))
+        self.assertEqual(len(brief["sha256"]), 64)
+        self.assertEqual(brief["inputs"][0]["path"], "examples/demo_records.json")
+        self.assertIn("> examples/impact_brief.json", brief["rerun_command"])
+
+        compare = artifacts["impact_compare.md"]
+        self.assertEqual(compare["schema_label"], "impact-compare/markdown")
+        self.assertEqual([item["path"] for item in compare["inputs"]], ["examples/demo_records.json", "examples/demo_records_updated.json"])
+
+    def test_impact_artifact_receipt_markdown_renders_release_table(self):
+        result = self.run_cli("impact-artifact-receipt", "--root", str(ROOT), "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Impact Artifact Receipt", result.stdout)
+        self.assertIn("No live data", result.stdout)
+        self.assertIn("| `impact_dashboard.json` | `impact-dashboard/v1` |", result.stdout)
+        self.assertIn("`python -m market_catalyst_calendar impact-compare", result.stdout)
+
     def test_release_audit_json_passes_for_checked_in_release_artifacts(self):
         result = self.run_cli("release-audit", "--root", str(ROOT))
 
@@ -1738,7 +1778,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 66)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 68)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1782,7 +1822,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 33)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 34)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1792,7 +1832,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 64 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 66 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1800,7 +1840,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 66 of 66 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 68 of 68 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):

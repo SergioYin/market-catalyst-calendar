@@ -17,7 +17,7 @@
     },
     {
       "blockers": [],
-      "detail": "64 fixtures indexed",
+      "detail": "66 fixtures indexed",
       "id": "fixture-gallery",
       "ok": true,
       "status": "pass"
@@ -39,14 +39,14 @@
       "tags_in_range": []
     },
     "fixture_gallery": {
-      "detail": "64 fixtures indexed",
+      "detail": "66 fixtures indexed",
       "ok": true,
       "output_type_counts": {
         "csv": 2,
         "html": 1,
         "ics": 1,
-        "json": 33,
-        "markdown": 27
+        "json": 34,
+        "markdown": 28
       }
     },
     "release_audit": {

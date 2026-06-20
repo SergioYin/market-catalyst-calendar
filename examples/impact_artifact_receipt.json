@@ -1,0 +1,139 @@
+{
+  "artifacts": [
+    {
+      "bytes": 4933,
+      "format": "json",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        }
+      ],
+      "name": "impact_brief.json",
+      "output_path": "examples/impact_brief.json",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json > examples/impact_brief.json",
+      "schema_label": "impact-brief/v1",
+      "sha256": "dd70eda12bdf42e33a1083b96b7b3848b25d312c1731b866bbbd57eed713607f"
+    },
+    {
+      "bytes": 3522,
+      "format": "markdown",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        }
+      ],
+      "name": "impact_brief.md",
+      "output_path": "examples/impact_brief.md",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-brief --input examples/demo_records.json --as-of 2026-05-13 --days 45 > examples/impact_brief.md",
+      "schema_label": "impact-brief/markdown",
+      "sha256": "90188731ad7ded160244fb18a7dca8dded8c119df87a8455532ad8f1bf3618f6"
+    },
+    {
+      "bytes": 3625,
+      "format": "json",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        }
+      ],
+      "name": "impact_dashboard.json",
+      "output_path": "examples/impact_dashboard.json",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format json > examples/impact_dashboard.json",
+      "schema_label": "impact-dashboard/v1",
+      "sha256": "15b20ffab5185a0a581467630fdca920fc81ee4bef28a5444442caa4c38d25b0"
+    },
+    {
+      "bytes": 1354,
+      "format": "markdown",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        }
+      ],
+      "name": "impact_dashboard.md",
+      "output_path": "examples/impact_dashboard.md",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 > examples/impact_dashboard.md",
+      "schema_label": "impact-dashboard/markdown",
+      "sha256": "2408f81c9d53b684313c49215357132b0e506abc9c0295df5ed48454b6b5ad58"
+    },
+    {
+      "bytes": 3897,
+      "format": "json",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        },
+        {
+          "bytes": 7564,
+          "path": "examples/demo_records_updated.json",
+          "present": true,
+          "sha256": "e9ddd7b4752b62f47e9a9c953e3c7ef8e21a49c08e276575a51222454497f967"
+        }
+      ],
+      "name": "impact_compare.json",
+      "output_path": "examples/impact_compare.json",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 > examples/impact_compare.json",
+      "schema_label": "impact-compare/v1",
+      "sha256": "7cabbf2036d42d7c2014de013af356d5fbaa03291d13c9c8367c83b3d2df3a96"
+    },
+    {
+      "bytes": 1990,
+      "format": "markdown",
+      "inputs": [
+        {
+          "bytes": 6771,
+          "path": "examples/demo_records.json",
+          "present": true,
+          "sha256": "3a0b0365033176885cfa9a2f5208d6a0770894a9c86949ba3c869db5aa3898f4"
+        },
+        {
+          "bytes": 7564,
+          "path": "examples/demo_records_updated.json",
+          "present": true,
+          "sha256": "e9ddd7b4752b62f47e9a9c953e3c7ef8e21a49c08e276575a51222454497f967"
+        }
+      ],
+      "name": "impact_compare.md",
+      "output_path": "examples/impact_compare.md",
+      "present": true,
+      "rerun_command": "python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown > examples/impact_compare.md",
+      "schema_label": "impact-compare/markdown",
+      "sha256": "3bcad5d758aecf1c8dacd64ef58549c2039bc92a5ce8a047ffb188b3467d1a26"
+    }
+  ],
+  "boundaries": [
+    "No live data: receipt evidence is limited to checked-in local fixtures and does not fetch market, news, or broker data.",
+    "No broker integration: rerun commands do not place, route, recommend, or simulate trades with a broker.",
+    "No prediction: artifacts summarize supplied catalyst records and do not forecast prices, returns, or outcomes.",
+    "No investment advice: artifacts are deterministic public research examples, not personalized recommendations."
+  ],
+  "missing": [],
+  "ok": true,
+  "root": ".",
+  "schema_version": "impact-artifact-receipt/v1",
+  "summary": {
+    "artifact_count": 6,
+    "missing_count": 0,
+    "total_bytes": 19321
+  }
+}

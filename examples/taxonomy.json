@@ -248,6 +248,19 @@
       "writes_files": true
     },
     {
+      "category": "operations",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-artifact-receipt",
+      "inputs": [
+        "repo examples"
+      ],
+      "purpose": "emit hashes, rerun commands, paths, schema labels, and finance boundaries for impact examples",
+      "writes_files": true
+    },
+    {
       "category": "briefing",
       "formats": [
         "json",
@@ -807,6 +820,7 @@
     "finalize-release",
     "fixture-gallery",
     "html-dashboard",
+    "impact-artifact-receipt",
     "impact-compare",
     "import-csv",
     "merge",
@@ -902,10 +916,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 46,
+    "command_count": 47,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 20,
+    "output_command_count": 21,
     "quality_rule_count": 6
   }
 }

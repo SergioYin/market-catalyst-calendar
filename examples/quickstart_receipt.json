@@ -62,10 +62,10 @@
       "sha256": "d4d4c6697765ed4d183d659db740c82fb4634590c14f9efc389ffd889909cc94"
     },
     {
-      "bytes": 943,
+      "bytes": 948,
       "path": "examples/version_report.json",
       "present": true,
-      "sha256": "10e922ac38d35686f272d93f586f022b7db0d9ea00c1805eebb268f6df0a18a0"
+      "sha256": "39098724260fda74ceed14cd596dec17ab0c94b8c6e2af55c0ec9a409aa92b2b"
     }
   ],
   "inputs": {
@@ -84,12 +84,12 @@
   "release_context": {
     "available": true,
     "commit": {
-      "date": "2026-06-21T02:02:56+08:00",
-      "hash": "60370a72541d1f0b9d805fa6b78eb4b8767efd2b",
-      "short_hash": "60370a7",
-      "subject": "feat: add catalyst impact comparison"
+      "date": "2026-06-21T02:19:08+08:00",
+      "hash": "dc09a7ae0bd103ba4348342ffdaba19904a8249f",
+      "short_hash": "dc09a7a",
+      "subject": "feat: add catalyst impact dashboard panel"
     },
-    "latest_tag": "v3.9.0"
+    "latest_tag": "v4.0.0"
   },
   "rerun_commands": [
     "python -m market_catalyst_calendar validate --input examples/demo_records.json",

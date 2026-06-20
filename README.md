@@ -58,6 +58,8 @@ python -m market_catalyst_calendar command-cookbook --input examples/demo_record
 python -m market_catalyst_calendar tutorial --as-of 2026-05-13 --days 45 --dataset-path examples/demo_records.json
 python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
+python -m market_catalyst_calendar impact-artifact-receipt --root .
+python -m market_catalyst_calendar impact-artifact-receipt --root . --format markdown
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar export-preset-example --output examples/presets.json
@@ -109,6 +111,10 @@ JSON and Markdown outputs include:
 - portfolio weight, score/confidence-weighted attention, risk budget, max loss, source refs, evidence freshness, broker-context count, and flags such as `stale_review`, `over_budget`, or `missing_risk_context`
 
 Use Markdown for a human-readable research packet and JSON for downstream automation.
+
+## Impact Artifact Receipt
+
+`impact-artifact-receipt` emits JSON or Markdown receipt evidence for the checked-in `impact-brief`, `impact-dashboard`, and `impact-compare` example artifacts. It reports exact rerun commands with output redirection, input fixture paths, output paths, byte sizes, SHA-256 hashes, artifact schema labels, and fixed no-live-data/no-broker/no-prediction/no-advice boundaries.
 
 ## Impact Dashboard Workflow
 
