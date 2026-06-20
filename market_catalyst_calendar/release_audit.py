@@ -42,6 +42,7 @@ REQUIRED_COMMANDS = [
     "demo-bundle",
     "fixture-gallery",
     "compare",
+    "impact-compare",
     "merge",
     "html-dashboard",
     "static-site",

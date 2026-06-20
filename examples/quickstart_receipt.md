@@ -16,10 +16,10 @@ Days: 45
 
 ## Release Context
 
-- Commit: `6b2f94f`
-- Commit date: `2026-06-17T17:07:28+08:00`
-- Latest tag: `v3.7.0`
-- Subject: fix: stabilize release audit fixture comparison
+- Commit: `13bb680`
+- Commit date: `2026-06-21T01:50:56+08:00`
+- Latest tag: `v3.8.0`
+- Subject: feat: add catalyst impact brief workflow
 
 ## Exact Rerun Commands
 

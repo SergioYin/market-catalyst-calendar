@@ -9,7 +9,7 @@ Range: `v2.9.0..HEAD`
 
 - [x] `release-audit` - 5 passed / 5 checks
 - [x] `smoke-matrix` - 42 passed / 42 commands
-- [x] `fixture-gallery` - 60 fixtures indexed
+- [x] `fixture-gallery` - 62 fixtures indexed
 - [x] `changelog` - 1 commits since v2.9.0
 
 ## Components
@@ -18,7 +18,7 @@ Range: `v2.9.0..HEAD`
 | --- | --- | --- |
 | release-audit | PASS | 5 passed / 5 checks |
 | smoke-matrix | PASS | 42 passed / 42 commands |
-| fixture-gallery | PASS | 60 fixtures indexed |
+| fixture-gallery | PASS | 62 fixtures indexed |
 | changelog | PASS | 1 commits since v2.9.0 |
 
 ## Release Notes

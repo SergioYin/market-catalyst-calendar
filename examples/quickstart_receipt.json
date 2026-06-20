@@ -84,12 +84,12 @@
   "release_context": {
     "available": true,
     "commit": {
-      "date": "2026-06-17T17:07:28+08:00",
-      "hash": "6b2f94f470ec5a0be0b5941b658846e15922ce48",
-      "short_hash": "6b2f94f",
-      "subject": "fix: stabilize release audit fixture comparison"
+      "date": "2026-06-21T01:50:56+08:00",
+      "hash": "13bb6804268ed50e248b5edcc963fbc3a6108db7",
+      "short_hash": "13bb680",
+      "subject": "feat: add catalyst impact brief workflow"
     },
-    "latest_tag": "v3.7.0"
+    "latest_tag": "v3.8.0"
   },
   "rerun_commands": [
     "python -m market_catalyst_calendar validate --input examples/demo_records.json",

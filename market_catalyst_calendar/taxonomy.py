@@ -77,6 +77,7 @@ COMMAND_CATALOG = [
     {"id": "demo-bundle", "category": "fixture", "formats": ["directory"], "inputs": [], "purpose": "write all demo outputs plus manifest and transcript", "writes_files": True},
     {"id": "fixture-gallery", "category": "fixture", "formats": ["json", "markdown"], "inputs": [], "purpose": "list bundled fixture hashes and provenance", "writes_files": True},
     {"id": "compare", "category": "dataset", "formats": ["json", "markdown"], "inputs": ["base dataset", "current dataset"], "purpose": "compare two dataset snapshots", "writes_files": True},
+    {"id": "impact-compare", "category": "dataset", "formats": ["json", "markdown"], "inputs": ["base dataset or impact brief", "current dataset or impact brief"], "purpose": "compare deterministic impact brief deltas", "writes_files": True},
     {"id": "merge", "category": "dataset", "formats": ["json"], "inputs": ["datasets"], "purpose": "merge datasets with provenance and validation", "writes_files": True},
     {"id": "html-dashboard", "category": "site", "formats": ["html"], "inputs": ["dataset"], "purpose": "render a static HTML dashboard", "writes_files": True},
     {"id": "static-site", "category": "site", "formats": ["directory"], "inputs": ["dataset"], "purpose": "write a multi-page static site", "writes_files": True},

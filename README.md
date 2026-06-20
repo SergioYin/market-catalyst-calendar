@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits deterministic non-advisory impact briefs and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits and compares deterministic non-advisory impact briefs and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
 
 ## Install
 
@@ -72,6 +72,8 @@ python -m market_catalyst_calendar export-demo --snapshot updated --output examp
 python -m market_catalyst_calendar demo-bundle --output-dir demo-bundle
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
+python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
+python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
 python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27 --output examples/merge.json
 python -m market_catalyst_calendar html-dashboard --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output examples/dashboard.html
 python -m market_catalyst_calendar static-site --input examples/demo_records.json --as-of 2026-05-13 --days 45 --output-dir site
@@ -444,6 +446,20 @@ The report includes:
 
 Use it when reviewing a refreshed research packet or checking what changed between archived datasets. `create-archive` remains a single-snapshot package; run `compare` separately when you have both the old and current dataset files.
 
+## Impact Compare Workflow
+
+`impact-compare` reads an older `--base` and newer `--current` file. Each input can be either a static catalyst dataset or a JSON snapshot produced by `impact-brief --format json`. Dataset inputs are normalized through the same deterministic impact-brief logic before comparison.
+
+The report includes:
+
+- added and removed impact-brief catalysts
+- changed catalysts with attention score and catalyst score deltas
+- evidence-state transitions such as `stale -> fresh`
+- impact-flag additions/removals, including `stale_review`, `over_budget`, and `missing_risk_context`
+- impact-label, thesis-impact, urgency, review-state, and public context field changes
+
+The workflow stays offline and non-advisory: it compares supplied JSON only and does not fetch live data, connect to brokers, predict outcomes, give investment advice, or recommend trades.
+
 ## Merge Workflow
 
 `merge` reads two or more catalyst datasets, combines records by stable `id`, and writes a reusable JSON dataset. The output keeps a top-level `merge` diagnostic block with input source labels, per-record provenance, conflict fields, chosen source, status/history source, duplicate-ID diagnostics, and validation results.
@@ -596,6 +612,8 @@ Checked-in examples live in `examples/`:
 - `demo_records_updated.json`: deterministic second snapshot for compare examples
 - `compare.json`: generated snapshot comparison data
 - `compare.md`: generated Markdown snapshot comparison report
+- `impact_compare.json`: generated impact-brief comparison data
+- `impact_compare.md`: generated Markdown impact comparison report
 - `merge.json`: generated merged dataset with provenance, conflict diagnostics, and validation
 - `dashboard.html`: generated static no-JavaScript HTML dashboard
 - `thesis_map.json`: generated thesis grouping data

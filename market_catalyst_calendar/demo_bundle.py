@@ -19,6 +19,7 @@ from .finalize_release import example_finalize_release_json, finalize_release_ma
 from .fixture_gallery import fixture_gallery_json, fixture_gallery_markdown
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
+from .impact_compare import impact_compare_json, impact_compare_markdown
 from .io import dump_json
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
@@ -484,6 +485,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             "compare.md",
             "compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown",
             lambda: compare_snapshots_markdown(base, updated, updated_as_of, DEFAULT_STALE_AFTER_DAYS),
+            0,
+        ),
+        (
+            "impact_compare.json",
+            "impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27",
+            lambda: dump_json(impact_compare_json(DEMO_DATA, DEMO_UPDATED_DATA, updated_as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS)),
+            0,
+        ),
+        (
+            "impact_compare.md",
+            "impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown",
+            lambda: impact_compare_markdown(DEMO_DATA, DEMO_UPDATED_DATA, updated_as_of, DEFAULT_DAYS, DEFAULT_STALE_AFTER_DAYS),
             0,
         ),
         (

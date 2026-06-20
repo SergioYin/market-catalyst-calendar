@@ -1,0 +1,155 @@
+{
+  "added": [
+    {
+      "attention_score": 81,
+      "catalyst_score": 75,
+      "entity": "Amazon.com Inc.",
+      "event_type": "product_launch",
+      "evidence_state": "fresh",
+      "id": "demo-amzn-kuiper-2026",
+      "impact_flags": [
+        "over_budget"
+      ],
+      "impact_label": "mixed thesis context",
+      "ticker": "AMZN",
+      "window": "2026-06-12"
+    }
+  ],
+  "as_of": "2026-05-27",
+  "base_as_of": "2026-05-27",
+  "base_input_type": "dataset",
+  "boundary": {
+    "broker_connectivity": false,
+    "investment_advice": false,
+    "live_data": false,
+    "prediction": false,
+    "source_basis": "supplied_dataset_only",
+    "trade_recommendation": false
+  },
+  "boundary_note": "Offline deterministic research brief from supplied dataset only. No live data, broker connectivity, predictions, investment advice, or trade recommendations.",
+  "changed": [
+    {
+      "attention_score_change": {
+        "delta": -3,
+        "from": 96,
+        "to": 93
+      },
+      "catalyst_score_change": {
+        "delta": 5,
+        "from": 88,
+        "to": 93
+      },
+      "entity": "NVIDIA Corporation",
+      "event_type": "product_launch",
+      "evidence_state_transition": {
+        "from": "stale",
+        "to": "fresh"
+      },
+      "field_changes": [
+        {
+          "field": "status",
+          "from": "scheduled",
+          "to": "confirmed"
+        },
+        {
+          "field": "confidence",
+          "from": 0.74,
+          "to": 0.81
+        },
+        {
+          "field": "review_state",
+          "from": "stale",
+          "to": "needs_review"
+        },
+        {
+          "field": "required_review_action",
+          "from": "monitor_date",
+          "to": "update_scenario"
+        },
+        {
+          "field": "portfolio_weight",
+          "from": 0.0825,
+          "to": 0.091
+        },
+        {
+          "field": "weighted_attention",
+          "from": 0.053724,
+          "to": 0.06855
+        },
+        {
+          "field": "risk_budget",
+          "from": 60000.0,
+          "to": 62000.0
+        },
+        {
+          "field": "max_loss",
+          "from": 52000.0,
+          "to": 56000.0
+        },
+        {
+          "field": "source_ref",
+          "from": "NVDA Computex keynote tracker",
+          "to": "NVDA Computex keynote tracker refreshed after agenda update"
+        },
+        {
+          "field": "evidence_checked_at",
+          "from": "2026-05-09",
+          "to": "2026-05-27"
+        }
+      ],
+      "id": "demo-nvda-computex-2026",
+      "impact_flag_change": {
+        "added_flags": [],
+        "changed": true,
+        "removed_flags": [
+          "stale_review"
+        ],
+        "unchanged_flags": [
+          "broker_context"
+        ]
+      },
+      "impact_label_transition": null,
+      "review_state_transition": {
+        "from": "stale",
+        "to": "needs_review"
+      },
+      "thesis_impact_transition": null,
+      "ticker": "NVDA",
+      "urgency_transition": null,
+      "window": "2026-06-02"
+    }
+  ],
+  "current_as_of": "2026-05-27",
+  "current_input_type": "dataset",
+  "days": 45,
+  "removed": [
+    {
+      "attention_score": 100,
+      "catalyst_score": 88,
+      "entity": "S&P 500 ETF Trust",
+      "event_type": "macro_release",
+      "evidence_state": "missing",
+      "id": "demo-fomc-june-2026",
+      "impact_flags": [
+        "missing_evidence_freshness",
+        "over_budget",
+        "stale_review"
+      ],
+      "impact_label": "mixed thesis context",
+      "ticker": "SPY",
+      "window": "2026-06-17"
+    }
+  ],
+  "schema_version": "impact-compare/v1",
+  "stale_after_days": 14,
+  "summary": {
+    "added_count": 1,
+    "aggregate_attention_delta": -22,
+    "attention_score_movement_count": 1,
+    "changed_count": 1,
+    "evidence_state_movement_count": 1,
+    "impact_flag_change_count": 1,
+    "impact_label_change_count": 0,
+    "removed_count": 1
+  }
+}

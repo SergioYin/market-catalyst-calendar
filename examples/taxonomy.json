@@ -261,6 +261,20 @@
       "writes_files": false
     },
     {
+      "category": "dataset",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-compare",
+      "inputs": [
+        "base dataset or impact brief",
+        "current dataset or impact brief"
+      ],
+      "purpose": "compare deterministic impact brief deltas",
+      "writes_files": true
+    },
+    {
       "category": "interchange",
       "formats": [
         "json"
@@ -779,6 +793,7 @@
     "finalize-release",
     "fixture-gallery",
     "html-dashboard",
+    "impact-compare",
     "import-csv",
     "merge",
     "quickstart-receipt",
@@ -873,10 +888,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 44,
+    "command_count": 45,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 19,
+    "output_command_count": 20,
     "quality_rule_count": 6
   }
 }

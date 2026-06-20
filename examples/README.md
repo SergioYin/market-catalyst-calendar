@@ -72,6 +72,8 @@ All examples use these stable dates:
 | `demo_records_updated.json` | `export-demo --snapshot updated` | Second deterministic input dataset for snapshot comparison examples. |
 | `compare.json` | `compare` | Machine-readable diff between the base and updated demo snapshots. |
 | `compare.md` | `compare --format markdown` | Analyst-readable snapshot comparison report. |
+| `impact_compare.json` | `impact-compare` | Machine-readable impact-brief delta report for base and updated demo snapshots. |
+| `impact_compare.md` | `impact-compare --format markdown` | Analyst-readable impact comparison report with attention, evidence, and flag movement. |
 | `merge.json` | `merge` | Merged base and updated demo datasets with provenance, conflicts, duplicate-ID diagnostics, and validation. |
 | `dashboard.html` | `html-dashboard` | Static no-JavaScript dashboard for offline review. |
 | `upcoming.ics` | `export-ics` | iCalendar export of upcoming catalysts. |
@@ -197,6 +199,10 @@ python -m market_catalyst_calendar export-demo --snapshot updated
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
 # fixture: examples/compare.md
 python -m market_catalyst_calendar compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
+# fixture: examples/impact_compare.json
+python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27
+# fixture: examples/impact_compare.md
+python -m market_catalyst_calendar impact-compare --base examples/demo_records.json --current examples/demo_records_updated.json --as-of 2026-05-27 --format markdown
 # fixture: examples/merge.json
 python -m market_catalyst_calendar merge examples/demo_records.json examples/demo_records_updated.json --as-of 2026-05-27
 # fixture: examples/dashboard.html

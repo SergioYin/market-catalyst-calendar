@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 44
+Commands: 45
 Diagnostic codes: 35
 
 ## Event Types
@@ -102,6 +102,7 @@ Diagnostic codes: 35
 | finalize-release | json, markdown | combine release audit, smoke matrix, fixture gallery, and changelog into a checklist |
 | fixture-gallery | json, markdown | list bundled fixture hashes and provenance |
 | html-dashboard | html | render a static HTML dashboard |
+| impact-compare | json, markdown | compare deterministic impact brief deltas |
 | import-csv | json | import CSV rows as dataset JSON |
 | merge | json | merge datasets with provenance and validation |
 | quickstart-receipt | json, markdown | emit reproducible local-demo commands, hashes, release context, and finance boundaries |
@@ -136,6 +137,7 @@ Diagnostic codes: 35
 | fixture-gallery | fixture | json, markdown |
 | html-dashboard | site | html |
 | impact-brief | briefing | json, markdown |
+| impact-compare | dataset | json, markdown |
 | import-csv | interchange | json |
 | merge | dataset | json |
 | post-event | review | json, markdown |

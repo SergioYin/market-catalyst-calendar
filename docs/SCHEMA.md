@@ -133,6 +133,19 @@ JSON output is pretty-printed with two-space indentation, sorted object keys, UT
 - Flags: `stale_review`, `missing_evidence_freshness`, `missing_risk_context`, `over_budget`, and `broker_context`.
 - Markdown: same record set rendered as a summary table plus per-catalyst scenario and evidence details.
 
+`impact-compare`
+
+- Inputs: `--base` older JSON path and `--current` newer JSON path; each path may be a catalyst dataset or an `impact-brief/v1` JSON snapshot.
+- Parameters: `--as-of`, `--days`, `--stale-after-days`, `--format json|markdown`, optional `--output`.
+- Normalization: dataset inputs are converted through the deterministic `impact-brief` workflow before comparison; impact-brief inputs are compared as supplied.
+- Boundary: output is deterministic context from supplied static JSON only; it does not fetch live data, connect to brokers, predict outcomes, provide investment advice, or recommend trades.
+- JSON: `{ "schema_version": "impact-compare/v1", "as_of": date, "base_as_of": date, "current_as_of": date, "base_input_type": string, "current_input_type": string, "days": int, "stale_after_days": int, "boundary_note": string, "boundary": object, "added": [item, ...], "removed": [item, ...], "changed": [change, ...], "summary": object }`.
+- Added/removed item fields: `id`, `ticker`, `entity`, `event_type`, `window`, `attention_score`, `catalyst_score`, `evidence_state`, `impact_label`, and `impact_flags`.
+- Changed item fields: `id`, `ticker`, `entity`, `event_type`, `window`, `attention_score_change`, `catalyst_score_change`, `urgency_transition`, `review_state_transition`, `evidence_state_transition`, `impact_label_transition`, `thesis_impact_transition`, `impact_flag_change`, and `field_changes`.
+- Impact flag change fields: `added_flags`, `removed_flags`, `unchanged_flags`, and `changed`.
+- Summary fields: `added_count`, `removed_count`, `changed_count`, `attention_score_movement_count`, `evidence_state_movement_count`, `impact_flag_change_count`, `impact_label_change_count`, and `aggregate_attention_delta`.
+- Markdown: added/removed tables plus changed-catalyst movement details.
+
 Record summary objects emitted by `upcoming` and `stale` contain:
 
 | Field | Type | Notes |

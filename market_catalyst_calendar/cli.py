@@ -23,6 +23,7 @@ from .evidence import evidence_audit_json, evidence_audit_markdown
 from .finalize_release import example_finalize_release_json, finalize_release_json, finalize_release_markdown
 from .ics import records_to_ics
 from .impact_brief import impact_brief_json, impact_brief_markdown
+from .impact_compare import impact_compare_json, impact_compare_markdown
 from .io import dump_json, load_dataset, read_json, read_text
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
@@ -310,6 +311,16 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("--format", choices=["json", "markdown"], default="json")
     compare.add_argument("--output", "-o", help="output path; stdout when omitted")
     compare.set_defaults(func=cmd_compare)
+
+    impact_compare = subparsers.add_parser("impact-compare", help="compare two impact-brief snapshots or source datasets")
+    impact_compare.add_argument("--base", required=True, help="older dataset or impact-brief JSON path")
+    impact_compare.add_argument("--current", required=True, help="newer dataset or impact-brief JSON path")
+    add_as_of(impact_compare)
+    impact_compare.add_argument("--days", type=int, default=45, help="look-ahead window when input is a dataset")
+    impact_compare.add_argument("--stale-after-days", type=int, default=14)
+    impact_compare.add_argument("--format", choices=["json", "markdown"], default="json")
+    impact_compare.add_argument("--output", "-o", help="output path; stdout when omitted")
+    impact_compare.set_defaults(func=cmd_impact_compare)
 
     merge = subparsers.add_parser("merge", help="merge multiple catalyst datasets with deterministic conflict handling")
     merge.add_argument("inputs", nargs="+", help="input dataset JSON paths; use '-' for stdin")
@@ -961,6 +972,25 @@ def cmd_compare(args: argparse.Namespace) -> int:
         text = dump_json(compare_snapshots_json(base, current, as_of, args.stale_after_days))
     else:
         text = compare_snapshots_markdown(base, current, as_of, args.stale_after_days)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
+
+
+def cmd_impact_compare(args: argparse.Namespace) -> int:
+    if args.days < 0:
+        raise ValueError("--days must be non-negative")
+    if args.stale_after_days < 0:
+        raise ValueError("--stale-after-days must be non-negative")
+    base = read_json(args.base)
+    current = read_json(args.current)
+    as_of = date.fromisoformat(args.as_of) if args.as_of else None
+    if args.format == "json":
+        text = dump_json(impact_compare_json(base, current, as_of, args.days, args.stale_after_days))
+    else:
+        text = impact_compare_markdown(base, current, as_of, args.days, args.stale_after_days)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:

@@ -231,6 +231,8 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         SmokeCase("post-event markdown", ["post-event", "--input", base, "--as-of", POST_EVENT_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Post-Event Review"),
         SmokeCase("compare", ["compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF]),
         SmokeCase("compare markdown", ["compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Snapshot Compare"),
+        SmokeCase("impact-compare", ["impact-compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF], required_stdout='"schema_version": "impact-compare/v1"'),
+        SmokeCase("impact-compare markdown", ["impact-compare", "--base", base, "--current", updated, "--as-of", UPDATED_AS_OF, "--format", "markdown"], required_stdout="# Market Catalyst Impact Compare"),
         SmokeCase("merge", ["merge", base, updated, "--as-of", UPDATED_AS_OF, "--output", "{work}/merge.json"], expected_files=["merge.json"]),
         SmokeCase("html-dashboard", ["html-dashboard", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--output", "{work}/dashboard.html"], expected_files=["dashboard.html"]),
         SmokeCase("static-site", ["static-site", "--input", base, "--as-of", DEFAULT_AS_OF, "--days", "45", "--output-dir", "{site}"], expected_files=["site/index.html", "site/sources.html", "site/dashboard.html", "site/manifest.json"]),

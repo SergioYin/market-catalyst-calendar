@@ -11,6 +11,7 @@ from market_catalyst_calendar.csv_io import CSV_COLUMNS, csv_to_dataset_json, da
 from market_catalyst_calendar.demo import DEMO_DATA, DEMO_UPDATED_DATA
 from market_catalyst_calendar.demo_bundle import _bundle_files
 from market_catalyst_calendar.fixture_compare import fixtures_match
+from market_catalyst_calendar.impact_brief import impact_brief_json
 from market_catalyst_calendar.models import parse_dataset, validation_errors
 from market_catalyst_calendar.release_audit import RELEASE_AUDIT_SCHEMA_FIELDS, REQUIRED_COMMANDS
 from market_catalyst_calendar.scoring import score_record
@@ -1077,6 +1078,52 @@ class CliTests(unittest.TestCase):
         self.assertIn("| demo-pfe-fda-2026 | PFE | -34 | watching -> completed | +1/-1 | mixed -> positive |", result.stdout)
         self.assertIn("- Broker views: changed Harbor Life Sciences", result.stdout)
 
+    def test_impact_compare_json_reports_dataset_attention_evidence_and_flag_deltas(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "base.json"
+            current = Path(tmp) / "current.json"
+            base.write_text(json.dumps(DEMO_DATA), encoding="utf-8")
+            current.write_text(json.dumps(DEMO_UPDATED_DATA), encoding="utf-8")
+
+            result = self.run_cli("impact-compare", "--base", str(base), "--current", str(current), "--as-of", "2026-05-27")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema_version"], "impact-compare/v1")
+        self.assertEqual(payload["base_input_type"], "dataset")
+        self.assertEqual(payload["current_input_type"], "dataset")
+        self.assertEqual(payload["summary"]["added_count"], 1)
+        self.assertEqual(payload["summary"]["removed_count"], 1)
+        self.assertEqual(payload["summary"]["changed_count"], 1)
+        self.assertEqual(payload["summary"]["attention_score_movement_count"], 1)
+        self.assertEqual(payload["summary"]["evidence_state_movement_count"], 1)
+        self.assertEqual(payload["summary"]["impact_flag_change_count"], 1)
+        self.assertEqual(payload["added"][0]["id"], "demo-amzn-kuiper-2026")
+        changed = payload["changed"][0]
+        self.assertEqual(changed["id"], "demo-nvda-computex-2026")
+        self.assertEqual(changed["attention_score_change"], {"delta": -3, "from": 96, "to": 93})
+        self.assertEqual(changed["evidence_state_transition"], {"from": "stale", "to": "fresh"})
+        self.assertEqual(changed["impact_flag_change"]["removed_flags"], ["stale_review"])
+
+    def test_impact_compare_accepts_generated_impact_brief_snapshots(self):
+        base_dataset = parse_dataset(DEMO_DATA)
+        current_dataset = parse_dataset(DEMO_UPDATED_DATA)
+        base_brief = impact_brief_json(base_dataset.records, base_dataset.as_of, 45, 14)
+        current_brief = impact_brief_json(current_dataset.records, current_dataset.as_of, 45, 14)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "base_brief.json"
+            current = Path(tmp) / "current_brief.json"
+            base.write_text(json.dumps(base_brief), encoding="utf-8")
+            current.write_text(json.dumps(current_brief), encoding="utf-8")
+
+            result = self.run_cli("impact-compare", "--base", str(base), "--current", str(current), "--format", "markdown")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# Market Catalyst Impact Compare", result.stdout)
+        self.assertIn("Base snapshot: 2026-05-13 (impact-brief)", result.stdout)
+        self.assertIn("## Changed Catalysts", result.stdout)
+        self.assertIn("demo-nvda-computex-2026", result.stdout)
+
     def test_merge_json_combines_sources_conflicts_and_validates(self):
         with tempfile.TemporaryDirectory() as tmp:
             left = Path(tmp) / "left.json"
@@ -1384,14 +1431,14 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["file_count"], 64)
+            self.assertEqual(payload["file_count"], 66)
             self.assertEqual(payload["manifest"], "manifest.json")
 
             manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle_version"], 1)
             self.assertEqual(manifest["dataset"]["record_count"], 4)
             self.assertEqual(manifest["parameters"]["as_of"], "2026-05-13")
-            self.assertEqual(len(manifest["files"]), 64)
+            self.assertEqual(len(manifest["files"]), 66)
 
             paths = [item["path"] for item in manifest["files"]]
             self.assertIn("README.md", paths)
@@ -1416,6 +1463,8 @@ class CliTests(unittest.TestCase):
             self.assertIn("examples/finalize_release.md", paths)
             self.assertIn("examples/drilldown.json", paths)
             self.assertIn("examples/drilldown.md", paths)
+            self.assertIn("examples/impact_compare.json", paths)
+            self.assertIn("examples/impact_compare.md", paths)
             self.assertIn("examples/tutorial.md", paths)
             self.assertIn("examples/dashboard.html", paths)
 
@@ -1443,9 +1492,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["schema_version"], "fixture-gallery/v1")
-        self.assertEqual(payload["summary"]["fixture_count"], 60)
-        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 31)
-        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 25)
+        self.assertEqual(payload["summary"]["fixture_count"], 62)
+        self.assertEqual(payload["summary"]["output_type_counts"]["json"], 32)
+        self.assertEqual(payload["summary"]["output_type_counts"]["markdown"], 26)
         quality = next(item for item in payload["fixtures"] if item["path"] == "examples/quality_gate.json")
         self.assertEqual(quality["exit_code"], 1)
         self.assertEqual(
@@ -1594,7 +1643,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "release-audit/v1")
         self.assertEqual(payload["summary"], {"check_count": 5, "failed_count": 0, "passed_count": 5})
         checks = {check["id"]: check for check in payload["checks"]}
-        self.assertEqual(checks["examples-regenerated"]["expected_count"], 62)
+        self.assertEqual(checks["examples-regenerated"]["expected_count"], 64)
         self.assertEqual(checks["examples-regenerated"]["mismatches"], [])
         self.assertEqual(checks["readme-required-commands"]["missing_commands"], [])
         self.assertEqual(checks["schema-release-audit-fields"]["missing_fields"], [])
@@ -1638,7 +1687,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in payload["checklist"]], ["release-audit", "smoke-matrix", "fixture-gallery", "changelog"])
         self.assertEqual(payload["components"]["release_audit"]["failed_checks"], [])
         self.assertEqual(payload["components"]["smoke_matrix"]["failed_commands"], [])
-        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 31)
+        self.assertEqual(payload["components"]["fixture_gallery"]["output_type_counts"]["json"], 32)
         self.assertEqual(payload["components"]["changelog"]["commit_count"], 2)
         self.assertEqual(payload["release_notes"]["categories"][0]["id"], "feat")
 
@@ -1648,7 +1697,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Finalizer", result.stdout)
         self.assertIn("- [x] `release-audit` - 5 passed / 5 checks", result.stdout)
-        self.assertIn("| fixture-gallery | PASS | 60 fixtures indexed |", result.stdout)
+        self.assertIn("| fixture-gallery | PASS | 62 fixtures indexed |", result.stdout)
 
     def test_release_audit_markdown_renders_pass_table(self):
         result = self.run_cli("release-audit", "--root", str(ROOT), "--format", "markdown")
@@ -1656,7 +1705,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("# Market Catalyst Release Audit", result.stdout)
         self.assertIn("Status: PASS", result.stdout)
-        self.assertIn("| examples-regenerated | PASS | 62 of 62 expected fixtures match |", result.stdout)
+        self.assertIn("| examples-regenerated | PASS | 64 of 64 expected fixtures match |", result.stdout)
         self.assertIn("| no-workflow-files | PASS | no workflow files found |", result.stdout)
 
     def test_release_audit_fails_when_workflow_files_exist(self):
