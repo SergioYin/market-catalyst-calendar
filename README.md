@@ -2,7 +2,7 @@
 
 `market-catalyst-calendar` is a stdlib-only Python CLI for maintaining source-attributed market catalyst records: earnings, product launches, regulatory decisions, macro releases, and other events that can change an investment thesis.
 
-The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits deterministic non-advisory impact briefs, static impact dashboard panels, impact comparisons, impact capture checklists, and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
+The v0.1 MVP is designed for offline agent and analyst workflows. It validates catalyst records, applies public research quality gates, suggests read-only repair plans with a dataset doctor, ranks upcoming events with finance-specific scoring, flags stale review items, audits evidence freshness and source diversity, aggregates portfolio exposure and event risk budgets, maps catalysts by sector/theme and investment thesis, reports supported taxonomy values and diagnostic codes, summarizes broker views, exports source packs, converts catalysts into prioritized watchlists, emits deterministic non-advisory impact briefs, static impact dashboard panels, impact comparisons, impact artifact receipts, receipt comparisons, impact capture checklists, and decision memo stubs, renders single-ticker drilldown dossiers, creates downstream research-agent handoff packs, executes named preset report packets from JSON config, compares and merges dataset snapshots, queues post-event outcome reviews, renders Markdown briefs, a static HTML dashboard, and a multi-page static site, exports calendar and CSV files, exports deterministic demo datasets and demo bundles, lists fixture hashes and provenance, reports package/release version status, and packages portable archives with hash verification.
 
 ## Install
 
@@ -60,6 +60,8 @@ python -m market_catalyst_calendar quickstart-receipt --input examples/demo_reco
 python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar impact-artifact-receipt --root .
 python -m market_catalyst_calendar impact-artifact-receipt --root . --format markdown
+python -m market_catalyst_calendar impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json
+python -m market_catalyst_calendar impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json --format markdown
 python -m market_catalyst_calendar impact-capture-checklist --root .
 python -m market_catalyst_calendar impact-capture-checklist --root . --format markdown
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
@@ -117,6 +119,10 @@ Use Markdown for a human-readable research packet and JSON for downstream automa
 ## Impact Artifact Receipt
 
 `impact-artifact-receipt` emits JSON or Markdown receipt evidence for the checked-in `impact-brief`, `impact-dashboard`, and `impact-compare` example artifacts. It reports exact rerun commands with output redirection, input fixture paths, output paths, byte sizes, SHA-256 hashes, artifact schema labels, and fixed no-live-data/no-broker/no-prediction/no-advice boundaries.
+
+## Impact Receipt Compare
+
+`impact-receipt-compare` compares two existing `impact-artifact-receipt` JSON outputs and emits JSON or Markdown release evidence. It reports schema labels, input paths, summary counts, added/removed/changed/unchanged artifacts keyed by artifact path, copied boundary checks, and static non-advisory limitations.
 
 ## Impact Capture Checklist
 

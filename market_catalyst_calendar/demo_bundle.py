@@ -23,6 +23,7 @@ from .impact_artifact_receipt import impact_artifact_receipt_json, impact_artifa
 from .impact_capture_checklist import impact_capture_checklist_json, impact_capture_checklist_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
 from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
+from .impact_receipt_compare import impact_receipt_compare_json, impact_receipt_compare_markdown
 from .io import dump_json
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, sorted_records
@@ -447,6 +448,32 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             "impact_capture_checklist.md",
             "impact-capture-checklist --root . --format markdown",
             lambda: impact_capture_checklist_markdown(impact_capture_checklist_json(Path("."), _impact_capture_files(commands))),
+            0,
+        ),
+        (
+            "impact_receipt_compare.json",
+            "impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json",
+            lambda: dump_json(
+                impact_receipt_compare_json(
+                    impact_artifact_receipt_json(Path("."), _impact_receipt_files(commands)),
+                    impact_artifact_receipt_json(Path("."), _impact_receipt_files(commands)),
+                    "examples/impact_artifact_receipt.json",
+                    "examples/impact_artifact_receipt.json",
+                )
+            ),
+            0,
+        ),
+        (
+            "impact_receipt_compare.md",
+            "impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json --format markdown",
+            lambda: impact_receipt_compare_markdown(
+                impact_receipt_compare_json(
+                    impact_artifact_receipt_json(Path("."), _impact_receipt_files(commands)),
+                    impact_artifact_receipt_json(Path("."), _impact_receipt_files(commands)),
+                    "examples/impact_artifact_receipt.json",
+                    "examples/impact_artifact_receipt.json",
+                )
+            ),
             0,
         ),
         (

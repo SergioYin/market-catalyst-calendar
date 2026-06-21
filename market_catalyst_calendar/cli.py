@@ -27,6 +27,7 @@ from .impact_artifact_receipt import impact_artifact_receipt_json, impact_artifa
 from .impact_capture_checklist import impact_capture_checklist_json, impact_capture_checklist_markdown
 from .impact_compare import impact_compare_json, impact_compare_markdown
 from .impact_dashboard import impact_dashboard_json, impact_dashboard_markdown
+from .impact_receipt_compare import impact_receipt_compare_json, impact_receipt_compare_markdown
 from .io import dump_json, load_dataset, read_json, read_text
 from .merge import merge_datasets_json
 from .models import CatalystRecord, Dataset, parse_dataset, validation_errors
@@ -295,6 +296,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     impact_capture_checklist.add_argument("--output", "-o", help="output path; stdout when omitted")
     impact_capture_checklist.set_defaults(func=cmd_impact_capture_checklist)
+
+    impact_receipt_compare = subparsers.add_parser(
+        "impact-receipt-compare",
+        help="compare two impact-artifact-receipt JSON outputs",
+    )
+    impact_receipt_compare.add_argument("--base", required=True, help="older impact-artifact-receipt JSON path")
+    impact_receipt_compare.add_argument("--current", required=True, help="newer impact-artifact-receipt JSON path")
+    impact_receipt_compare.add_argument("--format", choices=["json", "markdown"], default="json")
+    impact_receipt_compare.add_argument("--output", "-o", help="output path; stdout when omitted")
+    impact_receipt_compare.set_defaults(func=cmd_impact_receipt_compare)
 
     agent_handoff = subparsers.add_parser("agent-handoff", help="create a machine-readable research-agent context pack")
     add_input(agent_handoff)
@@ -946,6 +957,16 @@ def cmd_impact_capture_checklist(args: argparse.Namespace) -> int:
     else:
         print(text, end="")
     return 0 if payload["ok"] else 1
+
+
+def cmd_impact_receipt_compare(args: argparse.Namespace) -> int:
+    payload = impact_receipt_compare_json(read_json(args.base), read_json(args.current), args.base, args.current)
+    text = dump_json(payload) if args.format == "json" else impact_receipt_compare_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0
 
 
 def cmd_agent_handoff(args: argparse.Namespace) -> int:

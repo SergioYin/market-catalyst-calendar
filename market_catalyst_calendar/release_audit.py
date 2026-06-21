@@ -35,6 +35,7 @@ REQUIRED_COMMANDS = [
     "quickstart-receipt",
     "impact-artifact-receipt",
     "impact-capture-checklist",
+    "impact-receipt-compare",
     "agent-handoff",
     "run-preset",
     "taxonomy",

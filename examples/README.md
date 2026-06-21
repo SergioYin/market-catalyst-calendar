@@ -61,6 +61,8 @@ All examples use these stable dates:
 | `quickstart_receipt.md` | `quickstart-receipt --format markdown` | Markdown quickstart receipt for handoff review. |
 | `impact_artifact_receipt.json` | `impact-artifact-receipt` | Machine-readable receipt with impact example rerun commands, paths, hashes, schema labels, and finance boundaries. |
 | `impact_artifact_receipt.md` | `impact-artifact-receipt --format markdown` | Markdown receipt for impact example artifact release review. |
+| `impact_receipt_compare.json` | `impact-receipt-compare` | Machine-readable release drift comparison for two impact artifact receipts. |
+| `impact_receipt_compare.md` | `impact-receipt-compare --format markdown` | Markdown reviewer evidence for impact artifact receipt drift and boundary checks. |
 | `impact_capture_checklist.json` | `impact-capture-checklist` | Machine-readable public-safe screenshot/GIF capture checklist for impact release artifacts. |
 | `impact_capture_checklist.md` | `impact-capture-checklist --format markdown` | Markdown capture checklist with render commands, source fixtures, output paths, hashes, capture targets, and boundaries. |
 | `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
@@ -183,6 +185,10 @@ python -m market_catalyst_calendar quickstart-receipt --input examples/demo_reco
 python -m market_catalyst_calendar impact-artifact-receipt --root .
 # fixture: examples/impact_artifact_receipt.md
 python -m market_catalyst_calendar impact-artifact-receipt --root . --format markdown
+# fixture: examples/impact_receipt_compare.json
+python -m market_catalyst_calendar impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json
+# fixture: examples/impact_receipt_compare.md
+python -m market_catalyst_calendar impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json --format markdown
 # fixture: examples/impact_capture_checklist.json
 python -m market_catalyst_calendar impact-capture-checklist --root .
 # fixture: examples/impact_capture_checklist.md

@@ -335,6 +335,18 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Boundary labels: fixed no-live-data, no-broker-integration, no-prediction, no-investment-advice, and no-private-data statements.
 - Markdown: boundary list plus checkbox table with exact render commands, source fixtures, output artifact paths, byte sizes, SHA-256 hashes, and capture targets.
 
+`impact-receipt-compare`
+
+- Input: two existing `impact-artifact-receipt/v1` JSON files only; no network access, broker access, market data, or order-routing access is used.
+- Parameters: required `--base` and `--current`, optional `--format json|markdown` and `--output`.
+- Exit status: `0` when comparison evidence is emitted, `2` when inputs are invalid or unreadable.
+- JSON: `{ "schema_version": "impact-receipt-compare/v1", "base_path": string, "current_path": string, "summary": object, "boundary": object, "limitations": [string, ...], "added": object, "removed": object, "changed": object, "unchanged": object }`.
+- Summary fields: `base_artifact_count`, `current_artifact_count`, `added_count`, `removed_count`, `changed_count`, `unchanged_count`, and `boundary_match`.
+- Artifact maps are keyed by receipt artifact `output_path`; changed entries include `base`, `current`, and `changed_fields`.
+- Boundary fields copy receipt `ok` flags and boundary labels, then report whether the boundary text matches.
+- Limitations state static local receipt comparison, hash-based drift evidence, and non-advisory output.
+- Markdown: limitations, boundary check table, and added/removed/changed/unchanged artifact tables with escaped cells.
+
 `release-audit`
 
 - Input: repository files only; no dataset JSON is required.

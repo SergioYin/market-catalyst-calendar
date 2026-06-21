@@ -315,6 +315,19 @@
       "writes_files": false
     },
     {
+      "category": "operations",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "impact-receipt-compare",
+      "inputs": [
+        "impact artifact receipts"
+      ],
+      "purpose": "compare impact artifact receipt hashes and boundaries across releases",
+      "writes_files": true
+    },
+    {
       "category": "interchange",
       "formats": [
         "json"
@@ -836,6 +849,7 @@
     "impact-artifact-receipt",
     "impact-capture-checklist",
     "impact-compare",
+    "impact-receipt-compare",
     "import-csv",
     "merge",
     "quickstart-receipt",
@@ -930,10 +944,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 48,
+    "command_count": 49,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 22,
+    "output_command_count": 23,
     "quality_rule_count": 6
   }
 }

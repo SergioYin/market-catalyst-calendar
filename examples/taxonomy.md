@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 48
+Commands: 49
 Diagnostic codes: 35
 
 ## Event Types
@@ -105,6 +105,7 @@ Diagnostic codes: 35
 | impact-artifact-receipt | json, markdown | emit hashes, rerun commands, paths, schema labels, and finance boundaries for impact examples |
 | impact-capture-checklist | json, markdown | emit public-safe screenshot/GIF capture checklist for impact release artifacts |
 | impact-compare | json, markdown | compare deterministic impact brief deltas |
+| impact-receipt-compare | json, markdown | compare impact artifact receipt hashes and boundaries across releases |
 | import-csv | json | import CSV rows as dataset JSON |
 | merge | json | merge datasets with provenance and validation |
 | quickstart-receipt | json, markdown | emit reproducible local-demo commands, hashes, release context, and finance boundaries |
@@ -143,6 +144,7 @@ Diagnostic codes: 35
 | impact-capture-checklist | operations | json, markdown |
 | impact-compare | dataset | json, markdown |
 | impact-dashboard | briefing | json, markdown |
+| impact-receipt-compare | operations | json, markdown |
 | import-csv | interchange | json |
 | merge | dataset | json |
 | post-event | review | json, markdown |
