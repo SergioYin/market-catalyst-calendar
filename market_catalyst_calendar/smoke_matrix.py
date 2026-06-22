@@ -226,6 +226,8 @@ def _smoke_cases(include_finalize: bool = True) -> List[SmokeCase]:
         SmokeCase("impact-artifact-receipt markdown", ["impact-artifact-receipt", "--root", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Impact Artifact Receipt"),
         SmokeCase("impact-capture-checklist", ["impact-capture-checklist", "--root", "{root}"], required_stdout='"schema_version": "impact-capture-checklist/v1"'),
         SmokeCase("impact-capture-checklist markdown", ["impact-capture-checklist", "--root", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Impact Capture Checklist"),
+        SmokeCase("visual-evidence-receipt", ["visual-evidence-receipt", "--root", "{root}"], required_stdout='"schema_version": "visual-evidence-receipt/v1"'),
+        SmokeCase("visual-evidence-receipt markdown", ["visual-evidence-receipt", "--root", "{root}", "--format", "markdown"], required_stdout="# Market Catalyst Visual Evidence Receipt"),
         SmokeCase(
             "impact-receipt-compare",
             ["impact-receipt-compare", "--base", "{root}/examples/impact_artifact_receipt.json", "--current", "{root}/examples/impact_artifact_receipt.json"],

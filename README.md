@@ -64,6 +64,8 @@ python -m market_catalyst_calendar impact-receipt-compare --base examples/impact
 python -m market_catalyst_calendar impact-receipt-compare --base examples/impact_artifact_receipt.json --current examples/impact_artifact_receipt.json --format markdown
 python -m market_catalyst_calendar impact-capture-checklist --root .
 python -m market_catalyst_calendar impact-capture-checklist --root . --format markdown
+python -m market_catalyst_calendar visual-evidence-receipt --root .
+python -m market_catalyst_calendar visual-evidence-receipt --root . --format markdown
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown
 python -m market_catalyst_calendar export-preset-example --output examples/presets.json
@@ -127,6 +129,10 @@ Use Markdown for a human-readable research packet and JSON for downstream automa
 ## Impact Capture Checklist
 
 `impact-capture-checklist` emits JSON or Markdown checklist evidence for public-safe screenshot/GIF capture of `impact-brief`, `impact-dashboard`, `impact-compare`, and `impact-artifact-receipt` Markdown artifacts. It reports the exact render command, source fixture, output artifact path, existing byte size and SHA-256 when the file is present, capture target, and fixed no-live-data/no-broker/no-prediction/no-advice/no-private-data boundaries.
+
+## Visual Evidence Receipt
+
+`visual-evidence-receipt` emits JSON or Markdown receipt evidence for a curated checked-in set of static visual/demo artifacts, including the static HTML dashboard and impact dashboard/report examples. It reports relative paths, byte sizes, SHA-256 hashes, role, static route, regeneration command, capture command, and fixed static-only/local-fixtures/no-live-data/no-broker/no-orders/no-personalized-advice/no-private-data boundaries.
 
 ## Impact Dashboard Workflow
 

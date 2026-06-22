@@ -608,6 +608,19 @@
       "writes_files": true
     },
     {
+      "category": "operations",
+      "formats": [
+        "json",
+        "markdown"
+      ],
+      "id": "visual-evidence-receipt",
+      "inputs": [
+        "repo examples"
+      ],
+      "purpose": "emit static visual/demo artifact hashes, routes, regeneration commands, capture commands, and public boundaries",
+      "writes_files": true
+    },
+    {
       "category": "review",
       "formats": [
         "json",
@@ -857,7 +870,8 @@
     "static-site",
     "taxonomy",
     "tutorial",
-    "version-report"
+    "version-report",
+    "visual-evidence-receipt"
   ],
   "quality_profiles": [
     {
@@ -944,10 +958,10 @@
     "watching"
   ],
   "summary": {
-    "command_count": 49,
+    "command_count": 50,
     "diagnostic_code_count": 35,
     "event_type_count": 10,
-    "output_command_count": 23,
+    "output_command_count": 24,
     "quality_rule_count": 6
   }
 }

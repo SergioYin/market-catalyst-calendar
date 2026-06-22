@@ -1,7 +1,7 @@
 # Market Catalyst Taxonomy
 
 Schema: `taxonomy/v1`
-Commands: 49
+Commands: 50
 Diagnostic codes: 35
 
 ## Event Types
@@ -114,6 +114,7 @@ Diagnostic codes: 35
 | taxonomy | json, markdown | report supported event types, statuses, actions, rules, diagnostics, and commands |
 | tutorial | markdown | render a notebooks-free tutorial |
 | version-report | json, markdown | report package version, command count, fixture count, release status, and latest git refs |
+| visual-evidence-receipt | json, markdown | emit static visual/demo artifact hashes, routes, regeneration commands, capture commands, and public boundaries |
 
 ## All Commands
 
@@ -167,4 +168,5 @@ Diagnostic codes: 35
 | validate | quality | json |
 | verify-archive | archive | json |
 | version-report | metadata | json, markdown |
+| visual-evidence-receipt | operations | json, markdown |
 | watchlist | review | json, markdown |

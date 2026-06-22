@@ -2,13 +2,13 @@
 
 Package: `market-catalyst-calendar`
 Version: `0.1.0`
-Commands: 49
-Fixtures: 72
+Commands: 50
+Fixtures: 74
 Release audit: PASS
 
 ## Git
 
-- Latest tag: `v4.2.0`
-- Commit: `ce7805c`
-- Commit date: `2026-06-21T02:47:32+08:00`
-- Subject: feat: add impact capture checklist
+- Latest tag: `v4.3.0`
+- Commit: `0f2dc3b`
+- Commit date: `2026-06-22T01:45:25+08:00`
+- Subject: feat: add impact receipt comparison

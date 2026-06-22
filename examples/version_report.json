@@ -1,15 +1,15 @@
 {
-  "command_count": 49,
-  "fixture_count": 72,
+  "command_count": 50,
+  "fixture_count": 74,
   "git": {
     "available": true,
     "commit": {
-      "date": "2026-06-21T02:47:32+08:00",
-      "hash": "ce7805c164de00a1e4ad93df57e7536a6e43e26c",
-      "short_hash": "ce7805c",
-      "subject": "feat: add impact capture checklist"
+      "date": "2026-06-22T01:45:25+08:00",
+      "hash": "0f2dc3be92395c59e3df4fc8a9beaf46a42ca977",
+      "short_hash": "0f2dc3b",
+      "subject": "feat: add impact receipt comparison"
     },
-    "latest_tag": "v4.2.0",
+    "latest_tag": "v4.3.0",
     "repo": "20260513-market-catalyst-calendar"
   },
   "package": {
@@ -29,8 +29,8 @@
   },
   "schema_version": "version-report/v1",
   "summary": {
-    "command_count": 49,
-    "fixture_count": 72,
+    "command_count": 50,
+    "fixture_count": 74,
     "release_audit_status": "pass"
   }
 }

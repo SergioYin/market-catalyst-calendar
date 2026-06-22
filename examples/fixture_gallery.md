@@ -5,12 +5,12 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 ## Summary
 
-- Fixtures: 70
+- Fixtures: 72
 - csv: 2
 - html: 1
 - ics: 1
-- json: 36
-- markdown: 30
+- json: 37
+- markdown: 31
 
 ## Fixtures
 
@@ -57,8 +57,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 | `examples/drilldown.md` | markdown | 0 | `20b1838fbde5f48f` | Inspect a complete single-ticker dossier. |
 | `examples/command_cookbook.md` | markdown | 0 | `3cc6c1ab23900cd9` | Show a field-aware report sequence for a dataset. |
 | `examples/tutorial.md` | markdown | 0 | `ce1dfe39eb836ffc` | Inspect deterministic fixture output. |
-| `examples/quickstart_receipt.json` | json | 0 | `b4f46d04edeb3973` | Capture reproducible local-demo commands, hashes, and finance safety boundaries. |
-| `examples/quickstart_receipt.md` | markdown | 0 | `3f412c1df3679c90` | Capture reproducible local-demo commands, hashes, and finance safety boundaries. |
+| `examples/quickstart_receipt.json` | json | 0 | `003fc5f22962a828` | Capture reproducible local-demo commands, hashes, and finance safety boundaries. |
+| `examples/quickstart_receipt.md` | markdown | 0 | `89d2253c1e3f370d` | Capture reproducible local-demo commands, hashes, and finance safety boundaries. |
 | `examples/impact_artifact_receipt.json` | json | 0 | `a40bbcb39a7019dc` | Inspect deterministic fixture output. |
 | `examples/impact_artifact_receipt.md` | markdown | 0 | `03725b56be7b183a` | Inspect deterministic fixture output. |
 | `examples/impact_capture_checklist.json` | json | 0 | `48b2ec8a1071e440` | Inspect deterministic fixture output. |
@@ -68,10 +68,10 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 | `examples/agent_handoff.json` | json | 0 | `2e12b696957c434e` | Hand compact context to a downstream research agent. |
 | `examples/agent_handoff.md` | markdown | 0 | `b2a07d0943264d3e` | Hand compact context to a downstream research agent. |
 | `examples/preset_run.json` | json | 0 | `dfa83b4934eecd9d` | Inspect deterministic fixture output. |
-| `examples/taxonomy.json` | json | 0 | `a7526da8891bfecb` | Inspect deterministic fixture output. |
-| `examples/taxonomy.md` | markdown | 0 | `bfb49d8a3b1ec252` | Inspect deterministic fixture output. |
-| `examples/version_report.json` | json | 0 | `7245370917263174` | Inspect package version, command and fixture counts, release status, and local git refs. |
-| `examples/version_report.md` | markdown | 0 | `6bdaa005372eb54b` | Inspect package version, command and fixture counts, release status, and local git refs. |
+| `examples/taxonomy.json` | json | 0 | `208ab5323753e17f` | Inspect deterministic fixture output. |
+| `examples/taxonomy.md` | markdown | 0 | `a0314ba5942d0830` | Inspect deterministic fixture output. |
+| `examples/version_report.json` | json | 0 | `e2f9180a4b4f9d30` | Inspect package version, command and fixture counts, release status, and local git refs. |
+| `examples/version_report.md` | markdown | 0 | `527d3d531c0a6af1` | Inspect package version, command and fixture counts, release status, and local git refs. |
 | `examples/post_event.json` | json | 0 | `e763345775b25f8b` | Queue missing outcome capture after catalyst windows pass. |
 | `examples/post_event.md` | markdown | 0 | `b593c05ac7b8cf01` | Queue missing outcome capture after catalyst windows pass. |
 | `examples/demo_records_updated.json` | json | 0 | `e9ddd7b4752b62f4` | Start from a deterministic catalyst dataset. |
@@ -84,8 +84,10 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 | `examples/demo_records.csv` | csv | 0 | `dc5ec8f07bd31281` | Validate spreadsheet-friendly export shape and encoded multi-value cells. |
 | `examples/upcoming.ics` | ics | 0 | `604533d3294ed317` | Load upcoming catalysts into calendar tooling. |
 | `examples/imported_demo_records.json` | json | 0 | `65698120b5c74f32` | Validate CSV round trips back into catalyst JSON. |
-| `examples/finalize_release.json` | json | 0 | `98882b63f2adfe4a` | Review one deterministic release checklist before handoff. |
-| `examples/finalize_release.md` | markdown | 0 | `e9872ca33f62985d` | Review one deterministic release checklist before handoff. |
+| `examples/visual_evidence_receipt.json` | json | 0 | `10e0f531001f5594` | Inspect deterministic fixture output. |
+| `examples/visual_evidence_receipt.md` | markdown | 0 | `4ac2e273648a5366` | Inspect deterministic fixture output. |
+| `examples/finalize_release.json` | json | 0 | `462ce58187b6eff5` | Review one deterministic release checklist before handoff. |
+| `examples/finalize_release.md` | markdown | 0 | `55817801ea091150` | Review one deterministic release checklist before handoff. |
 
 ## Command Provenance
 
@@ -542,8 +544,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45`
 - Output type: `json`
-- Bytes: 4097
-- SHA-256: `b4f46d04edeb397306f78ae97bf6ff217947347ba6c837901dd48eda01453360`
+- Bytes: 4098
+- SHA-256: `003fc5f22962a82897f2755f9d3d15dec26ea65ef2047bf5b5c2a5fa868df61c`
 - Input fixtures: `examples/demo_records.json`
 - Recommended use cases:
   - Capture reproducible local-demo commands, hashes, and finance safety boundaries.
@@ -553,8 +555,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar quickstart-receipt --input examples/demo_records.json --as-of 2026-05-13 --days 45 --format markdown`
 - Output type: `markdown`
-- Bytes: 3251
-- SHA-256: `3f412c1df3679c909ba02ce1aca321b816b5fcc9049ac143ac433fadc34f0081`
+- Bytes: 3252
+- SHA-256: `89d2253c1e3f370d74bc0ebd6ea97b6a43ba84abc43b34cdc70d4811439b3c62`
 - Input fixtures: `examples/demo_records.json`
 - Recommended use cases:
   - Capture reproducible local-demo commands, hashes, and finance safety boundaries.
@@ -659,8 +661,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar taxonomy`
 - Output type: `json`
-- Bytes: 21882
-- SHA-256: `a7526da8891bfecb077f08e0374c62c5cb628eae36b009a6bf7dd1cbdb31379a`
+- Bytes: 22270
+- SHA-256: `208ab5323753e17f1f939ce31536a964fa014a74da5a151d0fa66a910f383d22`
 - Recommended use cases:
   - Inspect deterministic fixture output.
   - Use as a stable regression fixture for downstream tooling.
@@ -669,8 +671,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar taxonomy --format markdown`
 - Output type: `markdown`
-- Bytes: 7708
-- SHA-256: `bfb49d8a3b1ec2529e876bd83e066e3c689f38156724db008a3f9a7168f394ab`
+- Bytes: 7925
+- SHA-256: `a0314ba5942d0830f0b3ccc40dfa3ec20ca92187d607da5f30ef7875372209b9`
 - Recommended use cases:
   - Inspect deterministic fixture output.
   - Use as a stable regression fixture for downstream tooling.
@@ -679,8 +681,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar version-report --root . --repo .`
 - Output type: `json`
-- Bytes: 1009
-- SHA-256: `72453709172631747120d19f8fdf5edf1ed2bb0d1833830860999d1d7c252a60`
+- Bytes: 942
+- SHA-256: `e2f9180a4b4f9d302d1b9ab993ffe619cdea99c52eb9c3dedc6fb63c6d3a2d55`
 - Recommended use cases:
   - Inspect package version, command and fixture counts, release status, and local git refs.
   - Use as a compact release handoff snapshot before tagging.
@@ -689,8 +691,8 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 
 - Command: `python -m market_catalyst_calendar version-report --root . --repo . --format markdown`
 - Output type: `markdown`
-- Bytes: 338
-- SHA-256: `6bdaa005372eb54b41dd9e148829fe52b05b2e7d0ef8213866d0ec21afb25773`
+- Bytes: 275
+- SHA-256: `527d3d531c0a6af1ef47d763cb4009367290c5eb10912afddfd813ead81f9ae6`
 - Recommended use cases:
   - Inspect package version, command and fixture counts, release status, and local git refs.
   - Use as a compact release handoff snapshot before tagging.
@@ -826,12 +828,32 @@ Hashes are SHA-256 digests of the exact fixture bytes.
   - Validate CSV round trips back into catalyst JSON.
   - Test parser behavior for encoded multi-value cells.
 
+### `examples/visual_evidence_receipt.json`
+
+- Command: `python -m market_catalyst_calendar visual-evidence-receipt --root .`
+- Output type: `json`
+- Bytes: 3525
+- SHA-256: `10e0f531001f5594685e2bb0576ed66f869190b81d430ff7b2509fc257663520`
+- Recommended use cases:
+  - Inspect deterministic fixture output.
+  - Use as a stable regression fixture for downstream tooling.
+
+### `examples/visual_evidence_receipt.md`
+
+- Command: `python -m market_catalyst_calendar visual-evidence-receipt --root . --format markdown`
+- Output type: `markdown`
+- Bytes: 2704
+- SHA-256: `4ac2e273648a536690f813ab7a72ade282fde1c816a4909aa8748d2657c53d08`
+- Recommended use cases:
+  - Inspect deterministic fixture output.
+  - Use as a stable regression fixture for downstream tooling.
+
 ### `examples/finalize_release.json`
 
 - Command: `python -m market_catalyst_calendar finalize-release --example`
 - Output type: `json`
 - Bytes: 1831
-- SHA-256: `98882b63f2adfe4a0d86c14995386867a8000231d43b28a03aad51fc6836a06c`
+- SHA-256: `462ce58187b6eff5428a3602bb08ec9b6e2c0eee73297dde700bde7b3b199388`
 - Recommended use cases:
   - Review one deterministic release checklist before handoff.
   - Combine audit, smoke, fixture, and changelog status for release notes.
@@ -841,7 +863,7 @@ Hashes are SHA-256 digests of the exact fixture bytes.
 - Command: `python -m market_catalyst_calendar finalize-release --example --format markdown`
 - Output type: `markdown`
 - Bytes: 615
-- SHA-256: `e9872ca33f62985d17b305ec05b1627822d5c08b7aa6b42f2878d9f1488eb636`
+- SHA-256: `55817801ea091150c9de8f16bcbfdd5c967b33b7f56b47d449ca003811494ec7`
 - Recommended use cases:
   - Review one deterministic release checklist before handoff.
   - Combine audit, smoke, fixture, and changelog status for release notes.

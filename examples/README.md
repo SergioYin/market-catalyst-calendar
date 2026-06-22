@@ -65,6 +65,8 @@ All examples use these stable dates:
 | `impact_receipt_compare.md` | `impact-receipt-compare --format markdown` | Markdown reviewer evidence for impact artifact receipt drift and boundary checks. |
 | `impact_capture_checklist.json` | `impact-capture-checklist` | Machine-readable public-safe screenshot/GIF capture checklist for impact release artifacts. |
 | `impact_capture_checklist.md` | `impact-capture-checklist --format markdown` | Markdown capture checklist with render commands, source fixtures, output paths, hashes, capture targets, and boundaries. |
+| `visual_evidence_receipt.json` | `visual-evidence-receipt` | Machine-readable receipt for curated static visual/demo artifacts with paths, hashes, roles, routes, regeneration commands, capture commands, and boundaries. |
+| `visual_evidence_receipt.md` | `visual-evidence-receipt --format markdown` | Markdown visual evidence receipt for public dashboard and demo artifacts. |
 | `agent_handoff.json` | `agent-handoff` | Machine-readable context pack for a downstream investment research agent with summary, risks, stale items, next commands, and source URLs. |
 | `agent_handoff.md` | `agent-handoff --format markdown` | Analyst-readable rendering of the same research-agent handoff pack. |
 | `taxonomy.json` | `taxonomy` | Machine-readable supported event types, statuses, review actions, quality rules, diagnostic codes, and command catalog. |
@@ -193,6 +195,10 @@ python -m market_catalyst_calendar impact-receipt-compare --base examples/impact
 python -m market_catalyst_calendar impact-capture-checklist --root .
 # fixture: examples/impact_capture_checklist.md
 python -m market_catalyst_calendar impact-capture-checklist --root . --format markdown
+# fixture: examples/visual_evidence_receipt.json
+python -m market_catalyst_calendar visual-evidence-receipt --root .
+# fixture: examples/visual_evidence_receipt.md
+python -m market_catalyst_calendar visual-evidence-receipt --root . --format markdown
 # fixture: examples/agent_handoff.json
 python -m market_catalyst_calendar agent-handoff --input examples/demo_records.json --as-of 2026-05-13 --days 45
 # fixture: examples/agent_handoff.md

@@ -335,6 +335,17 @@ Record summary objects emitted by `upcoming` and `stale` contain:
 - Boundary labels: fixed no-live-data, no-broker-integration, no-prediction, no-investment-advice, and no-private-data statements.
 - Markdown: boundary list plus checkbox table with exact render commands, source fixtures, output artifact paths, byte sizes, SHA-256 hashes, and capture targets.
 
+`visual-evidence-receipt`
+
+- Input: checked-in static visual/demo artifacts only; no dataset parsing, network access, broker access, market data, order-routing access, or personalized account data is used.
+- Parameters: optional `--root`, `--format json|markdown`, and `--output`.
+- Exit status: `0` when every curated artifact is present, `1` when any curated artifact is missing.
+- JSON: `{ "schema_version": "visual-evidence-receipt/v1", "ok": bool, "boundaries": [string, ...], "summary": object, "artifacts": [artifact, ...], "missing": [path, ...] }`.
+- Summary fields: `artifact_count`, `missing_count`, and `total_bytes`.
+- Artifact fields: `path`, `present`, `bytes`, `sha256`, `role`, `route`, `regeneration_command`, and `capture_command`.
+- Boundary labels: fixed static-only, local-fixtures-only, no-live-data, no-broker-integration, no-orders, no-personalized-investment-advice, and no-private-data statements.
+- Markdown: boundary list plus artifact table with relative path, role, route, byte size, SHA-256 hash, regeneration command, and capture command.
+
 `impact-receipt-compare`
 
 - Input: two existing `impact-artifact-receipt/v1` JSON files only; no network access, broker access, market data, or order-routing access is used.

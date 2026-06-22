@@ -63,6 +63,7 @@ from .scoring import score_record
 from .taxonomy import taxonomy_json, taxonomy_markdown
 from .tutorial import tutorial_markdown
 from .version_report import version_report_json, version_report_markdown
+from .visual_evidence_receipt import visual_evidence_receipt_json, visual_evidence_receipt_markdown
 
 
 BUNDLE_VERSION = 1
@@ -590,6 +591,18 @@ def _example_commands(base: Dataset, updated: Dataset, include_finalize: bool = 
             lambda: dump_json(csv_to_dataset_json(csv_text)),
             0,
         ),
+        (
+            "visual_evidence_receipt.json",
+            "visual-evidence-receipt --root .",
+            lambda: dump_json(visual_evidence_receipt_json(Path("."), _visual_receipt_files(commands))),
+            0,
+        ),
+        (
+            "visual_evidence_receipt.md",
+            "visual-evidence-receipt --root . --format markdown",
+            lambda: visual_evidence_receipt_markdown(visual_evidence_receipt_json(Path("."), _visual_receipt_files(commands))),
+            0,
+        ),
     ]
     if include_finalize:
         gallery = fixture_gallery_json(
@@ -643,6 +656,17 @@ def _impact_capture_files(commands: Iterable[CommandSpec]) -> Dict[str, str]:
         "impact_dashboard.md",
         "impact_compare.md",
         "impact_artifact_receipt.md",
+    }
+    return {f"examples/{path}": output() for path, _, output, _ in commands if path in needed}
+
+
+def _visual_receipt_files(commands: Iterable[CommandSpec]) -> Dict[str, str]:
+    needed = {
+        "agent_handoff.md",
+        "dashboard.html",
+        "impact_brief.md",
+        "impact_dashboard.json",
+        "impact_dashboard.md",
     }
     return {f"examples/{path}": output() for path, _, output, _ in commands if path in needed}
 

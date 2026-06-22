@@ -75,6 +75,7 @@ from .tutorial import DEFAULT_AS_OF as TUTORIAL_DEFAULT_AS_OF
 from .tutorial import DEFAULT_DAYS as TUTORIAL_DEFAULT_DAYS
 from .tutorial import tutorial_markdown
 from .version_report import version_report_json, version_report_markdown
+from .visual_evidence_receipt import visual_evidence_receipt_json, visual_evidence_receipt_markdown
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -296,6 +297,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     impact_capture_checklist.add_argument("--output", "-o", help="output path; stdout when omitted")
     impact_capture_checklist.set_defaults(func=cmd_impact_capture_checklist)
+
+    visual_evidence_receipt = subparsers.add_parser(
+        "visual-evidence-receipt",
+        help="emit static visual/demo artifact paths, hashes, routes, and capture commands",
+    )
+    visual_evidence_receipt.add_argument("--root", default=".", help="repository root containing examples; defaults to current directory")
+    visual_evidence_receipt.add_argument("--format", choices=["json", "markdown"], default="json")
+    visual_evidence_receipt.add_argument("--output", "-o", help="output path; stdout when omitted")
+    visual_evidence_receipt.set_defaults(func=cmd_visual_evidence_receipt)
 
     impact_receipt_compare = subparsers.add_parser(
         "impact-receipt-compare",
@@ -952,6 +962,16 @@ def cmd_impact_artifact_receipt(args: argparse.Namespace) -> int:
 def cmd_impact_capture_checklist(args: argparse.Namespace) -> int:
     payload = impact_capture_checklist_json(Path(args.root))
     text = dump_json(payload) if args.format == "json" else impact_capture_checklist_markdown(payload)
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
+    return 0 if payload["ok"] else 1
+
+
+def cmd_visual_evidence_receipt(args: argparse.Namespace) -> int:
+    payload = visual_evidence_receipt_json(Path(args.root))
+    text = dump_json(payload) if args.format == "json" else visual_evidence_receipt_markdown(payload)
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")
     else:
